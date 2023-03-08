@@ -3,15 +3,24 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@chakra-ui/icons": "^2.0.17",
     "@chakra-ui/react": "^2.5.1",
+    "@dfinity/agent": "^0.14.1",
+    "@dfinity/auth-client": "^0.14.1",
+    "@dfinity/authentication": "^0.14.2",
+    "@dfinity/candid": "^0.14.1",
+    "@dfinity/principal": "^0.14.1",
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
+    "@infu/icblast": "file:../icblast2",
     "@reduxjs/toolkit": "^1.9.2",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.4.3",
     "chakra-ui-markdown-renderer": "^4.1.0",
     "framer-motion": "^6.5.1",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^3.11.0",
@@ -19,6 +28,8 @@
     "react-redux": "^8.0.5",
     "react-router-dom": "^6.8.1",
     "react-scripts": "5.0.1",
+    "react-use": "^17.4.0",
+    "recharts": "^2.4.3",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -32,9 +43,9 @@
   },
   "browserslist": {
     "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
+      "last 2 chrome version",
+      "last 2 firefox version",
+      "last 2 safari version"
     ],
     "development": [
       "last 1 chrome version",
