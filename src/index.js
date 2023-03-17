@@ -13,14 +13,14 @@ const container = document.getElementById('root');
 const root = ReactDOM.createRoot(container);
 
 root.render(
-  <StrictMode>
-    <Provider store={store}>
-      <HashRouter>
-        <ColorModeScript />
-        <App />
-      </HashRouter>
-    </Provider>
-  </StrictMode>
+  // <StrictMode>
+  <Provider store={store}>
+    <HashRouter>
+      <ColorModeScript />
+      <App />
+    </HashRouter>
+  </Provider>
+  // </StrictMode>
 );
 
 // If you want your app to work offline and load faster, you can change

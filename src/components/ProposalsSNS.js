@@ -135,7 +135,12 @@ export const Proposal = ({ data }) => {
       </HStack>
       {open ? (
         <Box pt="5" pl="5" pr="5" pb="5">
-          <ReactMarkdown components={MD} children={data.summary} skipHtml />
+          <ReactMarkdown
+            components={MD}
+            children={data.summary}
+            skipHtml
+            disallowedElements={['img', 'embed']}
+          />
         </Box>
       ) : null}
     </Box>

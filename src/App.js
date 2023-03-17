@@ -32,7 +32,7 @@ function App() {
 
   useInterval(() => {
     refresh();
-  }, 5000);
+  }, 10000);
 
   useEffect(() => {
     refresh();

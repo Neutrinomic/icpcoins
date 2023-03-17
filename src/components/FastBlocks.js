@@ -27,7 +27,6 @@ export const FastBlocks = props => {
   let [articles, setArticles] = useState([]);
 
   const refresh = async () => {
-    // Write something here
     let fastblocks = await ic('wwapv-jyaaa-aaaaf-qahaq-cai');
 
     let articles = await fastblocks.getLatestPosts(0, 7);
