@@ -12,7 +12,7 @@
     "@dfinity/principal": "^0.14.1",
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
-    "@infu/icblast": "file:../icblast2",
+    "@infu/icblast": "^1.1.9",
     "@reduxjs/toolkit": "^1.9.2",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
