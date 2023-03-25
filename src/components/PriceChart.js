@@ -56,16 +56,18 @@ export const PriceChart = ({ symbol }) => {
     },
   };
   let [data, setData] = useState([]);
-  let [period, setPeriod] = useState(24);
+  let [period, setPeriod] = useState(24 * 5);
   const load = async hours => {
     const interv = hours * 24;
     let d = await fetch(
-      'https://api.icpcoins.com/api/v1/token/' + symbol + '/chart/' + interv
+      'https://nftpkg.com/api/icpcoins/token/' + symbol + '/chart/' + interv
     ).then(x => x.json());
     let now = Math.floor(Date.now() / 1000 / interv) * interv;
     let merged = Array((60 * 60 * hours) / interv)
       .fill(0)
       .map((_, idx) => ({ t: now - idx * interv }));
+
+    //
 
     let didx = 0;
     for (let da of d.data) {
@@ -166,7 +168,7 @@ export const PriceChart = ({ symbol }) => {
 
           <Center mt="15px" mb="10px">
             <ButtonGroup spacing="6">
-              <Button
+              {/* <Button
                 variant={period === 6 ? 'solid' : 'outline'}
                 onClick={() => setPeriod(6)}
               >
@@ -177,7 +179,7 @@ export const PriceChart = ({ symbol }) => {
                 onClick={() => setPeriod(24 * 1)}
               >
                 1D
-              </Button>
+              </Button> */}
               <Button
                 variant={period === 24 * 5 ? 'solid' : 'outline'}
                 onClick={() => setPeriod(24 * 5)}

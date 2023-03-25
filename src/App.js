@@ -22,7 +22,7 @@ function App() {
   let [tokens, setTokens] = useState([]);
 
   const refresh = async () => {
-    let data = await fetch('https://api.icpcoins.com/api/v1/list').then(x =>
+    let data = await fetch('https://nftpkg.com/api/icpcoins/list').then(x =>
       x.json()
     );
     data = data.sort((a, b) => b.marketcap - a.marketcap);

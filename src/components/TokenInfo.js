@@ -34,7 +34,7 @@ export const TokenInfo = ({ tokens }) => {
   let ti = tokens.find(x => x.symbol === name);
   const refresh = async () => {
     let data = await fetch(
-      'https://api.icpcoins.com/api/v1/token/' + name
+      'https://nftpkg.com/api/icpcoins/token/' + name
     ).then(x => x.json());
     let links = {};
     try {
