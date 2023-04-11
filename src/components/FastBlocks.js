@@ -57,12 +57,6 @@ const Article = ({ data }) => {
   return (
     <Box borderRadius={'5px'} p="2" bg={bg}>
       <Link href={fb_prefix + data.url} target="_blank">
-        {/* <Image
-          src={data.headerImage}
-          w="100%"
-          h="170px"
-          sx={{ objectFit: 'cover' }}
-        /> */}
         {data.title}
       </Link>
     </Box>

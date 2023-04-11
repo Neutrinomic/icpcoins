@@ -6,6 +6,10 @@ import {
   ResponsiveContainer,
   Area,
   CartesianGrid,
+  AreaChart,
+  BarChart,
+  Bar,
+  Label,
 } from 'recharts';
 import moment from 'moment';
 import { useState, useEffect } from 'react';
@@ -36,7 +40,7 @@ import { useInterval } from 'react-use';
 import { InfoIcon } from '@chakra-ui/icons';
 
 //https://github.com/recharts/recharts/issues/956
-const dexColors = ['#00a0e5', '#c55de8', '#9f9634', '#948c52', '#1ca254'];
+const dexColors = ['#00a0e5', '#c55de8', '#8BAB43', '#948c52', '#1ca254'];
 export const PriceChart = ({ symbol }) => {
   const bg2 = useColorModeValue(
     'linear-gradient(180deg, rgba(227,232,239,1) 0%, rgba(234,239,245,1) 14%)',
@@ -55,7 +59,7 @@ export const PriceChart = ({ symbol }) => {
       border: useColorModeValue('4px solid #fff', '4px solid #1b202b'),
     },
   };
-  let [data, setData] = useState([]);
+  let [data, setData] = useState(false);
   let [period, setPeriod] = useState(24 * 5);
   const load = async hours => {
     const interv = hours * 24;
@@ -73,7 +77,10 @@ export const PriceChart = ({ symbol }) => {
     for (let da of d.data) {
       for (let po of da.data) {
         let pos = (now - po.t) / interv;
+
         if (merged[pos]) merged[pos]['p' + didx] = po.p;
+        if (merged[pos]) merged[pos]['v' + didx] = po.v;
+        if (merged[pos]) merged[pos]['l' + didx] = po.l;
       }
       didx += 1;
     }
@@ -90,8 +97,6 @@ export const PriceChart = ({ symbol }) => {
       liquidity: x.data[x.data.length - 1].l,
       volume24: x.data[x.data.length - 1].v,
     }));
-
-    // console.log(merged);
     sources = sources.filter(x => x.sourceType === 'dex');
     setData({ lines: didx, merged, sources });
   };
@@ -103,6 +108,8 @@ export const PriceChart = ({ symbol }) => {
   useEffect(() => {
     load(period);
   }, [period]);
+
+  const isDex = data ? data.sources.length !== 0 : false;
 
   return (
     <>
@@ -132,18 +139,19 @@ export const PriceChart = ({ symbol }) => {
 
               <YAxis
                 orientation="right"
-                dx={15}
+                dx={0}
                 stroke="#8893a8"
                 domain={['auto', 'auto']}
                 axisLine={false}
                 tickLine={false}
               />
               <XAxis
+                hide={true}
                 domain={['auto', 'auto']}
                 type="number"
                 dataKey="t"
                 scale="time"
-                dy={15}
+                dy={0}
                 tickFormatter={t =>
                   period <= 24
                     ? moment.unix(t).format('HH:mm')
@@ -165,7 +173,175 @@ export const PriceChart = ({ symbol }) => {
               {/* <Tooltip /> */}
             </LineChart>
           </ResponsiveContainer>
+          {isDex ? (
+            <>
+              <Box sx={{ position: 'relative' }}>
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    left: '0px',
+                    top: '-8px',
+                    fontSize: '12px',
+                  }}
+                  color="gray.500"
+                >
+                  Liquidity
+                </Box>
+                <ResponsiveContainer width={'100%'} height={100}>
+                  <AreaChart
+                    height={150}
+                    data={data.merged}
+                    margin={{
+                      top: 10,
+                      bottom: 10,
+                    }}
+                  >
+                    {/* <LineChart data={data.merged} margin={{ top: 10, bottom: 10 }}> */}
+                    {/* <defs>
+            <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#129a74" stopOpacity={0.3} />
+              <stop offset="95%" stopColor="#FFFFFF" stopOpacity={0.3} />
+            </linearGradient>
+          </defs> */}
+                    {Array(data.lines)
+                      .fill(0)
+                      .map((_, idx) => (
+                        <Area
+                          isAnimationActive={false}
+                          key={idx}
+                          type="monotone"
+                          dataKey={'l' + idx}
+                          strokeWidth={2}
+                          stroke={dexColors[idx]}
+                          stackId="1"
+                          fill={dexColors[idx]}
+                          // dot={false}
+                        />
+                      ))}
 
+                    <YAxis
+                      orientation="right"
+                      dx={0}
+                      stroke="#8893a8"
+                      domain={['auto', 'auto']}
+                      axisLine={false}
+                      tickLine={false}
+                      tickFormatter={t => (t / 1000).toFixed(0) + 'k'}
+                    />
+                    <XAxis
+                      hide={true}
+                      domain={['auto', 'auto']}
+                      type="number"
+                      dataKey="t"
+                      scale="time"
+                      dy={15}
+                      tickFormatter={t =>
+                        period <= 24
+                          ? moment.unix(t).format('HH:mm')
+                          : moment.unix(t).format('Do')
+                      }
+                      interval={
+                        period < 24
+                          ? 30
+                          : period < 24 * 5
+                          ? 30
+                          : period < 24 * 30
+                          ? 30
+                          : 30
+                      }
+                      tick={{ fill: '#8893a8' }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    {/* <Tooltip /> */}
+                    {/* </LineChart> */}
+                  </AreaChart>
+                </ResponsiveContainer>
+              </Box>
+              <Box sx={{ position: 'relative' }}>
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    left: '0px',
+                    top: '-8px',
+                    fontSize: '12px',
+                  }}
+                  color="gray.500"
+                >
+                  Volume24
+                </Box>
+                <ResponsiveContainer width={'100%'} height={150}>
+                  <BarChart
+                    height={150}
+                    data={data.merged}
+                    margin={{
+                      top: 10,
+                      bottom: 10,
+                    }}
+                  >
+                    {/* <LineChart data={data.merged} margin={{ top: 10, bottom: 10 }}> */}
+                    {/* <defs>
+            <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#129a74" stopOpacity={0.3} />
+              <stop offset="95%" stopColor="#FFFFFF" stopOpacity={0.3} />
+            </linearGradient>
+          </defs> */}
+                    {Array(data.lines)
+                      .fill(0)
+                      .map((_, idx) => (
+                        <Bar
+                          isAnimationActive={false}
+                          key={idx}
+                          type="monotone"
+                          dataKey={'v' + idx}
+                          strokeWidth={0}
+                          stroke={dexColors[idx]}
+                          stackId="1"
+                          fill={dexColors[idx]}
+                          // dot={false}
+                        />
+                      ))}
+
+                    <YAxis
+                      orientation="right"
+                      dx={0}
+                      stroke="#8893a8"
+                      domain={['auto', 'auto']}
+                      axisLine={false}
+                      tickLine={false}
+                      tickFormatter={t => (t / 1000).toFixed(0) + 'k'}
+                    ></YAxis>
+                    <XAxis
+                      domain={['auto', 'auto']}
+                      type="number"
+                      dataKey="t"
+                      scale="time"
+                      dy={15}
+                      tickFormatter={t =>
+                        period <= 24
+                          ? moment.unix(t).format('HH:mm')
+                          : moment.unix(t).format('Do')
+                      }
+                      interval={
+                        period < 24
+                          ? 30
+                          : period < 24 * 5
+                          ? 30
+                          : period < 24 * 30
+                          ? 30
+                          : 30
+                      }
+                      tick={{ fill: '#8893a8' }}
+                      axisLine={false}
+                      tickLine={false}
+                    ></XAxis>
+                    {/* <Tooltip /> */}
+                    {/* </LineChart> */}
+                  </BarChart>
+                </ResponsiveContainer>
+              </Box>
+            </>
+          ) : null}
           <Center mt="15px" mb="10px">
             <ButtonGroup spacing="6">
               {/* <Button
