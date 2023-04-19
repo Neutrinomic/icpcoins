@@ -132,19 +132,25 @@ export const Proposal = ({ data, ledgerPrincipal }) => {
             target="_blank"
           > */}
 
-          <HStack display="flex" justifyItems="center">
-            <Tag colorScheme="blue">{data.action}</Tag>
+          <HStack>
+            <Box>
+              <Tag colorScheme="blue">{data.action}</Tag>
+            </Box>
             {active ? (
-              <Tag w="68px" colorScheme="green">
-                <Link
-                  isExternal={true}
-                  href={`https://avjzx-pyaaa-aaaaj-aadmq-cai.raw.ic0.app/icsns/proposals/${ledgerPrincipal}/${data.id}`}
-                >
-                  <ExternalLinkIcon mr="1px" /> Vote
-                </Link>
-              </Tag>
+              <Box>
+                <Tag w="68px" colorScheme="green">
+                  <Link
+                    isExternal={true}
+                    href={`https://avjzx-pyaaa-aaaaj-aadmq-cai.raw.ic0.app/icsns/proposals/${ledgerPrincipal}/${data.id}`}
+                  >
+                    <ExternalLinkIcon mr="1px" /> Vote
+                  </Link>
+                </Tag>
+              </Box>
             ) : null}
-            <Text>{data.title}</Text>
+            <Box>
+              <Text>{data.title}</Text>
+            </Box>
           </HStack>
 
           {/* </Link> */}
