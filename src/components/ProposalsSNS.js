@@ -5,17 +5,19 @@ import {
   Box,
   Stack,
   Link,
-  Progress,
   HStack,
-  Flex,
+  Text,
   Tag,
   IconButton,
-  Wrap,
   useColorModeValue,
 } from '@chakra-ui/react';
 import ReactMarkdown from 'react-markdown';
 import MD from './MD';
-import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ExternalLinkIcon,
+} from '@chakra-ui/icons';
 
 import ic from '../icblast';
 
@@ -60,34 +62,44 @@ export const ProposalsSNS = ({ info }) => {
 
   return (
     <Box>
-      <Box fontSize="25px" fontWeight="bold" color="gray.600">
-        <HStack>
-          <Box>{info.name} Proposals</Box>
-          <IconButton
-            size="xs"
-            icon={<ChevronLeftIcon />}
-            onClick={() => setBeforeProposal(false)}
-          />
-          <IconButton
-            size="xs"
-            icon={<ChevronRightIcon />}
-            onClick={() =>
-              setBeforeProposal(proposals[proposals.length - 1].id)
-            }
-          />
+      <Box color="gray.600" pb={2}>
+        <HStack justifyItems="center" justifyContent="space-between">
+          <Box>
+            <Text fontSize="2xl" fontWeight="bold">
+              {info.name} Proposals
+            </Text>
+          </Box>
+          <Box display="flex" justifyItems="center">
+            <IconButton
+              size="xs"
+              icon={<ChevronLeftIcon />}
+              onClick={() => setBeforeProposal(false)}
+            />
+            <IconButton
+              size="xs"
+              icon={<ChevronRightIcon />}
+              onClick={() =>
+                setBeforeProposal(proposals[proposals.length - 1].id)
+              }
+            />
+          </Box>
         </HStack>
       </Box>
 
       <Stack fontSize="sm">
         {proposals.map((data, idx) => (
-          <Proposal key={data.id} data={data} />
+          <Proposal
+            key={data.id}
+            data={data}
+            ledgerPrincipal={info.sns.ledger}
+          />
         ))}
       </Stack>
     </Box>
   );
 };
 
-export const Proposal = ({ data }) => {
+export const Proposal = ({ data, ledgerPrincipal }) => {
   const bg = useColorModeValue('white', 'gray.900');
 
   let [open, setOpen] = useState(false);
@@ -120,15 +132,20 @@ export const Proposal = ({ data }) => {
             target="_blank"
           > */}
 
-          <Wrap>
+          <HStack display="flex" justifyItems="center">
             <Tag colorScheme="blue">{data.action}</Tag>
             {active ? (
-              <Box>
-                <Tag colorScheme="green">Open</Tag>
-              </Box>
+              <Tag w="68px" colorScheme="green">
+                <Link
+                  isExternal={true}
+                  href={`https://avjzx-pyaaa-aaaaj-aadmq-cai.raw.ic0.app/icsns/proposals/${ledgerPrincipal}/${data.id}`}
+                >
+                  <ExternalLinkIcon mr="1px" /> Vote
+                </Link>
+              </Tag>
             ) : null}
-            <Box> {data.title}</Box>
-          </Wrap>
+            <Text>{data.title}</Text>
+          </HStack>
 
           {/* </Link> */}
         </Box>
