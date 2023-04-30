@@ -1,6 +1,6 @@
 /* global BigInt */
 
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import {
   Box,
   Stack,
@@ -18,47 +18,50 @@ import {
   CircularProgress,
   TagCloseButton,
 } from '@chakra-ui/react';
-import ReactMarkdown from 'react-markdown';
-import MD from './MD';
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
   ExternalLinkIcon,
   SearchIcon,
 } from '@chakra-ui/icons';
+import ReactMarkdown from 'react-markdown';
+import MD from './MD';
+import { useProposalsData } from '../hooks/useProposalsData';
+import { useProposalsFilter } from '../hooks/useProposalsFilter';
 
-import ic from '../icblast';
+const ProposalStatuses = {
+  1: { label: 'Open', color: 'green' },
+  2: { label: 'Rejected', color: 'red' },
+  3: { label: 'Adopted', color: 'orange' },
+  4: { label: 'Executed', color: 'gray' },
+  5: { label: 'Failed', color: 'yellow' },
+};
 
 export const ProposalsSNS = ({ info }) => {
-  const [filteredProposals, setFilteredProposals] = useState([]);
   const [search, setSearch] = useState('');
   const [includeStatus, setIncludeStatus] = useState([]);
-  const [currentPage, setCurrentPage] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const { proposals, isProposalsLoading } = useProposalsData(
     info,
     includeStatus
   );
+  const { filteredProposals, paginatedProposals, currentPage, setCurrentPage } =
+    useProposalsFilter(proposals, search, includeStatus, itemsPerPage);
 
-  useEffect(() => {
-    setFilteredProposals(proposals);
-    setCurrentPage(0);
-  }, [proposals]);
-
-  const pageCount = Math.ceil(filteredProposals.length / itemsPerPage);
-
-  // Slice the filteredProposals array to show only the items for the current page
-  const paginatedProposals = filteredProposals.slice(
-    currentPage * itemsPerPage,
-    (currentPage + 1) * itemsPerPage
-  );
+  const pageCount = () => Math.ceil(filteredProposals.length / itemsPerPage);
 
   const handlePageClick = index => {
-    if (index < 0 || index >= pageCount) return;
+    if (index < 0 || index >= pageCount()) {
+      return;
+    }
     setCurrentPage(index);
   };
 
-  const handleFilterSelect = (e, filterSelectRef) => {
+  const handleSearch = useCallback(e => {
+    setSearch(e.target.value);
+  }, []);
+
+  const handleStatusFilterSelect = useCallback((e) => {
     const selectedValue = Number(e.target.value);
     if (includeStatus.includes(selectedValue)) {
       setIncludeStatus(prevArray =>
@@ -67,26 +70,15 @@ export const ProposalsSNS = ({ info }) => {
     } else {
       setIncludeStatus(prevArray => [...prevArray, selectedValue]);
     }
-    // Reset the select box value using ref
-    if (filterSelectRef.current) {
-      filterSelectRef.current.value = -1;
+    // Reset the select box value
+    e.target.value = -1;
+  }, [includeStatus]);  
+
+  const removeFilter = val => {
+    if (includeStatus.includes(val)) {
+      setIncludeStatus(prevArray => prevArray.filter(item => item !== val));
     }
   };
-
-  const handleSearch = e => {
-    setSearch(e.target.value);
-  };
-
-  useEffect(() => {
-    if (search === '') {
-      setFilteredProposals(proposals);
-    } else {
-      const results = proposals.filter(p =>
-        p.title.toLowerCase().includes(search.toLowerCase())
-      );
-      setFilteredProposals(results);
-    }
-  }, [search, proposals, includeStatus]);
 
   return (
     <Box>
@@ -103,8 +95,32 @@ export const ProposalsSNS = ({ info }) => {
             alignItems="center"
             justifyItems="center"
           >
-            <FilterSelect onSelect={handleFilterSelect} />
-            <SearchInput onSearch={handleSearch} />
+            <Select
+              size="sm"
+              rounded={6}
+              onChange={ e => handleStatusFilterSelect(e.target.value) }
+            >
+              <option value="-1">Status Filters</option>
+              {Object.keys(ProposalStatuses).map((key, index) => {
+                return (
+                  <option key={key} value={key}>
+                    {ProposalStatuses[key].label}
+                  </option>
+                );
+              })}
+            </Select>
+            <InputGroup>
+              <InputLeftElement
+                pointerEvents="none"
+                children={<SearchIcon boxSize={4} mb={1} />}
+              />
+              <Input
+                placeholder="Search by title"
+                size="sm"
+                rounded={6}
+                onChange={handleSearch}
+              />
+            </InputGroup>
 
             <IconButton
               size="xs"
@@ -141,96 +157,58 @@ export const ProposalsSNS = ({ info }) => {
         )}
       </Stack>
 
-      <Box display="flex" alignItems="center" columnGap={2} marginTop={4}>
-        <Text tag="span" fontWeight="bold" fontSize="sm">
-          Active Filters:
-        </Text>
-        {includeStatus.length === 0
-          ? 'none'
-          : includeStatus.map(status => (
-              <StatusFilterTag
-                key={status}
-                status={status}
-                setIncludeStatus={setIncludeStatus}
-                includeStatus={includeStatus}
-              />
-            ))}
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="space-between"
+        columnGap={2}
+        marginTop={4}
+      >
+        <Box display="flex" columnGap={2}>
+          <Text tag="span" fontWeight="bold" fontSize="sm">
+            Active Filters:
+          </Text>
+          {includeStatus.length === 0 ? (
+            <Text tag="span" fontSize="sm">
+              none
+            </Text>
+          ) : (
+            includeStatus.map(status => (
+              <Tag key={status} colorScheme={ProposalStatuses[status].color}>
+                <TagLabel>{ProposalStatuses[status].label}</TagLabel>
+                <TagCloseButton onClick={() => removeFilter(status)} />
+              </Tag>
+            ))
+          )}
+        </Box>
+        <Box width="50%">
+          <Box display="flex" justifyContent="end" width="100%">
+            <Box>
+              <Select
+                size="xs"
+                rounded={6}
+                onChange={e => setItemsPerPage(e.target.value)}
+              >
+                <option value="5">5</option>
+                <option value="10" selected>
+                  10
+                </option>
+                <option value="20">25</option>
+                <option value="50">50</option>
+              </Select>
+            </Box>
+            <Text tag="span" paddingLeft={2} fontSize="sm">
+              per page
+            </Text>
+          </Box>
+          <Box display="flex" justifyContent="end" width="100%">
+            <Text tag="span" fontSize="sm">
+              Page {currentPage + 1} of {pageCount()}
+            </Text>
+          </Box>
+        </Box>
       </Box>
     </Box>
-  );
-};
-
-const FilterSelect = ({ onSelect }) => {
-  const filterSelectRef = useRef(null);
-
-  const handleChange = useCallback(
-    e => {
-      onSelect(e, filterSelectRef);
-    },
-    [onSelect]
-  );
-
-  return (
-    <Select size="sm" rounded={6} ref={filterSelectRef} onChange={handleChange}>
-      <option value="-1">Select Filters</option>
-      <option value="1">Open</option>
-      <option value="2">Rejected</option>
-      <option value="3">Adopted</option>
-      <option value="4">Executed</option>
-      <option value="5">Failed</option>
-    </Select>
-  );
-};
-
-const SearchInput = ({ onSearch }) => {
-  return (
-    <InputGroup>
-      <InputLeftElement
-        pointerEvents="none"
-        children={<SearchIcon boxSize={4} mb={1} />}
-      />
-      <Input
-        placeholder="Search by title"
-        size="sm"
-        rounded={6}
-        onChange={onSearch}
-      />
-    </InputGroup>
-  );
-};
-
-export const StatusFilterTag = ({
-  status,
-  setIncludeStatus,
-  includeStatus,
-}) => {
-  const statusLabels = {
-    1: 'Open',
-    2: 'Rejected',
-    3: 'Adopted',
-    4: 'Executed',
-    5: 'Failed',
-  };
-
-  const statusLabelColors = {
-    1: 'green',
-    2: 'red',
-    3: 'orange',
-    4: 'gray',
-    5: 'yellow',
-  };
-
-  const removeFilter = val => {
-    if (includeStatus.includes(val)) {
-      setIncludeStatus(prevArray => prevArray.filter(item => item !== val));
-    }
-  };
-
-  return (
-    <Tag key={status} colorScheme={statusLabelColors[status]}>
-      <TagLabel>{statusLabels[status]}</TagLabel>
-      <TagCloseButton onClick={() => removeFilter(status)} />
-    </Tag>
   );
 };
 
@@ -284,25 +262,26 @@ export const Proposal = ({ data, ledgerPrincipal }) => {
             skipHtml
             disallowedElements={['img', 'embed']}
           />
-          {data.url && (
-            <Box display="flex" columnGap={2} paddingTop={5}>
+          <Box display="flex" columnGap={2} paddingTop={5}>
+            {data.url && (
               <Tag w="68px" colorScheme="blue">
                 <Link isExternal={true} href={data.url}>
                   <ExternalLinkIcon mr="1px" /> Link
                 </Link>
               </Tag>
-              {active && (
-                <Tag w="68px" colorScheme="green">
-                  <Link
-                    isExternal={true}
-                    href={`https://avjzx-pyaaa-aaaaj-aadmq-cai.raw.ic0.app/icsns/proposals/${ledgerPrincipal}/${data.id}`}
-                  >
-                    <ExternalLinkIcon mr="1px" /> Vote
-                  </Link>
-                </Tag>
-              )}
-            </Box>
-          )}
+            )}
+
+            {active && (
+              <Tag w="68px" colorScheme="green">
+                <Link
+                  isExternal={true}
+                  href={`https://avjzx-pyaaa-aaaaj-aadmq-cai.raw.ic0.app/icsns/proposals/${ledgerPrincipal}/${data.id}`}
+                >
+                  <ExternalLinkIcon mr="1px" /> Vote
+                </Link>
+              </Tag>
+            )}
+          </Box>
         </Box>
       ) : null}
     </Box>
@@ -328,47 +307,4 @@ const VoteProgress = ({ yes, no, total }) => {
       </Box>
     </HStack>
   );
-};
-
-const useProposalsData = (info, includeStatus) => {
-  const [proposals, setProposals] = useState([]);
-  const [isProposalsLoading, setIsProposalsLoading] = useState(false);
-
-  useEffect(() => {
-    const load = async () => {
-      setIsProposalsLoading(true);
-      let did = await fetch(
-        'https://raw.githubusercontent.com/dfinity/ic-js/main/packages/sns/candid/sns_governance.idl.js'
-      ).then(x => x.text());
-
-      let can = await ic(info.sns.governance, did);
-
-      let proposals = await can.list_proposals({
-        include_reward_status: [],
-        before_proposal: [],
-        limit: 100,
-        exclude_type: [], //0, 2, 5, 12, 8, 13, 7, 6, 9
-        include_status: includeStatus,
-      });
-
-      let r = proposals.proposals.map(p => ({
-        id: p.id[0].id,
-        deadline: Number(
-          p.wait_for_quiet_state[0].current_deadline_timestamp_seconds
-        ),
-        decided: p.decided_timestamp_seconds,
-        url: p.proposal[0].url,
-        summary: p.proposal[0].summary,
-        title: p.proposal[0].title,
-        action: Object.keys(p.proposal[0].action[0])[0],
-        tally: p.latest_tally[0],
-      }));
-      setIsProposalsLoading(false);
-      setProposals(r);
-    };
-
-    load();
-  }, [includeStatus]);
-
-  return { proposals, isProposalsLoading };
 };
