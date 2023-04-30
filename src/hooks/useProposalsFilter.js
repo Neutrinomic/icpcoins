@@ -9,6 +9,15 @@ import { useEffect, useState } from 'react';
  * @param {number} itemsPerPage - The number of items to show per page.
  * @returns {Object} - The filtered and paginated proposals, along with the current page and setCurrentPage function.
  */
+
+const ProposalStatuses = {
+  1: { label: 'Open', color: 'green' },
+  2: { label: 'Rejected', color: 'red' },
+  3: { label: 'Adopted', color: 'orange' },
+  4: { label: 'Executed', color: 'gray' },
+  5: { label: 'Failed', color: 'yellow' },
+};
+
 export const useProposalsFilter = (
   proposals,
   search,
@@ -24,12 +33,9 @@ export const useProposalsFilter = (
       const titleMatch = search
         ? p.title.toLowerCase().includes(search.toLowerCase())
         : true;
-      const statusMatch = includeStatus.length
-        ? includeStatus.includes(p.status)
-        : true;
-
-      return titleMatch && statusMatch;
-    });
+    
+      return titleMatch;
+    });    
 
     setFilteredProposals(results);
   }, [search, proposals, includeStatus]);

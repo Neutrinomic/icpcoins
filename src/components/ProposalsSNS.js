@@ -1,6 +1,6 @@
 /* global BigInt */
 
-import { useState, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import {
   Box,
   Stack,
@@ -41,6 +41,8 @@ export const ProposalsSNS = ({ info }) => {
   const [search, setSearch] = useState('');
   const [includeStatus, setIncludeStatus] = useState([]);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const filterSelectRef = useRef(null);
+  const pageSizeRef = useRef(null);
   const { proposals, isProposalsLoading } = useProposalsData(
     info,
     includeStatus
@@ -61,18 +63,23 @@ export const ProposalsSNS = ({ info }) => {
     setSearch(e.target.value);
   }, []);
 
-  const handleStatusFilterSelect = useCallback((e) => {
-    const selectedValue = Number(e.target.value);
-    if (includeStatus.includes(selectedValue)) {
-      setIncludeStatus(prevArray =>
-        prevArray.filter(item => item !== selectedValue)
-      );
-    } else {
-      setIncludeStatus(prevArray => [...prevArray, selectedValue]);
-    }
-    // Reset the select box value
-    e.target.value = -1;
-  }, [includeStatus]);  
+  const handleStatusFilterSelect = useCallback(
+    e => {
+      const selectedValue = Number(e.target.value);
+      if (includeStatus.includes(selectedValue)) {
+        setIncludeStatus(prevArray =>
+          prevArray.filter(item => item !== selectedValue)
+        );
+      } else {
+        setIncludeStatus(prevArray => [...prevArray, selectedValue]);
+      }
+      // Reset the select box value using ref
+      if (filterSelectRef.current) {
+        filterSelectRef.current.value = -1;
+      }
+    },
+    [includeStatus]
+  );
 
   const removeFilter = val => {
     if (includeStatus.includes(val)) {
@@ -83,7 +90,11 @@ export const ProposalsSNS = ({ info }) => {
   return (
     <Box>
       <Box color="gray.600" pb={2}>
-        <HStack justifyItems="center" justifyContent="space-between">
+        <Stack
+          direction={{ base: 'column', md: 'row' }}
+          justifyItems="center"
+          justifyContent="space-between"
+        >
           <Box>
             <Text fontSize="2xl" fontWeight="bold">
               {info.name} Proposals
@@ -98,7 +109,8 @@ export const ProposalsSNS = ({ info }) => {
             <Select
               size="sm"
               rounded={6}
-              onChange={ e => handleStatusFilterSelect(e.target.value) }
+              ref={filterSelectRef}
+              onChange={e => handleStatusFilterSelect(e)}
             >
               <option value="-1">Status Filters</option>
               {Object.keys(ProposalStatuses).map((key, index) => {
@@ -133,7 +145,7 @@ export const ProposalsSNS = ({ info }) => {
               onClick={() => handlePageClick(currentPage + 1)}
             />
           </Box>
-        </HStack>
+        </Stack>
       </Box>
 
       <Stack fontSize="sm">
@@ -187,12 +199,12 @@ export const ProposalsSNS = ({ info }) => {
               <Select
                 size="xs"
                 rounded={6}
-                onChange={e => setItemsPerPage(e.target.value)}
+                ref={pageSizeRef}
+                defaultValue={itemsPerPage}
+                onChange={e => setItemsPerPage(pageSizeRef.current.value)}
               >
                 <option value="5">5</option>
-                <option value="10" selected>
-                  10
-                </option>
+                <option value="10">10</option>
                 <option value="20">25</option>
                 <option value="50">50</option>
               </Select>
