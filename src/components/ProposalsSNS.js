@@ -1,95 +1,231 @@
 /* global BigInt */
 
-import { useEffect, useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import {
   Box,
   Stack,
   Link,
-  Progress,
   HStack,
-  Flex,
+  Text,
   Tag,
+  TagLabel,
+  Select,
   IconButton,
-  Wrap,
   useColorModeValue,
+  InputGroup,
+  InputLeftElement,
+  Input,
+  CircularProgress,
+  TagCloseButton,
 } from '@chakra-ui/react';
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ExternalLinkIcon,
+  SearchIcon,
+} from '@chakra-ui/icons';
 import ReactMarkdown from 'react-markdown';
 import MD from './MD';
-import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
+import { useProposalsData } from '../hooks/useProposalsData';
+import { useProposalsFilter } from '../hooks/useProposalsFilter';
 
-import ic from '../icblast';
+const ProposalStatuses = {
+  1: { label: 'Open', color: 'green' },
+  2: { label: 'Rejected', color: 'red' },
+  3: { label: 'Adopted', color: 'orange' },
+  4: { label: 'Executed', color: 'gray' },
+  5: { label: 'Failed', color: 'yellow' },
+};
 
 export const ProposalsSNS = ({ info }) => {
-  let [before_proposal, setBeforeProposal] = useState(false);
-  let [proposals, setProposals] = useState([]);
-  const load = async () => {
-    let did = await fetch(
-      'https://raw.githubusercontent.com/dfinity/ic-js/main/packages/sns/candid/sns_governance.idl.js'
-    ).then(x => x.text());
+  const [search, setSearch] = useState('');
+  const [includeStatus, setIncludeStatus] = useState([]);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const filterSelectRef = useRef(null);
+  const pageSizeRef = useRef(null);
+  const { proposals, isProposalsLoading } = useProposalsData(
+    info,
+    includeStatus
+  );
+  const { filteredProposals, paginatedProposals, currentPage, setCurrentPage } =
+    useProposalsFilter(proposals, search, includeStatus, itemsPerPage);
 
-    let can = await ic(info.sns.governance, did);
+  const pageCount = () => Math.ceil(filteredProposals.length / itemsPerPage);
 
-    let proposals = await can.list_proposals({
-      include_reward_status: [],
-      before_proposal: before_proposal ? [{ id: before_proposal }] : [],
-      limit: 10,
-      exclude_type: [], //0, 2, 5, 12, 8, 13, 7, 6, 9
-      include_status: [],
-    });
-    // console.log(proposals);
-
-    let r = proposals.proposals.map(p => ({
-      id: p.id[0].id,
-      deadline: Number(
-        p.wait_for_quiet_state[0].current_deadline_timestamp_seconds
-      ),
-      decided: p.decided_timestamp_seconds,
-      url: p.proposal[0].url,
-      summary: p.proposal[0].summary,
-      title: p.proposal[0].title,
-      action: Object.keys(p.proposal[0].action[0])[0],
-      tally: p.latest_tally[0],
-    }));
-    // console.log(r);
-    setProposals(r);
+  const handlePageClick = index => {
+    if (index < 0 || index >= pageCount()) {
+      return;
+    }
+    setCurrentPage(index);
   };
 
-  useEffect(() => {
-    load();
-  }, [before_proposal]);
+  const handleSearch = useCallback(e => {
+    setSearch(e.target.value);
+  }, []);
+
+  const handleStatusFilterSelect = useCallback(
+    e => {
+      const selectedValue = Number(e.target.value);
+      if (includeStatus.includes(selectedValue)) {
+        setIncludeStatus(prevArray =>
+          prevArray.filter(item => item !== selectedValue)
+        );
+      } else {
+        setIncludeStatus(prevArray => [...prevArray, selectedValue]);
+      }
+      // Reset the select box value using ref
+      if (filterSelectRef.current) {
+        filterSelectRef.current.value = -1;
+      }
+    },
+    [includeStatus]
+  );
+
+  const removeFilter = val => {
+    if (includeStatus.includes(val)) {
+      setIncludeStatus(prevArray => prevArray.filter(item => item !== val));
+    }
+  };
 
   return (
     <Box>
-      <Box fontSize="25px" fontWeight="bold" color="gray.600">
-        <HStack>
-          <Box>{info.name} Proposals</Box>
-          <IconButton
-            size="xs"
-            icon={<ChevronLeftIcon />}
-            onClick={() => setBeforeProposal(false)}
-          />
-          <IconButton
-            size="xs"
-            icon={<ChevronRightIcon />}
-            onClick={() =>
-              setBeforeProposal(proposals[proposals.length - 1].id)
-            }
-          />
-        </HStack>
+      <Box color="gray.600" pb={2}>
+        <Stack
+          direction={{ base: 'column', md: 'row' }}
+          justifyItems="center"
+          justifyContent="space-between"
+        >
+          <Box>
+            <Text fontSize="2xl" fontWeight="bold">
+              {info.name} Proposals
+            </Text>
+          </Box>
+          <Box
+            display="flex"
+            columnGap={2}
+            alignItems="center"
+            justifyItems="center"
+          >
+            <Select
+              size="sm"
+              rounded={6}
+              ref={filterSelectRef}
+              onChange={e => handleStatusFilterSelect(e)}
+            >
+              <option value="-1">Status Filters</option>
+              {Object.keys(ProposalStatuses).map((key, index) => {
+                return (
+                  <option key={key} value={key}>
+                    {ProposalStatuses[key].label}
+                  </option>
+                );
+              })}
+            </Select>
+            <InputGroup>
+              <InputLeftElement
+                pointerEvents="none"
+                children={<SearchIcon boxSize={4} mb={1} />}
+              />
+              <Input
+                placeholder="Search by title"
+                size="sm"
+                rounded={6}
+                onChange={handleSearch}
+              />
+            </InputGroup>
+
+            <IconButton
+              size="xs"
+              icon={<ChevronLeftIcon />}
+              onClick={() => handlePageClick(currentPage - 1)}
+            />
+            <IconButton
+              size="xs"
+              icon={<ChevronRightIcon />}
+              onClick={() => handlePageClick(currentPage + 1)}
+            />
+          </Box>
+        </Stack>
       </Box>
 
       <Stack fontSize="sm">
-        {proposals.map((data, idx) => (
-          <Proposal key={data.id} data={data} />
-        ))}
+        {isProposalsLoading ? (
+          <Box width="100%" display="flex" justifyContent="center">
+            <CircularProgress
+              marginTop={4}
+              isIndeterminate
+              trackColor="transparent"
+              color="purple.500"
+            />
+          </Box>
+        ) : (
+          paginatedProposals.map((data, idx) => (
+            <Proposal
+              key={data.id}
+              data={data}
+              ledgerPrincipal={info.sns.ledger}
+            />
+          ))
+        )}
       </Stack>
+
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="space-between"
+        columnGap={2}
+        marginTop={4}
+      >
+        <Box display="flex" columnGap={2}>
+          <Text tag="span" fontWeight="bold" fontSize="sm">
+            Active Filters:
+          </Text>
+          {includeStatus.length === 0 ? (
+            <Text tag="span" fontSize="sm">
+              none
+            </Text>
+          ) : (
+            includeStatus.map(status => (
+              <Tag key={status} colorScheme={ProposalStatuses[status].color}>
+                <TagLabel>{ProposalStatuses[status].label}</TagLabel>
+                <TagCloseButton onClick={() => removeFilter(status)} />
+              </Tag>
+            ))
+          )}
+        </Box>
+        <Box width="50%">
+          <Box display="flex" justifyContent="end" width="100%">
+            <Box>
+              <Select
+                size="xs"
+                rounded={6}
+                ref={pageSizeRef}
+                defaultValue={itemsPerPage}
+                onChange={e => setItemsPerPage(pageSizeRef.current.value)}
+              >
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="20">25</option>
+                <option value="50">50</option>
+              </Select>
+            </Box>
+            <Text tag="span" paddingLeft={2} fontSize="sm">
+              per page
+            </Text>
+          </Box>
+          <Box display="flex" justifyContent="end" width="100%">
+            <Text tag="span" fontSize="sm">
+              Page {currentPage + 1} of {pageCount()}
+            </Text>
+          </Box>
+        </Box>
+      </Box>
     </Box>
   );
 };
 
-export const Proposal = ({ data }) => {
+export const Proposal = ({ data, ledgerPrincipal }) => {
   const bg = useColorModeValue('white', 'gray.900');
-
   let [open, setOpen] = useState(false);
   const active = data.decided === 0n;
 
@@ -115,22 +251,19 @@ export const Proposal = ({ data }) => {
           />
         </Box>
         <Box w="100%">
-          {/* <Link
-            href={'https://dashboard.internetcomputer.org/proposal/' + data.id}
-            target="_blank"
-          > */}
-
-          <Wrap>
-            <Tag colorScheme="blue">{data.action}</Tag>
+          <HStack>
+            <Box>
+              <Tag colorScheme="blue">{data.action}</Tag>
+            </Box>
             {active ? (
               <Box>
                 <Tag colorScheme="green">Open</Tag>
               </Box>
             ) : null}
-            <Box> {data.title}</Box>
-          </Wrap>
-
-          {/* </Link> */}
+            <Box>
+              <Text>{data.title}</Text>
+            </Box>
+          </HStack>
         </Box>
       </HStack>
       {open ? (
@@ -141,6 +274,26 @@ export const Proposal = ({ data }) => {
             skipHtml
             disallowedElements={['img', 'embed']}
           />
+          <Box display="flex" columnGap={2} paddingTop={5}>
+            {data.url && (
+              <Tag w="68px" colorScheme="blue">
+                <Link isExternal={true} href={data.url}>
+                  <ExternalLinkIcon mr="1px" /> Link
+                </Link>
+              </Tag>
+            )}
+
+            {active && (
+              <Tag w="68px" colorScheme="green">
+                <Link
+                  isExternal={true}
+                  href={`https://avjzx-pyaaa-aaaaj-aadmq-cai.raw.ic0.app/icsns/proposals/${ledgerPrincipal}/${data.id}`}
+                >
+                  <ExternalLinkIcon mr="1px" /> Vote
+                </Link>
+              </Tag>
+            )}
+          </Box>
         </Box>
       ) : null}
     </Box>
