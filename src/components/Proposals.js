@@ -21,21 +21,20 @@ export const Proposals = props => {
 
     let proposals = await nns.list_proposals({
       include_reward_status: [],
-      before_proposal: [],
+      include_status: [],
       limit: 10,
       exclude_topic: [0, 2, 5, 12, 8, 13, 7, 6, 9],
-      include_status: [],
     });
 
     let r = proposals.proposal_info.map(p => ({
-      id: p.id[0].id,
-      deadline: p.deadline_timestamp_seconds[0],
+      id: p.id.id,
+      deadline: p.deadline_timestamp_seconds,
       decided: p.decided_timestamp_seconds,
       //   summary: p.proposal[0].summary,
-      title: p.proposal[0].title,
+      title: p.proposal.title,
       topic: p.topic,
       status: p.status,
-      tally: p.latest_tally[0],
+      tally: p.latest_tally,
     }));
     setProposals(r);
   };

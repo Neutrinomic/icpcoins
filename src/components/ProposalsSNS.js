@@ -31,7 +31,7 @@ export const ProposalsSNS = ({ info }) => {
 
     let proposals = await can.list_proposals({
       include_reward_status: [],
-      before_proposal: before_proposal ? [{ id: before_proposal }] : [],
+      before_proposal: before_proposal ? { id: before_proposal } : undefined,
       limit: 10,
       exclude_type: [], //0, 2, 5, 12, 8, 13, 7, 6, 9
       include_status: [],
@@ -39,16 +39,16 @@ export const ProposalsSNS = ({ info }) => {
     // console.log(proposals);
 
     let r = proposals.proposals.map(p => ({
-      id: p.id[0].id,
+      id: p.id.id,
       deadline: Number(
-        p.wait_for_quiet_state[0].current_deadline_timestamp_seconds
+        p.wait_for_quiet_state.current_deadline_timestamp_seconds
       ),
       decided: p.decided_timestamp_seconds,
-      url: p.proposal[0].url,
-      summary: p.proposal[0].summary,
-      title: p.proposal[0].title,
-      action: Object.keys(p.proposal[0].action[0])[0],
-      tally: p.latest_tally[0],
+      url: p.proposal.url,
+      summary: p.proposal.summary,
+      title: p.proposal.title,
+      action: Object.keys(p.proposal.action)[0],
+      tally: p.latest_tally,
     }));
     // console.log(r);
     setProposals(r);
@@ -80,17 +80,16 @@ export const ProposalsSNS = ({ info }) => {
 
       <Stack fontSize="sm">
         {proposals.map((data, idx) => (
-          <Proposal key={data.id} data={data} />
+          <Proposal key={data.id} data={data} root={info.sns.root} />
         ))}
       </Stack>
     </Box>
   );
 };
 
-export const Proposal = ({ data }) => {
+export const Proposal = ({ data, root }) => {
   const bg = useColorModeValue('white', 'gray.900');
 
-  let [open, setOpen] = useState(false);
   const active = data.decided === 0n;
 
   return (
@@ -101,11 +100,7 @@ export const Proposal = ({ data }) => {
       border={active ? '1px solid' : ''}
       borderColor={active ? 'green.600' : 'gray.600'}
     >
-      <HStack
-        spacing="3"
-        onClick={() => setOpen(!open)}
-        sx={{ cursor: 'pointer' }}
-      >
+      <HStack spacing="3" sx={{ cursor: 'pointer' }}>
         <Box w="100px">
           <VoteProgress
             w="100px"
@@ -115,34 +110,27 @@ export const Proposal = ({ data }) => {
           />
         </Box>
         <Box w="100%">
-          {/* <Link
-            href={'https://dashboard.internetcomputer.org/proposal/' + data.id}
+          <Link
+            href={
+              'https://dashboard.internetcomputer.org/sns/' +
+              root +
+              '/proposal/' +
+              data.id
+            }
             target="_blank"
-          > */}
-
-          <Wrap>
-            <Tag colorScheme="blue">{data.action}</Tag>
-            {active ? (
-              <Box>
-                <Tag colorScheme="green">Open</Tag>
-              </Box>
-            ) : null}
-            <Box> {data.title}</Box>
-          </Wrap>
-
-          {/* </Link> */}
+          >
+            <Wrap>
+              <Tag colorScheme="blue">{data.action}</Tag>
+              {active ? (
+                <Box>
+                  <Tag colorScheme="green">Open</Tag>
+                </Box>
+              ) : null}
+              <Box> {data.title}</Box>
+            </Wrap>
+          </Link>
         </Box>
       </HStack>
-      {open ? (
-        <Box pt="5" pl="5" pr="5" pb="5">
-          <ReactMarkdown
-            components={MD}
-            children={data.summary}
-            skipHtml
-            disallowedElements={['img', 'embed']}
-          />
-        </Box>
-      ) : null}
     </Box>
   );
 };

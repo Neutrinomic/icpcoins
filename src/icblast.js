@@ -1,4 +1,4 @@
-import icblast from '@infu/icblast/src/browser.js';
+import icblast from '@infu/icblast';
 const ic = icblast();
 
 export default ic;
