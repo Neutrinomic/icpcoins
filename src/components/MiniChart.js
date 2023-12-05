@@ -55,7 +55,7 @@ const normalize = data => {
 export const MiniChart = ({ data }) => {
   const period = 24 * 7;
 
-  const merged = normalize(data);
+  const merged = data; //normalize(data);
 
   return (
     <>

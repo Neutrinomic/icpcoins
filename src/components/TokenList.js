@@ -16,21 +16,31 @@ import {
   Wrap,
   Tooltip,
   useColorModeValue,
+  Progress,
 } from '@chakra-ui/react';
 import { useMediaQuery } from '@chakra-ui/react';
 
 import { InfoIcon, TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Routes, Route, Outlet, Link, useNavigate } from 'react-router-dom';
 import { smartNumber } from './Inline';
-import { FastBlocks } from './FastBlocks';
+
 import { Proposals } from './Proposals';
 import { CurrencySymbol } from './Inline';
 import { MiniChart } from './MiniChart';
+import { DNumber } from './DNumber';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectTokenList } from '../reducers/tokens.js';
 
-export const TokenPage = ({ tokens }) => {
+import { Articles } from './Impulse';
+
+export const TokenPage = ({ articles }) => {
+  const tokens = useSelector(selectTokenList);
+
   const [isLarge] = useMediaQuery('(min-width: 1024px)');
+  const baseCurrency = useSelector(state => state.config.baseCurrency);
+
   const bg = useColorModeValue(
     'linear-gradient(180deg, rgba(227,232,239,1) 0%, rgba(234,239,245,1) 14%)',
     'linear-gradient(0deg, rgba(23,25,34,1) 95%, rgba(14,16,25,1) 100%)'
@@ -41,20 +51,25 @@ export const TokenPage = ({ tokens }) => {
   );
   const fg = useColorModeValue('gray.900', 'gray.200');
 
+  if (!tokens) return null;
+
   const total24 = tokens.reduce(
-    (acc, x) => acc + (x.id !== 1 && x.id !== 2 ? x.volume24 : 0),
+    (acc, x) => acc + (x.id > 4 ? x.volume24 : 0),
     0
   );
 
-  const liquidity = tokens.reduce(
-    (acc, x) => acc + (x.id !== 1 && x.id !== 2 ? x.liquidity : 0),
+  const depth50Bid = tokens.reduce(
+    (acc, x) => acc + (x.id > 4 ? x.depth50Bid : 0),
     0
   );
+
+  const depth50Ask = tokens.reduce(
+    (acc, x) => acc + (x.id > 4 ? x.depth50Ask : 0),
+    0
+  );
+
   const marketcap = Math.round(
-    tokens.reduce(
-      (acc, x) => acc + (x.id !== 1 && x.id !== 2 ? x.marketcap : 0),
-      0
-    )
+    tokens.reduce((acc, x) => acc + (x.id > 4 ? x.marketcap : 0), 0)
   );
 
   return (
@@ -64,80 +79,77 @@ export const TokenPage = ({ tokens }) => {
         bg={bg2}
         ml="-15px"
         mr="-15px"
-        mb={isLarge ? '10px' : '8px'}
-        mt={isLarge ? '15px' : '8px'}
+        mb={'10px'}
+        mt={'15px'}
       >
         <Box
-          maxW="1024px"
+          maxW="1278px"
           m="auto"
-          pl={isLarge ? '5px' : '15px'}
+          pl={'5px'}
           pr="15px"
           pb="8px"
           color={'gray.500'}
-          pt="18px"
+          pt="8px"
         >
           <Wrap spacing="5">
             <Box>
               DEX VOLUME 24H:{' '}
               <Box as="span" color={fg}>
-                ${total24.toLocaleString()}
+                {total24.toLocaleString()}
               </Box>
             </Box>
             <Box>
-              DEX LIQUIDITY:{' '}
+              DEX DEPTH -50%:{' '}
               <Box as="span" color={fg}>
-                ${liquidity.toLocaleString()}
+                {depth50Bid.toLocaleString()}
+              </Box>
+            </Box>
+            <Box>
+              DEX DEPTH +100%:{' '}
+              <Box as="span" color={fg}>
+                {depth50Ask.toLocaleString()}
               </Box>
             </Box>
             <Box>
               ICP COINS MARKETCAP:{' '}
               <Box as="span" color={fg}>
-                ${marketcap.toLocaleString()}
+                {marketcap.toLocaleString()}
               </Box>
             </Box>
           </Wrap>
         </Box>
       </Box>
-
-      <Box maxW="1144px" m="auto">
-        <TokenList tokens={tokens} />
+      <Articles articles={articles} />
+      <Box maxW="1400px" m="auto">
+        <TokenList tokens={tokens} key={baseCurrency} />
       </Box>
 
       <Box bg={bg} ml="-15px" pt="20px" mr="-15px" pb="10vh">
-        <Box maxW="1024px" m="auto">
-          {isLarge ? (
+        <Box maxW="1278px" m="auto">
+          {/* {isLarge ? (
             <Wrap mt={8}>
               <FastBlocks w={'49%'} />
               <Proposals w={'49%'} />
             </Wrap>
-          ) : (
-            <Wrap mt={8} ml="10px" mr="10px">
-              <Proposals w={'100%'} />
-              <FastBlocks w={'100%'} />
+          ) : ( */}
+          {/* <Wrap mt={8} ml="10px" mr="10px"> */}
+          <Proposals w={'100%'} />
+          {/* <FastBlocks w={'100%'} />
             </Wrap>
-          )}
+          )} */}
         </Box>
       </Box>
     </>
   );
 };
-export const TokenList = ({ tokens }) => {
+export const TokenList = ({ tokens, baseCurrency }) => {
   const [isLarge] = useMediaQuery('(min-width: 1024px)');
 
+  const [isSticky, ref, setIsSticky] = useDetectSticky();
   return (
     <>
-      <Box
-        fontSize={isLarge ? '18px' : '16px'}
-        fontWeight="bold"
-        color="gray.600"
-        mb="3"
-        pl={isLarge ? '55px' : '0px'}
-      >
-        Internet Computer Cryptocurrencies by Market Cap
-      </Box>
-
       <TableContainer
-        mt={isLarge ? 10 : 0}
+        mt={10}
         mb={isLarge ? '35px' : '10px'}
         // overflowX="hidden"
         css={{
@@ -154,28 +166,72 @@ export const TokenList = ({ tokens }) => {
           },
         }}
       >
-        <Table variant="simple" size="sm">
+        <Table
+          variant="simple"
+          size="sm"
+          className={isSticky ? 'symbol-sticky' : ''}
+          sx={{ tableLayout: 'fixed', minWidth: '400px' }}
+        >
           <Thead>
             <Tr>
-              <Th w="10px">#</Th>
-              <Th>Name</Th>
-              <Th isNumeric>Price</Th>
-              <Th isNumeric>24H %</Th>
-              <Th isNumeric>Market Cap</Th>
-              <Th isNumeric>24h Volume</Th>
-              <Th isNumeric>Circulating Supply</Th>
-              <Th isNumeric>LAST 7 DAYS</Th>
-              <Th isNumeric>
-                <Tooltip label="How much you can instantly sell for to halve the price. Currently includes only DEXes">
-                  Liquidity
+              <Th w="10px" ref={ref}>
+                #
+              </Th>
+              <Th w="130px">Name</Th>
+              <Th className="symbol" w="80px">
+                Symbol
+              </Th>
+              <Th isNumeric w="120px">
+                Price
+              </Th>
+              <Th textAlign="start" w="30px">
+                24H %
+              </Th>
+              <Th isNumeric w="220px">
+                Market Cap
+              </Th>
+              <Th isNumeric w="150px">
+                24h Volume
+              </Th>
+              <Th isNumeric w="170px">
+                <Tooltip
+                  label={
+                    <>
+                      Circulating supply = total - treasury
+                      <br />
+                      Unlocked circulating supply = total - treasury - locked
+                    </>
+                  }
+                >
+                  Circulating supply
                 </Tooltip>
-                <InfoIcon ml="1" w={'12px'} h={'12px'} mt="-3px" />
+              </Th>
+              <Th w={'100px'}>LAST 7 DAYS</Th>
+              <Th isNumeric w="120px">
+                <Tooltip label="Capital required to reduce the price by 50%">
+                  Depth -50%
+                </Tooltip>
+              </Th>
+              <Th isNumeric w="120px">
+                <Tooltip label="Capital required to increase the price by 100%">
+                  Depth +100%
+                </Tooltip>
+              </Th>
+              <Th>
+                <Tooltip label={<>Value of the ICP in treasury</>}>
+                  Treasury
+                </Tooltip>
               </Th>
             </Tr>
           </Thead>
           <Tbody>
             {tokens.map((data, idx) => (
-              <TokenListItem key={idx} idx={idx} data={data} />
+              <TokenListItem
+                baseCurrency={baseCurrency}
+                key={data.symbol}
+                idx={idx}
+                data={data}
+              />
             ))}
           </Tbody>
         </Table>
@@ -184,7 +240,9 @@ export const TokenList = ({ tokens }) => {
   );
 };
 
-const TokenListItem = ({ idx, data }) => {
+const TokenListItem = ({ idx, data, baseCurrency }) => {
+  const cs = baseCurrency === 'USD' ? '$' : '';
+
   let {
     id,
     name,
@@ -193,9 +251,13 @@ const TokenListItem = ({ idx, data }) => {
     marketcap,
     volume24,
     circulating,
+    real_circulating,
     total,
-    liquidity,
+    depth50Bid,
+    depth50Ask,
     weekchart,
+    treasury,
+    change24,
   } = data;
   const overbg = useColorModeValue(
     'linear-gradient(0deg, rgba(227,232,239,1) 0%, rgba(234,239,245,1) 15%)',
@@ -204,15 +266,7 @@ const TokenListItem = ({ idx, data }) => {
   let navigate = useNavigate();
   let [over, setOver] = useState(false);
 
-  const ago24 = Math.floor(Date.now() / 1000) - 60 * 60 * 24;
-  let priceBefore24 = price;
-  try {
-    let f = weekchart.find(x => x.t >= ago24);
-
-    priceBefore24 = f.p;
-  } catch (e) {}
-  const change24 = ((price - priceBefore24) / priceBefore24) * 100;
-
+  const treasury_icp = treasury[3];
   return (
     <Tr
       sx={{ cursor: 'pointer' }}
@@ -228,32 +282,122 @@ const TokenListItem = ({ idx, data }) => {
       bg={over ? overbg : ''}
     >
       <Td>{idx + 1}</Td>
-      <Td>
-        {name} <CurrencySymbol>{symbol}</CurrencySymbol>
-      </Td>
-      <Td sx={{ position: 'relative' }} isNumeric>
-        ${smartNumber(price)}
-      </Td>
-      <Td>
-        {change24 < 0 ? (
-          <TriangleDownIcon color="pink.700" mr="5px" />
-        ) : (
-          <TriangleUpIcon color="green.500" mr="5px" />
-        )}
-        {Math.abs(change24).toFixed(2)}%
-      </Td>
-      <Td isNumeric>${smartNumber(marketcap)}</Td>
-      <Td isNumeric>${smartNumber(volume24)}</Td>
-      <Td isNumeric>
-        {smartNumber(circulating)}
+      <Td>{name}</Td>
+      <Th className="symbol">
         <CurrencySymbol>{symbol}</CurrencySymbol>
+      </Th>
+      <Td sx={{ position: 'relative' }} isNumeric>
+        <DNumber currency={baseCurrency} n={price} />
+        {/* {cs}
+        {smartNumber(price)} */}
       </Td>
       <Td>
-        <Box mr="-25px">
+        {isNaN(change24) ? (
+          <>-</>
+        ) : (
+          <>
+            {change24 < 0 ? (
+              <TriangleDownIcon color="pink.700" mr="5px" />
+            ) : (
+              <TriangleUpIcon color="green.500" mr="5px" />
+            )}
+            {Math.abs(change24).toFixed(2)}%
+          </>
+        )}
+      </Td>
+      <Td isNumeric>
+        <DNumber currency={baseCurrency} n={marketcap} />
+      </Td>
+      <Td isNumeric>
+        <DNumber
+          currency={baseCurrency}
+          n={Math.round(volume24)}
+          noDecimals={true}
+        />
+      </Td>
+      <Td isNumeric>
+        {real_circulating && real_circulating !== circulating ? (
+          <>
+            <Tooltip
+              label={
+                <>
+                  Unlocked circulating supply{' '}
+                  {((real_circulating / circulating) * 100).toFixed(1)}%
+                  <br />
+                  {smartNumber(real_circulating)} {symbol}
+                </>
+              }
+            >
+              <div>
+                {smartNumber(circulating)}
+                <div>
+                  <Progress
+                    mt="2"
+                    mb="-2"
+                    value={(real_circulating / circulating) * 100}
+                    size={'xs'}
+                  />
+                </div>
+              </div>
+            </Tooltip>
+          </>
+        ) : (
+          <>{smartNumber(circulating)}</>
+        )}
+      </Td>
+
+      <Td>
+        <Box ml="-5px" mr="-5px">
           <MiniChart data={weekchart} />
         </Box>
       </Td>
-      <Td isNumeric>{liquidity ? <>${smartNumber(liquidity)}</> : <>-</>}</Td>
+      <Td isNumeric>
+        {depth50Bid ? (
+          <DNumber currency={baseCurrency} n={depth50Bid} />
+        ) : (
+          <></>
+        )}
+      </Td>
+      <Td isNumeric>
+        {depth50Ask ? (
+          <DNumber currency={baseCurrency} n={depth50Ask} />
+        ) : (
+          <></>
+        )}
+      </Td>
+      <Td>
+        {treasury_icp ? (
+          <>
+            <DNumber currency={baseCurrency} n={treasury_icp} />
+          </>
+        ) : (
+          <></>
+        )}
+      </Td>
     </Tr>
   );
+};
+
+const useDetectSticky = (ref, observerSettings = { threshold: [1] }) => {
+  const [isSticky, setIsSticky] = useState(false);
+  const newRef = useRef();
+  ref ||= newRef;
+
+  // mount
+  useEffect(() => {
+    const cachedRef = ref.current,
+      observer = new IntersectionObserver(
+        ([e]) => setIsSticky(e.intersectionRatio < 1),
+        observerSettings
+      );
+
+    observer.observe(cachedRef);
+
+    // unmount
+    return () => {
+      observer.unobserve(cachedRef);
+    };
+  }, []);
+
+  return [isSticky, ref, setIsSticky];
 };

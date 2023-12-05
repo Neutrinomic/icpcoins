@@ -9,45 +9,101 @@ import {
   HStack,
   Flex,
   Tag,
+  Wrap,
   useColorModeValue,
+  RadioGroup,
+  Radio,
 } from '@chakra-ui/react';
-
+import { useDispatch, useSelector } from 'react-redux';
+import moment from 'moment';
+import { setProposalFilter } from '../reducers/config';
 import ic from '../icblast';
+import {
+  fetchProposals,
+  fetchNNSProposals,
+  getProposals,
+} from '../reducers/proposals';
 
-export const Proposals = props => {
-  let [proposals, setProposals] = useState([]);
-  const load = async () => {
-    let nns = await ic('rrkah-fqaaa-aaaaa-aaaaq-cai');
+export const ProposalsOne = props => {
+  let all = useSelector(state => state.proposals);
+  let proposalFilter = useSelector(state => state.config.proposalFilter);
+  const dispatch = useDispatch();
+  const dao = props.dao;
 
-    let proposals = await nns.list_proposals({
-      include_reward_status: [],
-      include_status: [],
-      limit: 10,
-      exclude_topic: [0, 2, 5, 12, 8, 13, 7, 6, 9],
-    });
-
-    let r = proposals.proposal_info.map(p => ({
-      id: p.id.id,
-      deadline: p.deadline_timestamp_seconds,
-      decided: p.decided_timestamp_seconds,
-      //   summary: p.proposal[0].summary,
-      title: p.proposal.title,
-      topic: p.topic,
-      status: p.status,
-      tally: p.latest_tally,
-    }));
-    setProposals(r);
-  };
   useEffect(() => {
-    load();
-  }, []);
+    dispatch(getProposals());
+  }, [proposalFilter]);
+  if (!all[dao]) return null;
+  let proposals = [];
 
+  for (let prop of all[dao]) {
+    proposals.push({ dao, ...prop });
+  }
+
+  proposals.sort((a, b) => b.created - a.created);
+  // leave only the first 50
+  proposals = proposals.slice(0, 50);
+  if (!proposals) return null;
   return (
     <Box {...props}>
-      <Box fontSize="25px" fontWeight="bold" color="gray.600">
-        NNS Proposals
-      </Box>
+      <HStack>
+        <Box fontSize="25px" fontWeight="bold" color="gray.600">
+          {props.dao} Governance Proposals
+        </Box>
+        <RadioGroup
+          onChange={x => dispatch(setProposalFilter(x))}
+          value={proposalFilter}
+        >
+          <Stack direction="row">
+            <Radio value="all">Verbose</Radio>
+            <Radio value="filtered">Filtered</Radio>
+          </Stack>
+        </RadioGroup>
+      </HStack>
+      <Stack fontSize="sm">
+        {proposals.map((data, idx) => (
+          <Proposal key={idx} data={data} single={true} />
+        ))}
+      </Stack>
+    </Box>
+  );
+};
 
+export const Proposals = props => {
+  let all = useSelector(state => state.proposals);
+  let proposalFilter = useSelector(state => state.config.proposalFilter);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getProposals());
+  }, [proposalFilter]);
+
+  let proposals = [];
+  for (let dao in all) {
+    for (let prop of all[dao]) {
+      proposals.push({ dao, ...prop });
+    }
+  }
+  proposals.sort((a, b) => b.created - a.created);
+  // leave only the first 50
+  proposals = proposals.slice(0, 50);
+  if (!proposals) return null;
+  return (
+    <Box {...props}>
+      <HStack>
+        <Box fontSize="25px" fontWeight="bold" color="gray.600">
+          Governance Proposals
+        </Box>
+        <RadioGroup
+          onChange={x => dispatch(setProposalFilter(x))}
+          value={proposalFilter}
+        >
+          <Stack direction="row">
+            <Radio value="all">Verbose</Radio>
+            <Radio value="filtered">Filtered</Radio>
+          </Stack>
+        </RadioGroup>
+      </HStack>
       <Stack fontSize="sm">
         {proposals.map((data, idx) => (
           <Proposal key={idx} data={data} />
@@ -57,40 +113,51 @@ export const Proposals = props => {
   );
 };
 
-export const Proposal = ({ data }) => {
+export const Proposal = ({ single = false, data }) => {
   const bg = useColorModeValue('white', 'gray.800');
 
-  const active = data.decided === 0n;
+  const active = data.decided === 0;
+
+  const href =
+    data.dao === 'NNS'
+      ? 'https://dashboard.internetcomputer.org/proposal/' + data.id
+      : 'https://dashboard.internetcomputer.org/sns/' +
+        data.root +
+        '/proposal/' +
+        data.id;
+
   return (
     <Box
       borderRadius={'5px'}
       p="2"
       bg={bg}
-      border={active ? '1px solid' : ''}
-      borderColor={active ? 'green.600' : 'gray.600'}
+      className="ppr"
+      // border={active ? '1px solid' : ''}
+      // borderColor={active ? 'green.600' : 'gray.600'}
     >
       <HStack spacing="3">
+        {single ? null : <Box w={'80px'}>{data.dao}</Box>}
+        <Box w={'140px'}>{moment.unix(data.created).fromNow()}</Box>
         <Box w="100px">
           <VoteProgress
             w="100px"
-            yes={Number(data.tally.yes / 100000000n)}
-            no={Number(data.tally.no / 100000000n)}
-            total={Number(data.tally.total / 100000000n)}
+            yes={Number(BigInt(data.tally.yes) / 100000000n)}
+            no={Number(BigInt(data.tally.no) / 100000000n)}
+            total={Number(BigInt(data.tally.total) / 100000000n)}
           />
         </Box>
         <Box w="100%">
-          <Link
-            href={'https://dashboard.internetcomputer.org/proposal/' + data.id}
-            target="_blank"
-          >
-            <HStack>
+          <Link href={href} target="_blank">
+            <Wrap>
+              <Tag colorScheme="blue">{data.action}</Tag>
+              {/* {data.topic || data.action_id} */}
               {active ? (
                 <Box>
                   <Tag colorScheme="green">Open</Tag>
                 </Box>
               ) : null}
               <Box> {data.title}</Box>
-            </HStack>
+            </Wrap>
           </Link>
         </Box>
       </HStack>

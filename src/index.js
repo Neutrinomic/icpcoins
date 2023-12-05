@@ -6,6 +6,7 @@ import reportWebVitals from './reportWebVitals';
 import * as serviceWorker from './serviceWorker';
 import { store } from './store';
 import { Provider } from 'react-redux';
+import './intervals';
 
 import { HashRouter } from 'react-router-dom';
 

@@ -1,0 +1,105 @@
+.symbol {
+    position: sticky;
+    left: 0px;
+    z-index: 1;
+    text-transform: none;
+    
+}
+.symbol-sticky .symbol {
+    background-color: var(--chakra-colors-chakra-body-bg);
+}
+body {overflow-y: scroll;}
+@keyframes hl-up {
+    0% { background-color: rgb(97, 255, 97) }
+    100% {  background-color: #79ff7900 }
+  }
+  
+  .hl-up {
+    animation: hl-up 1s;
+  }
+
+  @keyframes hl-down {
+    0% { background-color: rgb(255, 84, 101) }
+    100% {  background-color: #ff4d9a00 }
+  }
+  
+  .hl-down {
+    animation: hl-down 1s;
+  }
+
+
+
+  .icp-currency {
+    position:relative;
+    width:8px;
+    height:14px;
+    margin-right: 2px;
+    top: 2px;
+    display:inline-block;
+    background-size:contain;
+        background-image: url('data:image/svg+xml,<svg width="26" height="47" viewBox="0 0 26 47" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.76624 26.7207C8.07432 27.0988 5.17181 29.0249 4.57839 31.3475C3.54394 35.4977 6.91516 37.51 7.35576 37.7186C3.46319 36.027 1.07657 32.3897 1.82148 28.8461C2.44754 25.9555 6.46774 23.7718 10.0004 22.2744L9.99155 22.263C9.99155 22.263 11.5402 21.5803 13.2055 20.8286C13.2055 20.8286 15.1846 19.9845 16.9614 19.0307C17.6533 18.6526 20.5215 16.7285 21.1149 14.4059C22.1855 10.141 18.6123 8.12263 18.3326 8.0055C22.2615 9.68605 24.6569 13.3347 23.9081 16.8963C23.2821 19.7869 19.2619 21.9706 15.7273 23.4771C15.7381 23.4794 15.7361 23.4884 15.7469 23.4907C15.7469 23.4907 14.1982 24.1735 12.5329 24.9252C12.5349 24.9162 10.545 25.7579 8.76624 26.7207Z" fill="white"/><path fill-rule="evenodd" clip-rule="evenodd" d="M20.6143 32.9855C19.729 37.073 15.0341 39.5359 10.065 38.6288C9.56864 37.3943 9.20321 36.1289 9.1714 35.151C9.53952 35.3023 9.92891 35.4243 10.3358 35.5125C13.427 36.182 16.3793 34.6815 16.9219 32.1763C17.0669 31.507 16.9015 30.2403 15.3163 28.0317C15.2962 28.0035 15.2759 27.9754 15.2557 27.9473C16.2569 27.4005 17.379 26.8804 18.4351 26.5206C18.4538 26.5465 18.4723 26.5724 18.4909 26.5983C20.2728 29.0958 20.9924 31.24 20.6143 32.9855ZM15.509 23.7219C15.295 23.8174 15.0094 23.9451 14.6763 24.0947C14.9689 23.9681 15.2503 23.8426 15.509 23.7219Z" fill="white"/><path fill-rule="evenodd" clip-rule="evenodd" d="M10.3076 22.1019C10.8477 21.8609 11.99 21.3498 13.1933 20.8023C13.1901 20.7989 13.1868 20.7955 13.1836 20.7921C11.9655 21.2669 10.7631 21.7797 10.3076 22.1019ZM10.1962 17.1712C8.97393 15.3156 8.85656 14.2217 8.99016 13.6049C9.53276 11.0996 12.4851 9.59918 15.5763 10.2687C18.6351 10.9312 20.704 13.5097 20.1917 16.031C20.1663 16.1486 20.1134 16.2886 20.0331 16.4511C20.5903 15.8049 21.0535 15.072 21.2121 14.3394C22.2072 9.74493 18.6246 8.01264 18.3651 7.9091C17.7032 7.63318 16.9884 7.39315 16.2452 7.23218C11.1183 6.12176 6.20275 8.61724 5.29775 12.7957C4.9676 14.32 5.4745 16.1483 6.79498 18.2505C7.81194 18.1001 9.02534 17.6859 10.1962 17.1712Z" fill="white"/><rect x="15.5989" y="0.530762" width="5.01538" height="4.6183" transform="rotate(12.2209 15.5989 0.530762)" fill="%23D9D9D9"/><rect x="6.17114" y="39.5391" width="4.81485" height="5.85261" transform="rotate(12.2209 6.17114 39.5391)" fill="%23D9D9D9"/></svg>')
+      }
+
+    .dollar-currency {
+        display:inline;
+    }
+
+
+    .hlspan {padding:5px;border-radius:4px;}
+
+    span.decimals {opacity:0.6;position:relative;bottom:2px;font-size:90%};
+
+    .ctip {
+      outline: none;
+      border:0px solid;
+    }
+    .ctip:focus {
+      outline-color: transparent;
+      outline-style: none;
+    }
+
+    .recharts-tooltip-wrapper {
+      outline:none}
+
+
+
+    .ctip .mdy {
+      font-size:22px;
+    }
+
+    .ppr a:hover {
+      text-decoration: none;
+      opacity:0.8
+    };
+
+.mdp ul {
+  padding-bottom:15px
+}
+
+.highlight{
+  display: inline-span;
+  padding: 0 10;
+  background: #1a202cdd;
+}
+
+
+
+  .scbi * {
+    scrollbar-width: auto;
+    scrollbar-color: #d4d4d4 #ffffff;
+  }
+
+  /* Chrome, Edge, and Safari */
+  .scbi *::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .scbi *::-webkit-scrollbar-track {
+    background: #ffffff00;
+  }
+
+  .scbi *::-webkit-scrollbar-thumb {
+    background-color: #d4d4d422;
+    border-radius: 10px;
+    border: 3px solid #ffffff00;
+  }
