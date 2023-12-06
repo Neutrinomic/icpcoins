@@ -177,7 +177,7 @@ export const getPriceBetween = state => (t1, t2) => {
     state.config.pairs,
     t1.toString(),
     t2.toString(),
-    2
+    3
   );
 
   let pp = tpaths.map(x => calculatePathPrice(x, getDirectPairs(state)));
@@ -239,7 +239,7 @@ export const selectTokenList = state => {
           config.pairs,
           tid,
           baseCurrency.toString(),
-          2
+          3
         );
         if (paths.length === 0) return null;
         // console.log(paths);
@@ -386,7 +386,7 @@ export const selectSingleTokenInfo =
 
       let tokenprice = getPriceBetween(state)(idx.toString(), baseCurrency);
 
-      let paths = findSwapPaths(config.pairs, tid, baseCurrency.toString(), 2);
+      let paths = findSwapPaths(config.pairs, tid, baseCurrency.toString(), 3);
 
       const wdelta = i2t('t1h');
       let pathpair = calculatePairPath(paths, 't1h', tstart, tlast)(state);
@@ -584,7 +584,7 @@ export const fetchTokenExtended =
       state.config.pairs,
       tid,
       state.config.baseCurrency.toString(),
-      2
+      3
     );
     const pids = getUniquePairs(paths);
     // dispatch(fetchPairs({ interval: 't5m', pids, back: 12 * 24 * 31 }));

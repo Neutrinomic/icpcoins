@@ -51,6 +51,10 @@ export function findSwapPaths(config, startToken, endToken, maxDepth) {
       const tokens = item.tokens;
       const pairSource = idx; //Object.keys(item.config)[0]; // Assuming one key per item
       if ('oracle' in item.config) return;
+      if (tokens[0] > 4 && tokens[1] > 4) {
+        // console.log('skipping', tokens);
+        return;
+      } // We always want to keep ICP, USD, BTC etc at the start/end of the path
       addEdge(graph, tokens[0], tokens[1], pairSource);
       addEdge(graph, tokens[1], tokens[0], pairSource); // Assuming the swaps can go both ways
     }
