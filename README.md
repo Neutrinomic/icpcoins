@@ -1,4 +1,3 @@
-# ICPCoins 
+# ICPCoins frontend
 
-All rights reserved
 
