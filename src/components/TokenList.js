@@ -81,8 +81,7 @@ export const TokenPage = ({ articles }) => {
         mr="-15px"
         mb={'10px'}
         mt={'15px'}
-      >
-        <Box
+      ><Box
           maxW="1278px"
           m="auto"
           pl={'5px'}
@@ -120,6 +119,9 @@ export const TokenPage = ({ articles }) => {
         </Box>
       </Box>
       <Articles articles={articles} />
+
+
+
       <Box maxW="1400px" m="auto">
         <TokenList tokens={tokens} key={baseCurrency} />
       </Box>
@@ -142,6 +144,8 @@ export const TokenPage = ({ articles }) => {
     </>
   );
 };
+
+
 export const TokenList = ({ tokens, baseCurrency }) => {
   const [isLarge] = useMediaQuery('(min-width: 1024px)');
 

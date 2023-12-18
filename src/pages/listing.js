@@ -15,7 +15,7 @@ const article = `
 # ICPCoins.com Listing Protocol
 
 ## Disclaimer
-ICPCoins.com is operated by VVV, functioning independently of any Internet Computer (IC) related entities. Listing a token is a meticulous process not influenced by financial contributions. We ensure a fair and unbiased listing procedure.
+ICPCoins.com is operated by Neutrinite DAO, functioning independently of any Internet Computer (IC) related entities. Listing a token is a meticulous process not influenced by financial contributions. We ensure a fair and unbiased listing procedure.
 
 ## Listing Criteria
 Tokens are assessed based on a structured point system to determine their suitability for listing on our platform.

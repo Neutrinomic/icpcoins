@@ -103,3 +103,39 @@ body {overflow-y: scroll;}
     border-radius: 10px;
     border: 3px solid #ffffff00;
   }
+
+  #cdtimer {
+
+    width:100%;
+    background-color: #14181f;
+    color:#b8cee4;
+    text-align:center;
+    padding:16px;
+    margin-left:-16px;
+    margin-right:-16px;
+    box-sizing: content-box;
+  }
+
+
+.clock {
+  font-family: 'Share Tech Mono', monospace;
+  color: #ffffff;
+  text-align: center;
+
+  color: #daf6ff;
+  text-shadow: 0 0 20px rgba(10, 175, 230, 1),  0 0 20px rgba(10, 175, 230, 0);
+  .time {
+      letter-spacing: 0.05em;
+      font-size: 80px;
+      padding: 5px 0;
+  }
+  .date {
+      letter-spacing: 0.1em;
+      font-size: 24px;
+  }
+  .text {
+      letter-spacing: 0.1em;
+      font-size: 12px;
+      padding: 20px 0 0;
+  }
+}

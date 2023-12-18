@@ -11,6 +11,8 @@ import {
 import { Logo } from './Logo';
 import powered from '../assets/powered.dark.svg';
 import poweredL from '../assets/powered.light.svg';
+import { ExternalLinkIcon } from '@chakra-ui/icons'
+
 
 const ListHeader = ({ children }) => {
   return (
@@ -39,6 +41,7 @@ export function Footer() {
               <Logo />
             </Box>
             <Text fontSize={'sm'}>© 2023 ICPCoins. All rights reserved</Text>
+            <Text fontSize={'sm'}>Neutrinite DAO</Text>
           </Stack>
 
           <Stack align={'flex-start'}>
@@ -54,6 +57,9 @@ export function Footer() {
             </Box>
             <Box as="a" href={'#/listing'}>
               Listing
+            </Box>
+            <Box as="a" href={'https://github.com/orgs/Neutrinomic/repositories'}>
+              Github <ExternalLinkIcon mx='2px' />
             </Box>
             <Image
               style={{ marginLeft: '-10px', marginTop: '6px' }}
