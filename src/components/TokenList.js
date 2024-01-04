@@ -18,6 +18,9 @@ import {
   useColorModeValue,
   Progress,
   useBreakpointValue,
+  Tag,
+  TagLeftIcon,
+  TagLabel,
 } from '@chakra-ui/react';
 import { useMediaQuery } from '@chakra-ui/react';
 
@@ -271,6 +274,9 @@ const TokenListItem = ({ idx, data, baseCurrency }) => {
     treasury,
     change24,
   } = data;
+
+  const nns = symbol === 'ckETH' || symbol === 'ckBTC' || symbol === 'ICP';
+  const sns = 'sns' in data.locking;
   const overbg = useColorModeValue(
     'linear-gradient(0deg, rgba(227,232,239,1) 0%, rgba(234,239,245,1) 15%)',
     'linear-gradient(180deg, rgba(23,25,34,1) 70%, rgba(15,17,26,0.7) 100%)'
@@ -294,7 +300,37 @@ const TokenListItem = ({ idx, data, baseCurrency }) => {
       bg={over ? overbg : ''}
     >
       <Td>{idx + 1}</Td>
-      <Td>{name}</Td>
+      <Td sx={{ position: 'relative' }}>
+        {name}
+        {sns ? (
+          <Tag
+            colorScheme="blue"
+            size="sm"
+            sx={{
+              zoom: 0.7,
+              position: 'absolute',
+              bottom: '10px',
+              left: '22px',
+            }}
+          >
+            SNS
+          </Tag>
+        ) : null}
+        {nns ? (
+          <Tag
+            colorScheme="green"
+            size="sm"
+            sx={{
+              zoom: 0.7,
+              position: 'absolute',
+              bottom: '10px',
+              left: '22px',
+            }}
+          >
+            NNS
+          </Tag>
+        ) : null}
+      </Td>
       <Th className="symbol">
         <CurrencySymbol>{symbol}</CurrencySymbol>
       </Th>

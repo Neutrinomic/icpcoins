@@ -309,4 +309,101 @@ TENDY hopes to bridge the gap of “meme tokens” and “utility” tokens by p
 
 `,
   },
+  NTN: {
+    links: {
+      app: 'https://icpcoins.com',
+      whitepaper:
+        'https://drive.google.com/file/d/1PtPMKycqh6evLdpHGcAd3dJ_IowgrluY/view',
+      github: 'https://github.com/orgs/Neutrinomic/repositories',
+    },
+    article: `
+# About
+
+Neutrinite is a DAO designed to revolutionize the decentralized web by creating a network of crypto knowledge hubs. 
+
+Neutrinite DAO ICPCoins - the premier portal for intricate insights into the dynamic world of Internet Computer (IC) cryptocurrencies. Our platform is dedicated to demystifying the complexities of the IC ecosystem, providing users with real-time data, comprehensive charts, and critical statistics with a focus on digital assets that thrive on the Internet Computer blockchain.
+    `,
+  },
+  GLDGov: {
+    links: {
+      whitepaper: 'https://gold-dao.gitbook.io/gold-dao-whitepaper/',
+    },
+  },
+  TRAX: {
+    links: {
+      app: 'https://trax.so/',
+      whitepaper:
+        'https://docs.google.com/document/d/1a-NefE8Pqsp5qbKb6TPj3tE1J2e7qWCYu1_FwuLdLF8/edit?usp=sharing',
+    },
+    article: `
+# About
+
+TRAX’s mission is to support the music industry with better tools to connect artists with their fans.
+
+TRAX is a social marketplace for music, powered by the Internet Computer. 
+TRAX enables music artists to retain full ownership of their content and monetisation and forge new relationships with their fans, whilst leveraging cutting-edge web3 tooling.
+`,
+  },
+  TAGGR: {
+    links: {
+      app: 'https://taggr.top/',
+    },
+  },
+  MORA: {
+    links: {
+      app: 'https://mora.app/',
+    },
+    warnings: [
+      [
+        'Experimental',
+        'Project is in the preliminary stages of development, deriving from innovative or speculative ideas that have not been fully vetted or substantiated. This term is often applied to projects that have not undergone rigorous evaluation or auditing, indicating that they are works-in-progress and their efficacy and safety have yet to be confirmed.',
+      ],
+    ],
+  },
+  QRO: {
+    links: {
+      app: 'https://querio.io/',
+    },
+  },
+  DOGMI: {
+    links: {
+      website: 'https://qu2gy-uqaaa-aaaal-qcv6a-cai.icp0.io/',
+    },
+    warnings: [
+      [
+        'Experimental',
+        'Project is in the preliminary stages of development, deriving from innovative or speculative ideas that have not been fully vetted or substantiated. This term is often applied to projects that have not undergone rigorous evaluation or auditing, indicating that they are works-in-progress and their efficacy and safety have yet to be confirmed.',
+      ],
+    ],
+  },
+  IDOGE: {
+    links: {
+      website: 'https://idoge.org/',
+    },
+    warnings: [
+      [
+        'Experimental',
+        'Project is in the preliminary stages of development, deriving from innovative or speculative ideas that have not been fully vetted or substantiated. This term is often applied to projects that have not undergone rigorous evaluation or auditing, indicating that they are works-in-progress and their efficacy and safety have yet to be confirmed.',
+      ],
+    ],
+  },
+  EXE: {
+    link: {
+      app: 'https://windoge98.com/',
+    },
+    warnings: [
+      [
+        'Experimental',
+        'Project is in the preliminary stages of development, deriving from innovative or speculative ideas that have not been fully vetted or substantiated. This term is often applied to projects that have not undergone rigorous evaluation or auditing, indicating that they are works-in-progress and their efficacy and safety have yet to be confirmed.',
+      ],
+    ],
+  },
+  CLOUD: {
+    warnings: [
+      [
+        'Experimental',
+        'Project is in the preliminary stages of development, deriving from innovative or speculative ideas that have not been fully vetted or substantiated. This term is often applied to projects that have not undergone rigorous evaluation or auditing, indicating that they are works-in-progress and their efficacy and safety have yet to be confirmed.',
+      ],
+    ],
+  },
 };
