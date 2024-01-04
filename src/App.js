@@ -29,7 +29,7 @@ import { AboutPage } from './pages/about';
 import { Logo } from './components/Logo';
 import { idlFactory } from './impulse.idl.js';
 import ic from './icblast.js';
-import {CountdownTimer} from './components/Countdown.js';
+import { CountdownTimer } from './components/Countdown.js';
 
 function App() {
   const ready = useSelector(
@@ -57,7 +57,6 @@ function App() {
   return (
     <ChakraProvider theme={theme}>
       <Box pl="15px" pr="15px" pb="50vh">
-        <CountdownTimer />
         <Flex maxW="1278px" m="auto" mt="6">
           <HStack>
             <Logo />
@@ -67,7 +66,6 @@ function App() {
           <Spacer />
           <ColorModeSwitcher justifySelf="flex-end" />
         </Flex>
-    
 
         <Routes>
           <Route index element={<TokenPage articles={articles} />} />

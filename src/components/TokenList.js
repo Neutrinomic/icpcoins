@@ -17,6 +17,7 @@ import {
   Tooltip,
   useColorModeValue,
   Progress,
+  useBreakpointValue,
 } from '@chakra-ui/react';
 import { useMediaQuery } from '@chakra-ui/react';
 
@@ -81,10 +82,11 @@ export const TokenPage = ({ articles }) => {
         mr="-15px"
         mb={'10px'}
         mt={'15px'}
-      ><Box
-          maxW="1278px"
+      >
+        <Box
+          maxW="1312px"
           m="auto"
-          pl={'5px'}
+          pl={'18px'}
           pr="15px"
           pb="8px"
           color={'gray.500'}
@@ -118,15 +120,22 @@ export const TokenPage = ({ articles }) => {
           </Wrap>
         </Box>
       </Box>
+
       <Articles articles={articles} />
-
-
 
       <Box maxW="1400px" m="auto">
         <TokenList tokens={tokens} key={baseCurrency} />
       </Box>
 
-      <Box bg={bg} ml="-15px" pt="20px" mr="-15px" pb="10vh">
+      <Box
+        bg={bg}
+        ml="-15px"
+        pt="20px"
+        mr="-15px"
+        pl="15px"
+        pr="15px"
+        pb="10vh"
+      >
         <Box maxW="1278px" m="auto">
           {/* {isLarge ? (
             <Wrap mt={8}>
@@ -144,7 +153,6 @@ export const TokenPage = ({ articles }) => {
     </>
   );
 };
-
 
 export const TokenList = ({ tokens, baseCurrency }) => {
   const [isLarge] = useMediaQuery('(min-width: 1024px)');

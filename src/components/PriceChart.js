@@ -777,7 +777,7 @@ export const PriceChart = ({ symbol }) => {
                             ) +
                             ' mo'
                           }
-                          interval={30}
+                          interval={isLarge ? 30 : 70}
                           tick={{ fill: '#8893a8' }}
                           axisLine={false}
                           tickLine={{

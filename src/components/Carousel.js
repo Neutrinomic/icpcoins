@@ -113,7 +113,6 @@ const ChakraCarousel = ({ children, gap }) => {
     positions,
     gap,
   };
-
   return (
     <Slider {...sliderProps}>
       <Track {...trackProps}>
@@ -343,7 +342,7 @@ const Track = ({
 
   return (
     <>
-      {itemWidth && (
+      {itemWidth ? (
         <VStack ref={node} spacing={5} alignItems="stretch">
           <MotionFlex
             dragConstraints={node}
@@ -360,7 +359,7 @@ const Track = ({
             {children}
           </MotionFlex>
         </VStack>
-      )}
+      ) : null}
     </>
   );
 };

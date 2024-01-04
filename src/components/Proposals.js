@@ -13,6 +13,7 @@ import {
   useColorModeValue,
   RadioGroup,
   Radio,
+  useMediaQuery,
 } from '@chakra-ui/react';
 import { useDispatch, useSelector } from 'react-redux';
 import moment from 'moment';
@@ -73,6 +74,7 @@ export const Proposals = props => {
   let all = useSelector(state => state.proposals);
   let proposalFilter = useSelector(state => state.config.proposalFilter);
   const dispatch = useDispatch();
+  const [small] = useMediaQuery('(max-width: 500px)');
 
   useEffect(() => {
     dispatch(getProposals());
@@ -106,14 +108,14 @@ export const Proposals = props => {
       </HStack>
       <Stack fontSize="sm">
         {proposals.map((data, idx) => (
-          <Proposal key={idx} data={data} />
+          <Proposal key={idx} data={data} small={small} />
         ))}
       </Stack>
     </Box>
   );
 };
 
-export const Proposal = ({ single = false, data }) => {
+export const Proposal = ({ single = false, data, small }) => {
   const bg = useColorModeValue('white', 'gray.800');
 
   const active = data.decided === 0;
@@ -126,6 +128,8 @@ export const Proposal = ({ single = false, data }) => {
         '/proposal/' +
         data.id;
 
+  let Wrapper = small ? Wrap : HStack;
+
   return (
     <Box
       borderRadius={'5px'}
@@ -135,7 +139,7 @@ export const Proposal = ({ single = false, data }) => {
       // border={active ? '1px solid' : ''}
       // borderColor={active ? 'green.600' : 'gray.600'}
     >
-      <HStack spacing="3">
+      <Wrapper spacing="3">
         {single ? null : <Box w={'80px'}>{data.dao}</Box>}
         <Box w={'140px'}>{moment.unix(data.created).fromNow()}</Box>
         <Box w="100px">
@@ -160,7 +164,7 @@ export const Proposal = ({ single = false, data }) => {
             </Wrap>
           </Link>
         </Box>
-      </HStack>
+      </Wrapper>
     </Box>
   );
 };
