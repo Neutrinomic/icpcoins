@@ -28,6 +28,8 @@ import {
 export const ProposalsOne = props => {
   let all = useSelector(state => state.proposals);
   let proposalFilter = useSelector(state => state.config.proposalFilter);
+  const [small] = useMediaQuery('(max-width: 500px)');
+
   const dispatch = useDispatch();
   const dao = props.dao;
 
@@ -44,6 +46,7 @@ export const ProposalsOne = props => {
   proposals.sort((a, b) => b.created - a.created);
   // leave only the first 50
   proposals = proposals.slice(0, 50);
+
   if (!proposals) return null;
   return (
     <Box {...props}>
@@ -63,7 +66,7 @@ export const ProposalsOne = props => {
       </HStack>
       <Stack fontSize="sm">
         {proposals.map((data, idx) => (
-          <Proposal key={idx} data={data} single={true} />
+          <Proposal key={idx} data={data} single={true} small={small} />
         ))}
       </Stack>
     </Box>

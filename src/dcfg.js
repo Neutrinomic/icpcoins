@@ -228,12 +228,6 @@ ICX is a decentralized application (dApp) that combines the familiar look and fe
     links: {
       linktree: 'https://linktr.ee/boxydude',
     },
-    warnings: [
-      [
-        'Experimental',
-        'Project is in the preliminary stages of development, deriving from innovative or speculative ideas that have not been fully vetted or substantiated. This term is often applied to projects that have not undergone rigorous evaluation or auditing, indicating that they are works-in-progress and their efficacy and safety have yet to be confirmed.',
-      ],
-    ],
   },
   NUA: {
     links: {
@@ -260,12 +254,6 @@ In the rapidly evolving digital asset landscape, the decentralized trading platf
   },
   SNEED: {
     links: { site: 'https://icsneed.com/' },
-    warnings: [
-      [
-        'Experimental',
-        'Project is in the preliminary stages of development, deriving from innovative or speculative ideas that have not been fully vetted or substantiated. This term is often applied to projects that have not undergone rigorous evaluation or auditing, indicating that they are works-in-progress and their efficacy and safety have yet to be confirmed.',
-      ],
-    ],
   },
   TAL: {
     links: {
@@ -275,12 +263,6 @@ In the rapidly evolving digital asset landscape, the decentralized trading platf
       twitter: 'https://twitter.com/elliptic_dao 16',
       oc: 'https://oc.app/group/xtned-fqaaa-aaaar-atffa-cai',
     },
-    warnings: [
-      [
-        'Experimental',
-        'Project is in the preliminary stages of development, deriving from innovative or speculative ideas that have not been fully vetted or substantiated. This term is often applied to projects that have not undergone rigorous evaluation or auditing, indicating that they are works-in-progress and their efficacy and safety have yet to be confirmed.',
-      ],
-    ],
     article: `
 # About
 
@@ -291,12 +273,6 @@ A decentralized, over-collateralized stablecoin backed by ckBTC leveraging liqui
   //   warnings: ['Not blackholed'],
   // },
   TENDY: {
-    warnings: [
-      [
-        'Experimental',
-        'Project is in the preliminary stages of development, deriving from innovative or speculative ideas that have not been fully vetted or substantiated. This term is often applied to projects that have not undergone rigorous evaluation or auditing, indicating that they are works-in-progress and their efficacy and safety have yet to be confirmed.',
-      ],
-    ],
     article: `
 
 # About
@@ -353,12 +329,6 @@ TRAX enables music artists to retain full ownership of their content and monetis
     links: {
       app: 'https://mora.app/',
     },
-    warnings: [
-      [
-        'Experimental',
-        'Project is in the preliminary stages of development, deriving from innovative or speculative ideas that have not been fully vetted or substantiated. This term is often applied to projects that have not undergone rigorous evaluation or auditing, indicating that they are works-in-progress and their efficacy and safety have yet to be confirmed.',
-      ],
-    ],
   },
   QRO: {
     links: {
@@ -369,41 +339,17 @@ TRAX enables music artists to retain full ownership of their content and monetis
     links: {
       website: 'https://qu2gy-uqaaa-aaaal-qcv6a-cai.icp0.io/',
     },
-    warnings: [
-      [
-        'Experimental',
-        'Project is in the preliminary stages of development, deriving from innovative or speculative ideas that have not been fully vetted or substantiated. This term is often applied to projects that have not undergone rigorous evaluation or auditing, indicating that they are works-in-progress and their efficacy and safety have yet to be confirmed.',
-      ],
-    ],
   },
-  IDOGE: {
+  STACK: {},
+  iDoge: {
     links: {
       website: 'https://idoge.org/',
     },
-    warnings: [
-      [
-        'Experimental',
-        'Project is in the preliminary stages of development, deriving from innovative or speculative ideas that have not been fully vetted or substantiated. This term is often applied to projects that have not undergone rigorous evaluation or auditing, indicating that they are works-in-progress and their efficacy and safety have yet to be confirmed.',
-      ],
-    ],
   },
   EXE: {
     link: {
       app: 'https://windoge98.com/',
     },
-    warnings: [
-      [
-        'Experimental',
-        'Project is in the preliminary stages of development, deriving from innovative or speculative ideas that have not been fully vetted or substantiated. This term is often applied to projects that have not undergone rigorous evaluation or auditing, indicating that they are works-in-progress and their efficacy and safety have yet to be confirmed.',
-      ],
-    ],
   },
-  CLOUD: {
-    warnings: [
-      [
-        'Experimental',
-        'Project is in the preliminary stages of development, deriving from innovative or speculative ideas that have not been fully vetted or substantiated. This term is often applied to projects that have not undergone rigorous evaluation or auditing, indicating that they are works-in-progress and their efficacy and safety have yet to be confirmed.',
-      ],
-    ],
-  },
+  CLOUD: {},
 };

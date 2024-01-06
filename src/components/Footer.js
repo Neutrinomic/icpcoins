@@ -11,8 +11,7 @@ import {
 import { Logo } from './Logo';
 import powered from '../assets/powered.dark.svg';
 import poweredL from '../assets/powered.light.svg';
-import { ExternalLinkIcon } from '@chakra-ui/icons'
-
+import { ExternalLinkIcon } from '@chakra-ui/icons';
 
 const ListHeader = ({ children }) => {
   return (
@@ -37,17 +36,36 @@ export function Footer() {
           spacing={8}
         >
           <Stack spacing={6}>
-            <Box>
-              <Logo />
-            </Box>
-            <Text fontSize={'sm'}>© 2023 ICPCoins. All rights reserved</Text>
-            <Text fontSize={'sm'}>Neutrinite DAO</Text>
+            <Text fontSize={'sm'}>© 2024 ICPCoins</Text>
+            <Text fontSize={'sm'}>
+              Powered by the Internet Computer
+              <br />
+              100% on-chain and SNS DAO governed
+            </Text>
           </Stack>
 
           <Stack align={'flex-start'}>
             <ListHeader>Organization</ListHeader>
             <Box as="a" href={'#/about'}>
               About
+            </Box>
+            <Box
+              as="a"
+              target="_blank"
+              href={
+                'https://dashboard.internetcomputer.org/sns/extk7-gaaaa-aaaaq-aacda-cai'
+              }
+            >
+              Neutrinite DAO
+            </Box>
+            <Box
+              as="a"
+              target="_blank"
+              href={
+                'https://drive.google.com/file/d/1PtPMKycqh6evLdpHGcAd3dJ_IowgrluY/view'
+              }
+            >
+              Whitepaper
             </Box>
           </Stack>
           <Stack align={'flex-start'}>
@@ -58,14 +76,12 @@ export function Footer() {
             <Box as="a" href={'#/listing'}>
               Listing
             </Box>
-            <Box as="a" href={'https://github.com/orgs/Neutrinomic/repositories'}>
-              Github <ExternalLinkIcon mx='2px' />
+            <Box
+              as="a"
+              href={'https://github.com/orgs/Neutrinomic/repositories'}
+            >
+              Github <ExternalLinkIcon mx="2px" />
             </Box>
-            <Image
-              style={{ marginLeft: '-10px', marginTop: '6px' }}
-              src={pwd}
-              maxW={'150px'}
-            />
           </Stack>
           <Stack align={'flex-start'}>
             <ListHeader>Socials</ListHeader>
