@@ -34,9 +34,10 @@ import { CountdownTimer } from './components/Countdown.js';
 function App() {
   const ready = useSelector(
     state =>
-      state.config.tokens.length > 0 &&
-      state.pairs.t1h[0] &&
-      state.tokens.t1d[0]
+      state.config.tokens.length > 0 
+      // &&
+      // state.pairs.t1h[0] &&
+      // state.tokens.t1d[0]
   );
   const [articles, setArticles] = useState([]);
 
@@ -50,6 +51,7 @@ function App() {
   };
 
   useEffect(() => {
+    
     getArticles();
   }, []);
 

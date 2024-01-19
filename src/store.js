@@ -3,6 +3,8 @@ import configReducer from './reducers/config';
 import pairsReducer from './reducers/pairs';
 import tokensReducer from './reducers/tokens';
 import proposalsReducer from './reducers/proposals';
+import uiReducer from "./reducers/ui";
+import pageReducer from "./reducers/pages";
 
 import { loadState, saveState } from './localStorage';
 
@@ -15,11 +17,14 @@ export const store = configureStore({
     pairs: pairsReducer,
     tokens: tokensReducer,
     proposals: proposalsReducer,
+    ui: uiReducer,
+    page: pageReducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
       serializableCheck: false,
     }),
+  devTools: false
 });
 
 // setInterval(() => {

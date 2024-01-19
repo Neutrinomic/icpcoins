@@ -1,0 +1,1 @@
+export const first_tick = 1660052760;

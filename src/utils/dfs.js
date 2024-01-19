@@ -83,7 +83,7 @@ export function findSwapPaths(config, startToken, endToken, maxDepth) {
 
 ///
 
-export function calculatePathPrice(inc, getPrice, time) {
+export function calculatePathPrice(inc, getPrice, time, interval='t1h') {
   try {
     let path = inc.tokens;
     let pathPrice = 1; // Initialize to 1 as we'll be multiplying prices
@@ -91,7 +91,7 @@ export function calculatePathPrice(inc, getPrice, time) {
     let depthBid = 0;
     let depthAsk = 0;
     for (let i = 0; i < path.length - 1; i++) {
-      const x = getPrice(path[i], path[i + 1], inc.pairs[i], time);
+      const x = getPrice(path[i], path[i + 1], inc.pairs[i], time, interval);
 
       const p = x.p;
       let price = (p[2] + p[3]) / 2;

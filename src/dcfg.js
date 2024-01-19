@@ -2,7 +2,6 @@ export const dcfg = {
   sonic: {
     name: 'Sonic',
     url: 'https://app.sonic.ooo/swap',
-    tip: 'Sonic volume is not available on-chain',
   },
   icdex: {
     name: 'ICDex',

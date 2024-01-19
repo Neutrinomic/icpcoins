@@ -38,8 +38,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { selectTokenList } from '../reducers/tokens.js';
 
 import { Articles } from './Impulse';
+import { changePage } from '../reducers/pages';
 
 export const TokenPage = ({ articles }) => {
+
+  const dispatch = useDispatch();
+
   const tokens = useSelector(selectTokenList);
 
   const [isLarge] = useMediaQuery('(min-width: 1024px)');
@@ -53,7 +57,12 @@ export const TokenPage = ({ articles }) => {
     'linear-gradient(0deg, rgba(227,232,239,1) 0%, rgba(234,239,245,1) 15%)',
     'linear-gradient(180deg, rgba(23,25,34,1) 70%, rgba(15,17,26,0.7) 100%)'
   );
+
   const fg = useColorModeValue('gray.900', 'gray.200');
+
+  useEffect(() => {
+    dispatch(changePage({ page: 'index', params: {} }))
+  }, []);
 
   if (!tokens) return null;
 

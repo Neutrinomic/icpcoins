@@ -50,13 +50,17 @@ import {
   getPairIds,
   getPairRev,
 } from '../utils';
-
+import {fetchTokens} from "../reducers/tokens";
+// import { fetchPairs } from '../reducers/pairs.js';
+import {first_tick} from '../config.js';
 //https://github.com/recharts/recharts/issues/956
 const dexColors = ['#00a0e5', '#c55de8', '#8BAB43', '#948c52', '#1ca254'];
-export const PriceChart = ({ symbol }) => {
+export const PriceChart = ({ symbol, onChangePeriod }) => {
+  const dispatch = useDispatch();
   const config = useSelector(state => state.config);
   const baseCurrency = useSelector(state => state.config.baseCurrency);
-  const [isLarge] = useMediaQuery('(min-width: 1024px)');
+  const baseCurrencySymbol = config.tokens[baseCurrency].symbol;
+    const [isLarge] = useMediaQuery('(min-width: 1024px)');
 
   const bg2 = useColorModeValue(
     'linear-gradient(180deg, rgba(227,232,239,1) 0%, rgba(234,239,245,1) 14%)',
@@ -76,8 +80,12 @@ export const PriceChart = ({ symbol }) => {
     },
   };
 
-  const [period, setPeriod] = useState(24 * 30);
+  const period = useSelector(state => state.page.params.period);
+
+
   let data = useSelector(selectSingleTokenInfo({ period, symbol }));
+
+
   if (!data) return null;
   const isDex = data
     ? data.sources.findIndex(z => z.source.id === 'xrc') === -1
@@ -87,7 +95,8 @@ export const PriceChart = ({ symbol }) => {
 
   const bigTickFormatter = t =>
     t < 1000000 ? (t / 1000).toFixed(1) + 'k' : (t / 1000000).toFixed(2) + 'm';
-
+  const days_from_start = daysFromStart();
+  
   return (
     <>
       <Box mt="15px" pt="15px" ml="-15px" mr="-15px">
@@ -137,13 +146,14 @@ export const PriceChart = ({ symbol }) => {
                 dataKey="t"
                 scale="time"
                 dy={5}
-                dx={35}
+                dx={32}
+                minTickGap={50}
                 tickFormatter={t =>
                   period <= 24
                     ? moment.unix(t).format('HH:mm')
                     : moment.unix(t).format('Do MMM')
                 }
-                interval={isLarge ? 64 : 64 * 4}
+                interval={"equidistantPreserveStart"}
                 tick={{ fill: '#8893a8' }}
                 tickLine={{
                   stroke: '#334455',
@@ -151,7 +161,7 @@ export const PriceChart = ({ symbol }) => {
                 axisLine={{ stroke: '#334455' }}
               />
               <Tooltip
-                content={<CustomTooltip />}
+                content={<CustomTooltip symbol={baseCurrencySymbol}/>}
                 isAnimationActive={false}
                 cursor={{ stroke: '#445566' }}
               />
@@ -795,29 +805,35 @@ export const PriceChart = ({ symbol }) => {
           ) : null}
           <Center mt="15px" mb="10px">
             <ButtonGroup spacing="6">
-              {/* <Button
-                variant={period === 6 ? 'solid' : 'outline'}
-                onClick={() => setPeriod(6)}
-              >
-                6H
-              </Button>
-              <Button
-                variant={period === 24 * 1 ? 'solid' : 'outline'}
-                onClick={() => setPeriod(24 * 1)}
+            <Button
+                variant={period ===  1 ? 'solid' : 'outline'}
+                onClick={() => onChangePeriod( 1)}
               >
                 1D
-              </Button> */}
-              <Button
-                variant={period === 24 * 5 ? 'solid' : 'outline'}
-                onClick={() => setPeriod(24 * 5)}
-              >
-                5D
               </Button>
               <Button
-                variant={period === 24 * 30 ? 'solid' : 'outline'}
-                onClick={() => setPeriod(24 * 30)}
+                variant={period ===  7 ? 'solid' : 'outline'}
+                onClick={() => onChangePeriod( 7)}
+              >
+                7D
+              </Button>
+              <Button
+                variant={period ===  30 ? 'solid' : 'outline'}
+                onClick={() => onChangePeriod(30)}
               >
                 1M
+              </Button>
+              <Button
+                variant={period ===  30 * 12 ? 'solid' : 'outline'}
+                onClick={() => onChangePeriod(30 * 12)}
+              >
+                1Y
+              </Button>
+              <Button
+                variant={period ===  days_from_start ? 'solid' : 'outline'}
+                onClick={() => onChangePeriod(days_from_start)}
+              >
+                All
               </Button>
             </ButtonGroup>
           </Center>
@@ -855,6 +871,7 @@ export const PriceChart = ({ symbol }) => {
 };
 
 const Source = ({ data, idx }) => {
+  if (!data.price) return null;
   return (
     <Tr>
       <Td>
@@ -892,16 +909,22 @@ const Source = ({ data, idx }) => {
   );
 };
 
-const CustomTooltip = ({ active, payload, label }) => {
-  // console.log(payload);
+const CustomTooltip = ({ symbol, active, payload, label }) => {
+  let avg_price = payload.reduce((a, b) => a + b.value, 0) / payload.length;
   if (active && payload && payload.length) {
     return (
       <div className="ctip">
         <p className="mdy">{moment.unix(label).format('MMMM Do YYYY')}</p>
         <p className="hmm">{moment.unix(label).format('HH:mm')}</p>
+        <p className="chpr">{smartNumber(avg_price)} {symbol}</p>
       </div>
     );
   }
 
   return null;
 };
+
+
+const daysFromStart = () => {
+  return Math.floor((Date.now() / 1000 - first_tick)/(60*60*24));
+}

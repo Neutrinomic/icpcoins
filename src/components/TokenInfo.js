@@ -26,9 +26,12 @@ import { ProposalsOne } from './Proposals';
 import MD from './MD';
 import ic from '../icblast.js';
 import { tokensCfg } from '../dcfg';
-import { fetchTokenExtended } from '../reducers/tokens';
+// import { fetchTokenExtended } from '../reducers/tokens';
+import { changePage } from '../reducers/pages';
+
 export const TokenInfo = () => {
   const tokens = useSelector(selectTokenList);
+  const tokens_cfg = useSelector(state => state.config.tokens)
   const baseCurrency = useSelector(state => state.config.baseCurrency);
 
   const dispatch = useDispatch();
@@ -52,11 +55,17 @@ export const TokenInfo = () => {
   let info = tokensCfg[name];
 
   const ti = tokens.length ? tokens.find(x => x.symbol === name) : undefined;
-  const tid = ti ? ti.id : undefined;
+  const tid =  tokens_cfg.findIndex(x => x.symbol === name)
+
 
   useEffect(() => {
-    if (tid !== undefined) dispatch(fetchTokenExtended({ tid }));
-  }, [tid, baseCurrency]);
+    if (!tid) return;
+    dispatch(changePage({ page: 'token', params: {tid, period:30} }))
+  }, [tid]);
+
+  // useEffect(() => {
+  //   if (tid !== undefined) dispatch(fetchTokenExtended({ tid }));
+  // }, [tid, baseCurrency]);
 
   if (!tokens || tokens.length === 0) return null;
 
@@ -166,7 +175,8 @@ export const TokenInfo = () => {
         </Box>
       ) : null}
 
-      <PriceChart symbol={name} />
+      <PriceChart symbol={name} onChangePeriod={(period) => dispatch(changePage({ page: 'token', params: {tid, period} }))
+      }/>
       <Box fontSize="15px" bg={bg3} ml="-15px" mr="-15px">
         <Box maxW="1278px" m="auto" pl="15px" pr="15px" pt="15px" pb="15px">
           {info && info.links && Object.keys(info.links).length ? (

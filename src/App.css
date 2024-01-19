@@ -67,6 +67,10 @@ body {overflow-y: scroll;}
       font-size:22px;
     }
 
+    .ctip .chpr {
+      font-weight:bold;
+    }
+
     .ppr a:hover {
       text-decoration: none;
       opacity:0.8

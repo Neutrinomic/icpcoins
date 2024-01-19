@@ -3,6 +3,7 @@ import ic from '../icblast.js';
 import { toState } from '@infu/icblast';
 import { i2t, lastStartedTick } from '../utils';
 import { idlFactory as aggridl } from '../aggregator.idl.js';
+import {first_tick} from '../config.js';
 const initialState = {
   t5m: {},
   t1h: {},
@@ -72,8 +73,8 @@ export const fetchPairs =
     //   s.pairs[interval]?.[pair]?.end ||
     //   Date.now() / 1000 - i2t(interval) * back;
     let to = lastStartedTick(i2t(interval), Date.now() / 1000);
-    let from = to - i2t(interval) * back;
-
+    let from = Math.max(to - 60*60*24 * back, first_tick);
+    
     // mypairs has all pairs from pid
     let mypairs = Object.keys(s.pairs[interval])
       .filter(id => pids.indexOf(Number(id)) !== -1)
@@ -100,13 +101,13 @@ export const fetchPairs =
     //   pair,
     // });
 
+    
     let pairs = await aggr.get_pairs(
       { [interval]: null },
       pids,
       from * 1000000000,
       to * 1000000000
     );
-
     let start = Number(pairs.ok.first / 1000000000n);
     let end = Number(pairs.ok.last / 1000000000n);
     pairs = pairs.ok.data;

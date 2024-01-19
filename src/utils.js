@@ -1,20 +1,12 @@
 export function getPairIds(config, t1, t2) {
   return config.pairs
     .map((x, pid) => {
-      let rev = false;
       if (
         (Number(x.tokens[0]) === t1 && Number(x.tokens[1]) === t2) ||
         (Number(x.tokens[1]) === t1 && Number(x.tokens[0]) === t2)
-      ) {
-        if (Number(x.tokens[1]) === t1 && Number(x.tokens[0]) === t2)
-          rev = true;
-      } else {
-        return false;
-      }
-
-      return pid;
+            ) return pid; else return false;
     })
-    .filter(Boolean);
+    .filter(x => x !== false);
 }
 
 export function getPairPrices(config, pairs, t1, t2, pids = []) {

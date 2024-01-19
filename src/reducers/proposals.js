@@ -23,7 +23,7 @@ export const proposalsSlice = createSlice({
 export const { setProposals, clearProposals } = proposalsSlice.actions;
 
 let lastProposals = { time: 0, filter: 'filtered' };
-export const getProposals = () => async (dispatch, getState) => {
+export const getProposals = ({tid=false} = {}) => async (dispatch, getState) => {
   let s = getState();
   let tokens = s.config.tokens;
 
@@ -37,9 +37,10 @@ export const getProposals = () => async (dispatch, getState) => {
   //   if (newFilter !== lastProposals.filter) dispatch(clearProposals());
   lastProposals = { time: Date.now(), filter: newFilter };
 
-  dispatch(fetchNNSProposals());
+  if (!tid) dispatch(fetchNNSProposals());
 
   for (let t of tokens) {
+    if (tid !== false && t.id !== tid) continue;
     if ('sns' in t.locking) {
       dispatch(fetchProposals({ symbol: t.symbol, info: t.locking.sns }));
     }
