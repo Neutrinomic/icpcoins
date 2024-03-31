@@ -22,7 +22,8 @@ import {
   Menu,
   MenuItem,
   MenuButton,
-  MenuList
+  MenuList,
+  Flex,
 } from '@chakra-ui/react';
 import { useMediaQuery } from '@chakra-ui/react';
 
@@ -178,12 +179,57 @@ export const TokenList = ({ tokens, baseCurrency }) => {
     chartPeriod: 7, // In days
   });
 
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
+
+  const sortedTokens = useMemo(() => {
+    let sortableItems = [...tokens];
+    if (sortConfig.key !== null) {
+      sortableItems.sort((a, b) => {
+        // Handle null, undefined, or empty values by treating them as the lowest numbers
+        let aValue = a[sortConfig.key];
+        let bValue = b[sortConfig.key];
+
+        if (sortConfig.key == 'treasury') {
+          aValue = a[sortConfig.key][3];
+          bValue = b[sortConfig.key][3];
+        }
+        if (aValue === null || aValue === undefined || aValue === '') aValue = Number.MIN_SAFE_INTEGER;
+        if (bValue === null || bValue === undefined || bValue === '') bValue = Number.MIN_SAFE_INTEGER;
+
+        if (aValue < bValue) {
+          return sortConfig.direction === 'ascending' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === 'ascending' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sortableItems;
+  }, [tokens, sortConfig]);
+
+  const requestSort = (key) => {
+    let direction = 'ascending';
+    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+  };
   const priceChangePeriodOnChange = (period) => {
     setFilters({ ...filters, priceChangePeriod: period });
   }
   const chartPeriodOnChange = (period) => {
     setFilters({ ...filters, chartPeriod: period });
   }
+
+  const changeKey = useMemo(() => {
+    switch (filters.priceChangePeriod) {
+      case 1: return 'change24';
+      case 7: return 'change7';
+      case 31: return 'change31';
+    }
+  }, [filters.priceChangePeriod]);
+
   return (
     <>
       <TableContainer
@@ -220,24 +266,27 @@ export const TokenList = ({ tokens, baseCurrency }) => {
                 Symbol
               </Th>
               <Th isNumeric w="120px">
-                Price
+                <Flex flexDirection="row" justifyContent="flex-end" minWidth="min-content"> Price <SortArrow sortConfig={sortConfig} requestSort={requestSort} sortKey="price" /> </Flex>
               </Th>
               <Th textAlign="start" w="30px">
-                <Menu >
-                  <MenuButton>{period2header(filters.priceChangePeriod, '%')}</MenuButton>
-                  <MenuList>
-                    {/* MenuItems are not rendered unless Menu is open */}
-                    <MenuItem onClick={() => priceChangePeriodOnChange(31)}>31 Day %</MenuItem>
-                    <MenuItem onClick={() => priceChangePeriodOnChange(7)}>7 Day %</MenuItem>
-                    <MenuItem onClick={() => priceChangePeriodOnChange(1)}>24H %</MenuItem>
-                  </MenuList>
-                </Menu>
+                <Flex flexDirection="row" justifyContent="flex-end" minWidth="min-content">
+                  <Menu >
+                    <MenuButton>{period2header(filters.priceChangePeriod, '%')}</MenuButton>
+                    <MenuList>
+                      {/* MenuItems are not rendered unless Menu is open */}
+                      <MenuItem onClick={() => priceChangePeriodOnChange(31)}>31 Day %</MenuItem>
+                      <MenuItem onClick={() => priceChangePeriodOnChange(7)}>7 Day %</MenuItem>
+                      <MenuItem onClick={() => priceChangePeriodOnChange(1)}>24H %</MenuItem>
+                    </MenuList>
+                  </Menu>
+                  <SortArrow sortConfig={sortConfig} requestSort={requestSort} sortKey={changeKey} />
+                </Flex>
               </Th>
               <Th isNumeric w="220px">
-                Market Cap
+                <Flex flexDirection="row" justifyContent="flex-end" minWidth="min-content"> Market Cap <SortArrow sortConfig={sortConfig} requestSort={requestSort} sortKey="marketCap" /> </Flex>
               </Th>
               <Th isNumeric w="150px">
-                24h Volume
+                <Flex flexDirection="row" justifyContent="flex-end" minWidth="min-content"> 24h Volume<SortArrow sortConfig={sortConfig} requestSort={requestSort} sortKey="volume24" /> </Flex>
               </Th>
               <Th isNumeric w="170px">
                 <Tooltip
@@ -249,7 +298,7 @@ export const TokenList = ({ tokens, baseCurrency }) => {
                     </>
                   }
                 >
-                  Circulating supply
+                  <Flex flexDirection="row" justifyContent="flex-end" minWidth="min-content"> Circulating supply<SortArrow sortConfig={sortConfig} requestSort={requestSort} sortKey="circulating" /> </Flex>
                 </Tooltip>
               </Th>
               <Th w={'100px'}>
@@ -264,23 +313,23 @@ export const TokenList = ({ tokens, baseCurrency }) => {
               </Th>
               <Th isNumeric w="120px">
                 <Tooltip label="Capital required to reduce the price by 50%">
-                  Depth -50%
+                  <Flex flexDirection="row" justifyContent="flex-end" minWidth="min-content"> Depth -50%<SortArrow sortConfig={sortConfig} requestSort={requestSort} sortKey="depth50Bid" /> </Flex>
                 </Tooltip>
               </Th>
               <Th isNumeric w="120px">
                 <Tooltip label="Capital required to increase the price by 100%">
-                  Depth +100%
+                  <Flex flexDirection="row" justifyContent="flex-end" minWidth="min-content">  Depth +100%<SortArrow sortConfig={sortConfig} requestSort={requestSort} sortKey="depth50Ask" /> </Flex>
                 </Tooltip>
               </Th>
               <Th>
                 <Tooltip label={<>Value of the ICP in treasury</>}>
-                  Treasury
+                  <Flex flexDirection="row" justifyContent="flex-end" minWidth="min-content"> Treasury<SortArrow sortConfig={sortConfig} requestSort={requestSort} sortKey="treasury" /> </Flex>
                 </Tooltip>
               </Th>
             </Tr>
           </Thead>
           <Tbody>
-            {tokens.map((data, idx) => (
+            {sortedTokens.map((data, idx) => (
               <TokenListItem
                 baseCurrency={baseCurrency}
                 key={data.symbol}
@@ -338,6 +387,7 @@ const TokenListItem = ({ idx, data, baseCurrency, filters }) => {
       case 31: return change31;
     }
   }, [filters.priceChangePeriod, change24, change7, change31]);
+
 
   const chartData = useMemo(() => {
     switch (filters.chartPeriod) {
@@ -491,6 +541,13 @@ const TokenPriceChange = ({ change }) => {
     </>
   );
 };
+
+const SortArrow = ({ sortConfig, sortKey, requestSort }) => {
+  return (
+
+    <div style={{ cursor: 'pointer', paddingLeft: '5px' }} onClick={() => requestSort(sortKey)}>{sortConfig.key === sortKey && sortConfig.direction === 'ascending' ? '▲' : '▼'}</div>
+  )
+}
 
 const useDetectSticky = (ref, observerSettings = { threshold: [1] }) => {
   const [isSticky, setIsSticky] = useState(false);
