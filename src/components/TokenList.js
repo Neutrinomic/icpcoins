@@ -19,14 +19,16 @@ import {
   Progress,
   useBreakpointValue,
   Tag,
-  TagLeftIcon,
-  TagLabel,
+  Menu,
+  MenuItem,
+  MenuButton,
+  MenuList
 } from '@chakra-ui/react';
 import { useMediaQuery } from '@chakra-ui/react';
 
 import { InfoIcon, TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { Routes, Route, Outlet, Link, useNavigate } from 'react-router-dom';
 import { smartNumber } from './Inline';
 
@@ -39,6 +41,7 @@ import { selectTokenList } from '../reducers/tokens.js';
 
 import { Articles } from './Impulse';
 import { changePage } from '../reducers/pages';
+import { period2header } from '../utils.js';
 
 export const TokenPage = ({ articles }) => {
 
@@ -170,6 +173,17 @@ export const TokenList = ({ tokens, baseCurrency }) => {
   const [isLarge] = useMediaQuery('(min-width: 1024px)');
 
   const [isSticky, ref, setIsSticky] = useDetectSticky();
+  const [filters, setFilters] = useState({
+    priceChangePeriod: 1, // In days
+    chartPeriod: 7, // In days
+  });
+
+  const priceChangePeriodOnChange = (period) => {
+    setFilters({ ...filters, priceChangePeriod: period });
+  }
+  const chartPeriodOnChange = (period) => {
+    setFilters({ ...filters, chartPeriod: period });
+  }
   return (
     <>
       <TableContainer
@@ -209,7 +223,15 @@ export const TokenList = ({ tokens, baseCurrency }) => {
                 Price
               </Th>
               <Th textAlign="start" w="30px">
-                24H %
+                <Menu >
+                  <MenuButton>{period2header(filters.priceChangePeriod, '%')}</MenuButton>
+                  <MenuList>
+                    {/* MenuItems are not rendered unless Menu is open */}
+                    <MenuItem onClick={() => priceChangePeriodOnChange(31)}>31 Day %</MenuItem>
+                    <MenuItem onClick={() => priceChangePeriodOnChange(7)}>7 Day %</MenuItem>
+                    <MenuItem onClick={() => priceChangePeriodOnChange(1)}>24H %</MenuItem>
+                  </MenuList>
+                </Menu>
               </Th>
               <Th isNumeric w="220px">
                 Market Cap
@@ -230,7 +252,16 @@ export const TokenList = ({ tokens, baseCurrency }) => {
                   Circulating supply
                 </Tooltip>
               </Th>
-              <Th w={'100px'}>LAST 7 DAYS</Th>
+              <Th w={'100px'}>
+                <Menu>
+                  <MenuButton> LAST {filters.chartPeriod == 1 ? 24 : filters.chartPeriod} {filters.chartPeriod == 1 ? 'HOURS' : 'DAYS'}</MenuButton>
+                  <MenuList>
+                    <MenuItem onClick={() => chartPeriodOnChange(1)}>24H</MenuItem>
+                    <MenuItem onClick={() => chartPeriodOnChange(7)}>7D</MenuItem>
+                    <MenuItem onClick={() => chartPeriodOnChange(31)}>31D</MenuItem>
+                  </MenuList>
+                </Menu>
+              </Th>
               <Th isNumeric w="120px">
                 <Tooltip label="Capital required to reduce the price by 50%">
                   Depth -50%
@@ -255,6 +286,7 @@ export const TokenList = ({ tokens, baseCurrency }) => {
                 key={data.symbol}
                 idx={idx}
                 data={data}
+                filters={filters}
               />
             ))}
           </Tbody>
@@ -264,7 +296,7 @@ export const TokenList = ({ tokens, baseCurrency }) => {
   );
 };
 
-const TokenListItem = ({ idx, data, baseCurrency }) => {
+const TokenListItem = ({ idx, data, baseCurrency, filters }) => {
   const cs = baseCurrency === 'USD' ? '$' : '';
 
   let {
@@ -279,9 +311,13 @@ const TokenListItem = ({ idx, data, baseCurrency }) => {
     total,
     depth50Bid,
     depth50Ask,
+    dayChart,
     weekchart,
+    monthChart,
     treasury,
     change24,
+    change7,
+    change31,
   } = data;
 
   const nns = symbol === 'ckETH' || symbol === 'ckBTC' || symbol === 'ICP';
@@ -294,6 +330,23 @@ const TokenListItem = ({ idx, data, baseCurrency }) => {
   let [over, setOver] = useState(false);
 
   const treasury_icp = treasury[3];
+
+  const change = useMemo(() => {
+    switch (filters.priceChangePeriod) {
+      case 1: return change24;
+      case 7: return change7;
+      case 31: return change31;
+    }
+  }, [filters.priceChangePeriod, change24, change7, change31]);
+
+  const chartData = useMemo(() => {
+    switch (filters.chartPeriod) {
+      case 1: return dayChart;
+      case 7: return weekchart;
+      case 31: return monthChart;
+    }
+  }, [filters.chartPeriod, dayChart, weekchart, monthChart]);
+
   return (
     <Tr
       sx={{ cursor: 'pointer' }}
@@ -349,18 +402,7 @@ const TokenListItem = ({ idx, data, baseCurrency }) => {
         {smartNumber(price)} */}
       </Td>
       <Td>
-        {isNaN(change24) ? (
-          <>-</>
-        ) : (
-          <>
-            {change24 < 0 ? (
-              <TriangleDownIcon color="pink.700" mr="5px" />
-            ) : (
-              <TriangleUpIcon color="green.500" mr="5px" />
-            )}
-            {Math.abs(change24).toFixed(2)}%
-          </>
-        )}
+        <TokenPriceChange change={change} />
       </Td>
       <Td isNumeric>
         <DNumber currency={baseCurrency} n={marketcap} />
@@ -405,7 +447,7 @@ const TokenListItem = ({ idx, data, baseCurrency }) => {
 
       <Td>
         <Box ml="-5px" mr="-5px">
-          <MiniChart data={weekchart} />
+          <MiniChart data={chartData} />
         </Box>
       </Td>
       <Td isNumeric>
@@ -432,6 +474,21 @@ const TokenListItem = ({ idx, data, baseCurrency }) => {
         )}
       </Td>
     </Tr>
+  );
+};
+
+const TokenPriceChange = ({ change }) => {
+  return isNaN(change) ? (
+    <>-</>
+  ) : (
+    <>
+      {change < 0 ? (
+        <TriangleDownIcon color="pink.700" mr="5px" />
+      ) : (
+        <TriangleUpIcon color="green.500" mr="5px" />
+      )}
+      {Math.abs(change).toFixed(2)}%
+    </>
   );
 };
 
