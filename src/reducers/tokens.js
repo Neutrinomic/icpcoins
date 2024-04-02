@@ -344,6 +344,38 @@ export const selectTokenList = state => {
           const volume24 = pp.reduce((a, b) => a + b.volume24h, 0) * usdprice;
 
           //console.log("Price Changes : ", change24, change7, change31);
+          let pathpair7 = calculatePairPath(paths, 't1h', tstart7, tlast)(state);
+          let pathpair31 = calculatePairPath(paths, 't1d', tstart31, tlast)(state); // TODO: Optimize repeated calculatePairPath calls
+          let volume31 = 0;
+          let volume7 = 0;
+          const ticksPerDay7 = 24; // 7day data is fetched with t1h interval ( 1 tick per hour )
+          const ticksPerDay31 = 1; // 31day data is fetched with t1d interval ( 1 tick per day )
+          try {
+            paths.forEach((x, idx) => {
+              volume7 += Array(7)
+                .fill(0)
+                .reduce(
+                  (p, c, i) =>
+                    p +
+                    pathpair7[idx][pathpair7[idx].length - 1 - i * ticksPerDay7].volume24h *
+                    usdprice,
+                  0
+                );
+
+              volume31 += Array(31)
+                .fill(0)
+                .reduce(
+                  (p, c, i) =>
+                    p +
+                    pathpair31[idx][pathpair31[idx].length - 1 - i * ticksPerDay31].volume24h *
+                    usdprice,
+                  0
+                );
+            })
+
+          } catch (e) {
+            console.log(e);
+          }
 
           return {
             id: idx,
@@ -359,6 +391,8 @@ export const selectTokenList = state => {
             real_circulating,
             marketcap,
             volume24,
+            volume7,
+            volume31,
             change24,
             change7,
             change31,

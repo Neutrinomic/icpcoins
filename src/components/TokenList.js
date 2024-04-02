@@ -177,6 +177,7 @@ export const TokenList = ({ tokens, baseCurrency }) => {
   const [filters, setFilters] = useState({
     priceChangePeriod: 1, // In days
     chartPeriod: 7, // In days
+    volumePeriod: 1, // In days
   });
 
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
@@ -185,7 +186,7 @@ export const TokenList = ({ tokens, baseCurrency }) => {
     let sortableItems = [...tokens];
     if (sortConfig.key !== null) {
       sortableItems.sort((a, b) => {
-        // Handle null, undefined, or empty values by treating them as the lowest numbers
+
         let aValue = a[sortConfig.key];
         let bValue = b[sortConfig.key];
 
@@ -193,6 +194,8 @@ export const TokenList = ({ tokens, baseCurrency }) => {
           aValue = a[sortConfig.key][3];
           bValue = b[sortConfig.key][3];
         }
+
+        // Handle null, undefined, or empty values by treating them as the lowest numbers
         if (aValue === null || aValue === undefined || aValue === '') aValue = Number.MIN_SAFE_INTEGER;
         if (bValue === null || bValue === undefined || bValue === '') bValue = Number.MIN_SAFE_INTEGER;
 
@@ -221,7 +224,9 @@ export const TokenList = ({ tokens, baseCurrency }) => {
   const chartPeriodOnChange = (period) => {
     setFilters({ ...filters, chartPeriod: period });
   }
-
+  const volumePeriodOnChange = (period) => {
+    setFilters({ ...filters, volumePeriod: period });
+  }
   const changeKey = useMemo(() => {
     switch (filters.priceChangePeriod) {
       case 1: return 'change24';
@@ -229,6 +234,14 @@ export const TokenList = ({ tokens, baseCurrency }) => {
       case 31: return 'change31';
     }
   }, [filters.priceChangePeriod]);
+
+  const volumeKey = useMemo(() => {
+    switch (filters.volumePeriod) {
+      case 1: return 'volume24';
+      case 7: return 'volume7';
+      case 31: return 'volume31';
+    }
+  }, [filters.volumePeriod]);
 
   return (
     <>
@@ -286,7 +299,20 @@ export const TokenList = ({ tokens, baseCurrency }) => {
                 <Flex flexDirection="row" justifyContent="flex-end" minWidth="min-content"> Market Cap <SortArrow sortConfig={sortConfig} requestSort={requestSort} sortKey="marketCap" /> </Flex>
               </Th>
               <Th isNumeric w="150px">
-                <Flex flexDirection="row" justifyContent="flex-end" minWidth="min-content"> 24h Volume<SortArrow sortConfig={sortConfig} requestSort={requestSort} sortKey="volume24" /> </Flex>
+                <Flex flexDirection="row" justifyContent="flex-end" minWidth="min-content">
+                  <Menu >
+                    <MenuButton>{filters.volumePeriod == 1 ? 24 : filters.volumePeriod}{filters.volumePeriod == 1 ? 'H' : 'D'} Volume</MenuButton>
+                    <MenuList>
+                      {/* MenuItems are not rendered unless Menu is open */}
+                      <MenuItem onClick={() => volumePeriodOnChange(31)}>31 Day</MenuItem>
+                      <MenuItem onClick={() => volumePeriodOnChange(7)}>7 Day</MenuItem>
+                      <MenuItem onClick={() => volumePeriodOnChange(1)}>24H</MenuItem>
+                    </MenuList>
+                  </Menu>
+                  <SortArrow sortConfig={sortConfig} requestSort={requestSort} sortKey={volumeKey} />
+                </Flex>
+                {/* <Flex flexDirection="row" justifyContent="flex-end" minWidth="min-content">
+                  24h Volume<SortArrow sortConfig={sortConfig} requestSort={requestSort} sortKey="volume24" /> </Flex> */}
               </Th>
               <Th isNumeric w="170px">
                 <Tooltip
@@ -355,6 +381,8 @@ const TokenListItem = ({ idx, data, baseCurrency, filters }) => {
     price,
     marketcap,
     volume24,
+    volume7,
+    volume31,
     circulating,
     real_circulating,
     total,
@@ -388,6 +416,13 @@ const TokenListItem = ({ idx, data, baseCurrency, filters }) => {
     }
   }, [filters.priceChangePeriod, change24, change7, change31]);
 
+  const volume = useMemo(() => {
+    switch (filters.volumePeriod) {
+      case 1: return volume24;
+      case 7: return volume7;
+      case 31: return volume31;
+    }
+  }, [filters.volumePeriod, volume24, volume7, volume31]);
 
   const chartData = useMemo(() => {
     switch (filters.chartPeriod) {
@@ -460,7 +495,7 @@ const TokenListItem = ({ idx, data, baseCurrency, filters }) => {
       <Td isNumeric>
         <DNumber
           currency={baseCurrency}
-          n={Math.round(volume24)}
+          n={Math.round(volume)}
           noDecimals={true}
         />
       </Td>
