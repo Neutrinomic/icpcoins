@@ -50,9 +50,9 @@ import {
   getPairIds,
   getPairRev,
 } from '../utils';
-import {fetchTokens} from "../reducers/tokens";
+import { fetchTokens } from '../reducers/tokens';
 // import { fetchPairs } from '../reducers/pairs.js';
-import {first_tick} from '../config.js';
+import { first_tick } from '../config.js';
 //https://github.com/recharts/recharts/issues/956
 const dexColors = ['#00a0e5', '#c55de8', '#8BAB43', '#948c52', '#1ca254'];
 export const PriceChart = ({ symbol, onChangePeriod }) => {
@@ -60,7 +60,7 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
   const config = useSelector(state => state.config);
   const baseCurrency = useSelector(state => state.config.baseCurrency);
   const baseCurrencySymbol = config.tokens[baseCurrency].symbol;
-    const [isLarge] = useMediaQuery('(min-width: 1024px)');
+  const [isLarge] = useMediaQuery('(min-width: 1024px)');
 
   const bg2 = useColorModeValue(
     'linear-gradient(180deg, rgba(227,232,239,1) 0%, rgba(234,239,245,1) 14%)',
@@ -82,9 +82,7 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
 
   const period = useSelector(state => state.page.params.period);
 
-
   let data = useSelector(selectSingleTokenInfo({ period, symbol }));
-
 
   if (!data) return null;
   const isDex = data
@@ -96,7 +94,7 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
   const bigTickFormatter = t =>
     t < 1000000 ? (t / 1000).toFixed(1) + 'k' : (t / 1000000).toFixed(2) + 'm';
   const days_from_start = daysFromStart();
-  
+
   return (
     <>
       <Box mt="15px" pt="15px" ml="-15px" mr="-15px">
@@ -153,7 +151,7 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
                     ? moment.unix(t).format('HH:mm')
                     : moment.unix(t).format('Do MMM')
                 }
-                interval={"equidistantPreserveStart"}
+                interval={'equidistantPreserveStart'}
                 tick={{ fill: '#8893a8' }}
                 tickLine={{
                   stroke: '#334455',
@@ -161,7 +159,7 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
                 axisLine={{ stroke: '#334455' }}
               />
               <Tooltip
-                content={<CustomTooltip symbol={baseCurrencySymbol}/>}
+                content={<CustomTooltip symbol={baseCurrencySymbol} />}
                 isAnimationActive={false}
                 cursor={{ stroke: '#445566' }}
               />
@@ -805,32 +803,32 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
           ) : null}
           <Center mt="15px" mb="10px">
             <ButtonGroup spacing="6">
-            <Button
+              {/* <Button
                 variant={period ===  1 ? 'solid' : 'outline'}
                 onClick={() => onChangePeriod( 1)}
               >
                 1D
-              </Button>
+              </Button> */}
               <Button
-                variant={period ===  7 ? 'solid' : 'outline'}
-                onClick={() => onChangePeriod( 7)}
+                variant={period === 7 ? 'solid' : 'outline'}
+                onClick={() => onChangePeriod(7)}
               >
                 7D
               </Button>
               <Button
-                variant={period ===  30 ? 'solid' : 'outline'}
+                variant={period === 30 ? 'solid' : 'outline'}
                 onClick={() => onChangePeriod(30)}
               >
                 1M
               </Button>
               <Button
-                variant={period ===  30 * 12 ? 'solid' : 'outline'}
+                variant={period === 30 * 12 ? 'solid' : 'outline'}
                 onClick={() => onChangePeriod(30 * 12)}
               >
                 1Y
               </Button>
               <Button
-                variant={period ===  days_from_start ? 'solid' : 'outline'}
+                variant={period === days_from_start ? 'solid' : 'outline'}
                 onClick={() => onChangePeriod(days_from_start)}
               >
                 All
@@ -916,7 +914,9 @@ const CustomTooltip = ({ symbol, active, payload, label }) => {
       <div className="ctip">
         <p className="mdy">{moment.unix(label).format('MMMM Do YYYY')}</p>
         <p className="hmm">{moment.unix(label).format('HH:mm')}</p>
-        <p className="chpr">{smartNumber(avg_price)} {symbol}</p>
+        <p className="chpr">
+          {smartNumber(avg_price)} {symbol}
+        </p>
       </div>
     );
   }
@@ -924,7 +924,6 @@ const CustomTooltip = ({ symbol, active, payload, label }) => {
   return null;
 };
 
-
 const daysFromStart = () => {
-  return Math.floor((Date.now() / 1000 - first_tick)/(60*60*24));
-}
+  return Math.floor((Date.now() / 1000 - first_tick) / (60 * 60 * 24));
+};

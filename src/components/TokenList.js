@@ -41,7 +41,6 @@ import { Articles } from './Impulse';
 import { changePage } from '../reducers/pages';
 
 export const TokenPage = ({ articles }) => {
-
   const dispatch = useDispatch();
 
   const tokens = useSelector(selectTokenList);
@@ -61,7 +60,7 @@ export const TokenPage = ({ articles }) => {
   const fg = useColorModeValue('gray.900', 'gray.200');
 
   useEffect(() => {
-    dispatch(changePage({ page: 'index', params: {} }))
+    dispatch(changePage({ page: 'index', params: {} }));
   }, []);
 
   if (!tokens) return null;
@@ -133,7 +132,7 @@ export const TokenPage = ({ articles }) => {
         </Box>
       </Box>
 
-      <Articles articles={articles} />
+      {/* <Articles articles={articles} /> */}
 
       <Box maxW="1400px" m="auto">
         <TokenList tokens={tokens} key={baseCurrency} />

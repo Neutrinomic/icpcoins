@@ -21,7 +21,7 @@ const initialState = {
   t1d: {},
 };
 
-const SNS1_lock = 5284;
+const SNS1_lock = 5284 * 800000;
 
 export const tokenSlice = createSlice({
   name: 'tokens',
@@ -34,7 +34,7 @@ export const tokenSlice = createSlice({
       // stored structure [interval][pair]{ start, end, data: [time]}
 
       // state[action.payload.interval].data = d;
-      // for each pair 
+      // for each pair
       for (let pair = 0; pair < data[0].length; pair += 1) {
         let pid = ids.length ? ids[pair] : pair;
         if (!state[interval][pid])
@@ -105,8 +105,7 @@ export const fetchTokens =
     let aggr = await ic('u45jl-liaaa-aaaam-abppa-cai', aggridl);
 
     let to = lastStartedTick(i2t(interval), Date.now() / 1000);
-    let from =  Math.max(to - i2t(interval) * back, first_tick);
-
+    let from = Math.max(to - i2t(interval) * back, first_tick);
 
     let tokens = await aggr.get_tokens(ids, from * 1000000000, to * 1000000000);
 
@@ -124,12 +123,12 @@ export const getDirectPairs =
     let y = state.config.pairs[pid];
 
     if (y.tokens[0] === t1 && y.tokens[1] === t2) {
-      let p = selectPairRate(pid, time,interval)(state);
+      let p = selectPairRate(pid, time, interval)(state);
       return { p, rev: false };
     }
 
     if (y.tokens[1] === t1 && y.tokens[0] === t2) {
-      let p = selectPairRate(pid, time,interval)(state);
+      let p = selectPairRate(pid, time, interval)(state);
       return { p, rev: true };
     }
 
@@ -137,13 +136,12 @@ export const getDirectPairs =
   };
 
 export const selectPairRate =
-  (pid, time = false, interval="t1h") =>
+  (pid, time = false, interval = 't1h') =>
   state => {
     if (!state.pairs[interval][pid]) throw new Error('Pair not found');
     let idx = !time
       ? state.pairs[interval][pid].data.length - 1
-      : Math.floor((time - state.pairs[interval][pid].start) / (i2t(interval)));
-
+      : Math.floor((time - state.pairs[interval][pid].start) / i2t(interval));
 
     for (let i = 0; i < 10; i++) {
       let r = state.pairs[interval][pid].data[idx - i];
@@ -175,19 +173,23 @@ export const selectTokenInfo = tid => state => {
   return null;
 };
 
-export const getPriceBetween = state => (t1, t2, interval='t1h') => {
-  let tpaths = findSwapPaths(
-    state.config.pairs,
-    t1.toString(),
-    t2.toString(),
-    3
-  );
+export const getPriceBetween =
+  state =>
+  (t1, t2, interval = 't1h') => {
+    let tpaths = findSwapPaths(
+      state.config.pairs,
+      t1.toString(),
+      t2.toString(),
+      3
+    );
 
-  let pp = tpaths.map(x => calculatePathPrice(x, getDirectPairs(state), false, interval));
-  let price = pp.reduce((a, b) => a + b.price, 0) / pp.length;
+    let pp = tpaths.map(x =>
+      calculatePathPrice(x, getDirectPairs(state), false, interval)
+    );
+    let price = pp.reduce((a, b) => a + b.price, 0) / pp.length;
 
-  return price;
-};
+    return price;
+  };
 
 const calculatePairPath = (paths, interval, from, to) => state => {
   let dt = i2t(interval);
@@ -199,7 +201,12 @@ const calculatePairPath = (paths, interval, from, to) => state => {
     return Array(ticks)
       .fill(0)
       .map((_, i) => {
-        return calculatePathPrice(x, getDirectPairs(state), from + dt * i, interval);
+        return calculatePathPrice(
+          x,
+          getDirectPairs(state),
+          from + dt * i,
+          interval
+        );
       });
   });
 
@@ -232,124 +239,128 @@ export const selectTokenList = state => {
     let data = config.tokens
       .map((x, idx) => {
         try {
-        if (idx === 10) return null;
-        if (idx === 0 || idx === 4) return false;
-        const tid = '' + idx;
-        const symbol = x.symbol;
-        const name = x.name;
-        const locking = x.locking;
+          if (idx === 10) return null;
+          if (idx === 0 || idx === 4) return false;
+          const tid = '' + idx;
+          const symbol = x.symbol;
+          const name = x.name;
+          const locking = x.locking;
 
-        let paths = findSwapPaths(
-          config.pairs,
-          tid,
-          baseCurrency.toString(),
-          3
-        );
-        if (paths.length === 0) return null;
-        // console.log(paths);
-        // a function that transforms the pair data to another path pair data in specified range
-        const wdelta = i2t('t1h');
-        let pathpair = calculatePairPath(paths, 't1h', tstart, tlast)(state);
-
-        const weekchart = Array(pathpair[0].length)
-          .fill(0)
-          .map((_, i) => {
-            return {
-              p:
-                Array(pathpair.length)
-                  .fill(0)
-                  .map((_, j) => {
-                    return pathpair[j][i].price;
-                  })
-                  .reduce((a, b) => a + b, 0) / pathpair.length,
-              t: tstart + i * wdelta,
-            };
-          });
-
-        const price24ago = weekchart.find(x => x.t === tlast - 60 * 60 * 24).p;
-        let pp = paths.map(x => calculatePathPrice(x, getDirectPairs(state), false, 't1h'));
-        let price = pp.reduce((a, b) => a + b.price, 0) / pp.length;
-
-        let ti = selectTokenInfo(idx)(state);
-
-        let total = Number(
-          ti ? BigInt(ti.total_supply) / 10n ** BigInt(x.decimals) : 0n
-        );
-        if (symbol === 'SNS1') total -= SNS1_lock;
-
-        let treasuryToken = Number(
-          ti?.locking
-            ? BigInt(ti.locking.treasury) / 10n ** BigInt(x.decimals)
-            : 0n
-        );
-
-        let total_locked = Number(
-          ti?.locking
-            ? BigInt(ti.locking.total_locked) / 10n ** BigInt(x.decimals)
-            : 0n
-        );
-        if (symbol === 'SNS1') total_locked -= SNS1_lock;
-
-        let real_circulating = 0;
-        let circulating = 0;
-
-        if ('ogy' in locking) {
-          real_circulating = circulating = Number(
-            BigInt(ti.circulating_supply) / 10n ** BigInt(x.decimals)
+          let paths = findSwapPaths(
+            config.pairs,
+            tid,
+            baseCurrency.toString(),
+            3
           );
-        } else {
-          real_circulating = total - treasuryToken - total_locked;
-          circulating = total - treasuryToken;
-        }
+          if (paths.length === 0) return null;
+          // console.log(paths);
+          // a function that transforms the pair data to another path pair data in specified range
+          const wdelta = i2t('t1h');
+          let pathpair = calculatePairPath(paths, 't1h', tstart, tlast)(state);
 
-        let marketcap = circulating * price;
+          const weekchart = Array(pathpair[0].length)
+            .fill(0)
+            .map((_, i) => {
+              return {
+                p:
+                  Array(pathpair.length)
+                    .fill(0)
+                    .map((_, j) => {
+                      return pathpair[j][i].price;
+                    })
+                    .reduce((a, b) => a + b, 0) / pathpair.length,
+                t: tstart + i * wdelta,
+              };
+            });
 
-        let treasury = {
-          [idx]: treasuryToken,
-        };
-        if (ti?.locking)
-          for (let tr of ti.locking.other_treasuries) {
-            let tprice = getPriceBetween(state)(tr[0], baseCurrency);
+          const price24ago = weekchart.find(
+            x => x.t === tlast - 60 * 60 * 24
+          ).p;
+          let pp = paths.map(x =>
+            calculatePathPrice(x, getDirectPairs(state), false, 't1h')
+          );
+          let price = pp.reduce((a, b) => a + b.price, 0) / pp.length;
 
-            treasury[tr[0]] =
-              (Number(
-                BigInt(tr[1]) /
-                  10n ** BigInt(state.config.tokens[tr[0]].decimals - 2)
-              ) *
-                tprice) /
-              100;
+          let ti = selectTokenInfo(idx)(state);
+
+          let total = Number(
+            ti ? BigInt(ti.total_supply) / 10n ** BigInt(x.decimals) : 0n
+          );
+          if (symbol === 'DKP') total -= SNS1_lock;
+
+          let treasuryToken = Number(
+            ti?.locking
+              ? BigInt(ti.locking.treasury) / 10n ** BigInt(x.decimals)
+              : 0n
+          );
+
+          let total_locked = Number(
+            ti?.locking
+              ? BigInt(ti.locking.total_locked) / 10n ** BigInt(x.decimals)
+              : 0n
+          );
+          if (symbol === 'DKP') total_locked -= SNS1_lock;
+
+          let real_circulating = 0;
+          let circulating = 0;
+
+          if ('ogy' in locking) {
+            real_circulating = circulating = Number(
+              BigInt(ti.circulating_supply) / 10n ** BigInt(x.decimals)
+            );
+          } else {
+            real_circulating = total - treasuryToken - total_locked;
+            circulating = total - treasuryToken;
           }
 
-        const depth50Bid = pp.reduce((a, b) => a + b.depthBid, 0);
-        const depth50Ask = pp.reduce((a, b) => a + b.depthAsk, 0);
+          let marketcap = circulating * price;
 
-        const change24 = ((price - price24ago) / price24ago) * 100;
-        let usdprice = getPriceBetween(state)('0', baseCurrency);
-        const volume24 = pp.reduce((a, b) => a + b.volume24h, 0) * usdprice;
-        // console.log('now', weekchart[0].p, price);
+          let treasury = {
+            [idx]: treasuryToken,
+          };
+          if (ti?.locking)
+            for (let tr of ti.locking.other_treasuries) {
+              let tprice = getPriceBetween(state)(tr[0], baseCurrency);
 
-        return {
-          id: idx,
-          paths: paths.map((x, idx) => ({ path: x, data: pp[idx] })),
-          price,
-          symbol,
-          name,
-          locking,
-          total,
-          total_locked,
-          treasury,
-          circulating,
-          real_circulating,
-          marketcap,
-          volume24,
-          change24,
-          depth50Bid,
-          depth50Ask,
-          weekchart,
-        };
-      } catch (e) {
-        return null;
-      }
+              treasury[tr[0]] =
+                (Number(
+                  BigInt(tr[1]) /
+                    10n ** BigInt(state.config.tokens[tr[0]].decimals - 2)
+                ) *
+                  tprice) /
+                100;
+            }
+
+          const depth50Bid = pp.reduce((a, b) => a + b.depthBid, 0);
+          const depth50Ask = pp.reduce((a, b) => a + b.depthAsk, 0);
+
+          const change24 = ((price - price24ago) / price24ago) * 100;
+          let usdprice = getPriceBetween(state)('0', baseCurrency);
+          const volume24 = pp.reduce((a, b) => a + b.volume24h, 0) * usdprice;
+          // console.log('now', weekchart[0].p, price);
+
+          return {
+            id: idx,
+            paths: paths.map((x, idx) => ({ path: x, data: pp[idx] })),
+            price,
+            symbol,
+            name,
+            locking,
+            total,
+            total_locked,
+            treasury,
+            circulating,
+            real_circulating,
+            marketcap,
+            volume24,
+            change24,
+            depth50Bid,
+            depth50Ask,
+            weekchart,
+          };
+        } catch (e) {
+          return null;
+        }
       })
       .filter(Boolean)
       .sort((a, b) => b.marketcap - a.marketcap);
@@ -370,7 +381,6 @@ export const selectSingleTokenInfo =
   ({ symbol, period }) =>
   state => {
     try {
-        
       var interval = 't1d';
       if (period <= 31) interval = 't1h';
       if (period <= 5) interval = 't5m';
@@ -386,8 +396,7 @@ export const selectSingleTokenInfo =
 
       let idx = config.tokens.findIndex(x => x.symbol === symbol);
       let x = config.tokens[idx];
-      
-      
+
       if (idx === 0 || idx === 4) return false;
       const tid = '' + idx;
       const name = x.name;
@@ -516,9 +525,8 @@ export const selectSingleTokenInfo =
 
           return r;
         });
-      
 
-      let ticksPerDay = (60 * 60 * 24/i2t(interval));
+      let ticksPerDay = (60 * 60 * 24) / i2t(interval);
       // let pp = paths.map(x => calculatePathPrice(x, getDirectPairs(state)));
       let resp = {
         tokenid: idx,
@@ -540,7 +548,8 @@ export const selectSingleTokenInfo =
                 .reduce(
                   (p, c, i) =>
                     p +
-                    pathpair[idx][pathpair[idx].length - 1 - i * ticksPerDay].volume24h *
+                    pathpair[idx][pathpair[idx].length - 1 - i * ticksPerDay]
+                      .volume24h *
                       usdprice,
                   0
                 );
@@ -550,7 +559,8 @@ export const selectSingleTokenInfo =
                 .reduce(
                   (p, c, i) =>
                     p +
-                    pathpair[idx][pathpair[idx].length - 1 - i * ticksPerDay].volume24h *
+                    pathpair[idx][pathpair[idx].length - 1 - i * ticksPerDay]
+                      .volume24h *
                       usdprice,
                   0
                 );

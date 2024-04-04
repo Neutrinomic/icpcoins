@@ -9,7 +9,11 @@ import {
   Flex,
   Spacer,
   Image,
-  HStack,Alert, AlertIcon, AlertTitle, AlertDescription
+  HStack,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
 } from '@chakra-ui/react';
 import theme from './theme.js';
 import { ColorModeSwitcher } from './ColorModeSwitcher';
@@ -33,11 +37,10 @@ import { CountdownTimer } from './components/Countdown.js';
 
 function App() {
   const ready = useSelector(
-    state =>
-      state.config.tokens.length > 0 
-      // &&
-      // state.pairs.t1h[0] &&
-      // state.tokens.t1d[0]
+    state => state.config.tokens.length > 0
+    // &&
+    // state.pairs.t1h[0] &&
+    // state.tokens.t1d[0]
   );
   const [articles, setArticles] = useState([]);
 
@@ -51,7 +54,6 @@ function App() {
   };
 
   useEffect(() => {
-    
     getArticles();
   }, []);
 
@@ -59,13 +61,6 @@ function App() {
   return (
     <ChakraProvider theme={theme}>
       <Box pl="15px" pr="15px" pb="50vh">
-
-      <Alert status='error' mt="5">
-        <AlertIcon />
-        <AlertTitle>Stale data!</AlertTitle>
-        <AlertDescription>The aggregator is not updating its data. We are working on resolving the issue.</AlertDescription>
-      </Alert>
-
         <Flex maxW="1278px" m="auto" mt="6">
           <HStack>
             <Logo />
