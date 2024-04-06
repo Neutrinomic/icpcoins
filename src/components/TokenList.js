@@ -4,21 +4,17 @@ import {
   Table,
   Thead,
   Tbody,
-  Tfoot,
   Tr,
   Th,
   Td,
-  TableCaption,
   TableContainer,
-  Heading,
-  Skeleton,
   Box,
   Wrap,
   Tooltip,
   useColorModeValue,
   Progress,
-  useBreakpointValue,
   Tag,
+  Text,
   Menu,
   MenuItem,
   MenuButton,
@@ -179,13 +175,15 @@ export const TokenList = ({ tokens, baseCurrency }) => {
     volumePeriod: 1, // In days
   });
 
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
+  const [sortConfig, setSortConfig] = useState({
+    key: null,
+    direction: 'ascending',
+  });
 
   const sortedTokens = useMemo(() => {
     let sortableItems = [...tokens];
     if (sortConfig.key !== null) {
       sortableItems.sort((a, b) => {
-
         let aValue = a[sortConfig.key];
         let bValue = b[sortConfig.key];
 
@@ -195,8 +193,20 @@ export const TokenList = ({ tokens, baseCurrency }) => {
         }
 
         // Handle null, undefined, nonNumerical or empty values by treating them as the lowest numbers
-        if (aValue === null || aValue === undefined || aValue === '' || isNaN(aValue)) aValue = Number.MIN_SAFE_INTEGER;
-        if (bValue === null || bValue === undefined || bValue === '' || isNaN(bValue)) bValue = Number.MIN_SAFE_INTEGER;
+        if (
+          aValue === null ||
+          aValue === undefined ||
+          aValue === '' ||
+          isNaN(aValue)
+        )
+          aValue = Number.MIN_SAFE_INTEGER;
+        if (
+          bValue === null ||
+          bValue === undefined ||
+          bValue === '' ||
+          isNaN(bValue)
+        )
+          bValue = Number.MIN_SAFE_INTEGER;
 
         if (aValue < bValue) {
           return sortConfig.direction === 'ascending' ? -1 : 1;
@@ -210,35 +220,41 @@ export const TokenList = ({ tokens, baseCurrency }) => {
     return sortableItems;
   }, [tokens, sortConfig]);
 
-  const requestSort = (key) => {
+  const requestSort = key => {
     let direction = 'ascending';
     if (sortConfig.key === key && sortConfig.direction === 'ascending') {
       direction = 'descending';
     }
     setSortConfig({ key, direction });
   };
-  const priceChangePeriodOnChange = (period) => {
+  const priceChangePeriodOnChange = period => {
     setFilters({ ...filters, priceChangePeriod: period });
-  }
-  const chartPeriodOnChange = (period) => {
+  };
+  const chartPeriodOnChange = period => {
     setFilters({ ...filters, chartPeriod: period });
-  }
-  const volumePeriodOnChange = (period) => {
+  };
+  const volumePeriodOnChange = period => {
     setFilters({ ...filters, volumePeriod: period });
-  }
+  };
   const changeKey = useMemo(() => {
     switch (filters.priceChangePeriod) {
-      case 1: return 'change24';
-      case 7: return 'change7';
-      case 31: return 'change31';
+      case 1:
+        return 'change24';
+      case 7:
+        return 'change7';
+      case 31:
+        return 'change31';
     }
   }, [filters.priceChangePeriod]);
 
   const volumeKey = useMemo(() => {
     switch (filters.volumePeriod) {
-      case 1: return 'volume24';
-      case 7: return 'volume7';
-      case 31: return 'volume31';
+      case 1:
+        return 'volume24';
+      case 7:
+        return 'volume7';
+      case 31:
+        return 'volume31';
     }
   }, [filters.volumePeriod]);
 
@@ -278,37 +294,94 @@ export const TokenList = ({ tokens, baseCurrency }) => {
                 Symbol
               </Th>
               <Th isNumeric w="120px">
-                <Flex flexDirection="row" justifyContent="flex-end" minWidth="min-content"> Price <SortArrow sortConfig={sortConfig} requestSort={requestSort} sortKey="price" /> </Flex>
+                <Flex
+                  flexDirection="row"
+                  justifyContent="flex-end"
+                  minWidth="min-content"
+                >
+                  {' '}
+                  Price{' '}
+                  <SortArrow
+                    sortConfig={sortConfig}
+                    requestSort={requestSort}
+                    sortKey="price"
+                  />{' '}
+                </Flex>
               </Th>
               <Th textAlign="start" w="30px">
-                <Flex flexDirection="row" justifyContent="flex-end" minWidth="min-content">
-                  <Menu >
-                    <MenuButton>{period2header(filters.priceChangePeriod, '%')}</MenuButton>
+                <Flex
+                  flexDirection="row"
+                  justifyContent="flex-end"
+                  minWidth="min-content"
+                >
+                  <Menu>
+                    <MenuButton>
+                      {period2header(filters.priceChangePeriod, '%')}
+                    </MenuButton>
                     <MenuList>
                       {/* MenuItems are not rendered unless Menu is open */}
-                      <MenuItem onClick={() => priceChangePeriodOnChange(31)}>31 Day %</MenuItem>
-                      <MenuItem onClick={() => priceChangePeriodOnChange(7)}>7 Day %</MenuItem>
-                      <MenuItem onClick={() => priceChangePeriodOnChange(1)}>24H %</MenuItem>
+                      <MenuItem onClick={() => priceChangePeriodOnChange(31)}>
+                        31 Day %
+                      </MenuItem>
+                      <MenuItem onClick={() => priceChangePeriodOnChange(7)}>
+                        7 Day %
+                      </MenuItem>
+                      <MenuItem onClick={() => priceChangePeriodOnChange(1)}>
+                        24H %
+                      </MenuItem>
                     </MenuList>
                   </Menu>
-                  <SortArrow sortConfig={sortConfig} requestSort={requestSort} sortKey={changeKey} />
+                  <SortArrow
+                    sortConfig={sortConfig}
+                    requestSort={requestSort}
+                    sortKey={changeKey}
+                  />
                 </Flex>
               </Th>
               <Th isNumeric w="220px">
-                <Flex flexDirection="row" justifyContent="flex-end" minWidth="min-content"> Market Cap <SortArrow sortConfig={sortConfig} requestSort={requestSort} sortKey="marketcap" /> </Flex>
+                <Flex
+                  flexDirection="row"
+                  justifyContent="flex-end"
+                  minWidth="min-content"
+                >
+                  {' '}
+                  Market Cap{' '}
+                  <SortArrow
+                    sortConfig={sortConfig}
+                    requestSort={requestSort}
+                    sortKey="marketcap"
+                  />{' '}
+                </Flex>
               </Th>
               <Th isNumeric w="150px">
-                <Flex flexDirection="row" justifyContent="flex-end" minWidth="min-content">
-                  <Menu >
-                    <MenuButton>{filters.volumePeriod == 1 ? 24 : filters.volumePeriod}{filters.volumePeriod == 1 ? 'H' : 'D'} Volume</MenuButton>
+                <Flex
+                  flexDirection="row"
+                  justifyContent="flex-end"
+                  minWidth="min-content"
+                >
+                  <Menu>
+                    <MenuButton>
+                      {filters.volumePeriod == 1 ? 24 : filters.volumePeriod}
+                      {filters.volumePeriod == 1 ? 'H' : 'D'} Volume
+                    </MenuButton>
                     <MenuList>
                       {/* MenuItems are not rendered unless Menu is open */}
-                      <MenuItem onClick={() => volumePeriodOnChange(31)}>31 Day</MenuItem>
-                      <MenuItem onClick={() => volumePeriodOnChange(7)}>7 Day</MenuItem>
-                      <MenuItem onClick={() => volumePeriodOnChange(1)}>24H</MenuItem>
+                      <MenuItem onClick={() => volumePeriodOnChange(31)}>
+                        31 Day
+                      </MenuItem>
+                      <MenuItem onClick={() => volumePeriodOnChange(7)}>
+                        7 Day
+                      </MenuItem>
+                      <MenuItem onClick={() => volumePeriodOnChange(1)}>
+                        24H
+                      </MenuItem>
                     </MenuList>
                   </Menu>
-                  <SortArrow sortConfig={sortConfig} requestSort={requestSort} sortKey={volumeKey} />
+                  <SortArrow
+                    sortConfig={sortConfig}
+                    requestSort={requestSort}
+                    sortKey={volumeKey}
+                  />
                 </Flex>
                 {/* <Flex flexDirection="row" justifyContent="flex-end" minWidth="min-content">
                   24h Volume<SortArrow sortConfig={sortConfig} requestSort={requestSort} sortKey="volume24" /> </Flex> */}
@@ -323,32 +396,92 @@ export const TokenList = ({ tokens, baseCurrency }) => {
                     </>
                   }
                 >
-                  <Flex flexDirection="row" justifyContent="flex-end" minWidth="min-content"> Circulating supply<SortArrow sortConfig={sortConfig} requestSort={requestSort} sortKey="circulating" /> </Flex>
+                  <Flex
+                    flexDirection="row"
+                    justifyContent="flex-end"
+                    minWidth="min-content"
+                  >
+                    {' '}
+                    Circulating supply
+                    <SortArrow
+                      sortConfig={sortConfig}
+                      requestSort={requestSort}
+                      sortKey="circulating"
+                    />{' '}
+                  </Flex>
                 </Tooltip>
               </Th>
               <Th w={'100px'}>
                 <Menu>
-                  <MenuButton> LAST {filters.chartPeriod == 1 ? 24 : filters.chartPeriod} {filters.chartPeriod == 1 ? 'HOURS' : 'DAYS'}</MenuButton>
+                  <MenuButton>
+                    {' '}
+                    LAST {filters.chartPeriod == 1
+                      ? 24
+                      : filters.chartPeriod}{' '}
+                    {filters.chartPeriod == 1 ? 'HOURS' : 'DAYS'}
+                  </MenuButton>
                   <MenuList>
-                    <MenuItem onClick={() => chartPeriodOnChange(1)}>24H</MenuItem>
-                    <MenuItem onClick={() => chartPeriodOnChange(7)}>7D</MenuItem>
-                    <MenuItem onClick={() => chartPeriodOnChange(31)}>31D</MenuItem>
+                    <MenuItem onClick={() => chartPeriodOnChange(1)}>
+                      24H
+                    </MenuItem>
+                    <MenuItem onClick={() => chartPeriodOnChange(7)}>
+                      7D
+                    </MenuItem>
+                    <MenuItem onClick={() => chartPeriodOnChange(31)}>
+                      31D
+                    </MenuItem>
                   </MenuList>
                 </Menu>
               </Th>
               <Th isNumeric w="120px">
                 <Tooltip label="Capital required to reduce the price by 50%">
-                  <Flex flexDirection="row" justifyContent="flex-end" minWidth="min-content"> Depth -50%<SortArrow sortConfig={sortConfig} requestSort={requestSort} sortKey="depth50Bid" /> </Flex>
+                  <Flex
+                    flexDirection="row"
+                    justifyContent="flex-end"
+                    minWidth="min-content"
+                  >
+                    {' '}
+                    Depth -50%
+                    <SortArrow
+                      sortConfig={sortConfig}
+                      requestSort={requestSort}
+                      sortKey="depth50Bid"
+                    />{' '}
+                  </Flex>
                 </Tooltip>
               </Th>
               <Th isNumeric w="120px">
                 <Tooltip label="Capital required to increase the price by 100%">
-                  <Flex flexDirection="row" justifyContent="flex-end" minWidth="min-content">  Depth +100%<SortArrow sortConfig={sortConfig} requestSort={requestSort} sortKey="depth50Ask" /> </Flex>
+                  <Flex
+                    flexDirection="row"
+                    justifyContent="flex-end"
+                    minWidth="min-content"
+                  >
+                    {' '}
+                    Depth +100%
+                    <SortArrow
+                      sortConfig={sortConfig}
+                      requestSort={requestSort}
+                      sortKey="depth50Ask"
+                    />{' '}
+                  </Flex>
                 </Tooltip>
               </Th>
               <Th>
                 <Tooltip label={<>Value of the ICP in treasury</>}>
-                  <Flex flexDirection="row" justifyContent="flex-end" minWidth="min-content"> Treasury<SortArrow sortConfig={sortConfig} requestSort={requestSort} sortKey="treasury" /> </Flex>
+                  <Flex
+                    flexDirection="row"
+                    justifyContent="flex-end"
+                    minWidth="min-content"
+                  >
+                    {' '}
+                    Treasury
+                    <SortArrow
+                      sortConfig={sortConfig}
+                      requestSort={requestSort}
+                      sortKey="treasury"
+                    />{' '}
+                  </Flex>
                 </Tooltip>
               </Th>
             </Tr>
@@ -409,25 +542,34 @@ const TokenListItem = ({ idx, data, baseCurrency, filters }) => {
 
   const change = useMemo(() => {
     switch (filters.priceChangePeriod) {
-      case 1: return change24;
-      case 7: return change7;
-      case 31: return change31;
+      case 1:
+        return change24;
+      case 7:
+        return change7;
+      case 31:
+        return change31;
     }
   }, [filters.priceChangePeriod, change24, change7, change31]);
 
   const volume = useMemo(() => {
     switch (filters.volumePeriod) {
-      case 1: return volume24;
-      case 7: return volume7;
-      case 31: return volume31;
+      case 1:
+        return volume24;
+      case 7:
+        return volume7;
+      case 31:
+        return volume31;
     }
   }, [filters.volumePeriod, volume24, volume7, volume31]);
 
   const chartData = useMemo(() => {
     switch (filters.chartPeriod) {
-      case 1: return dayChart;
-      case 7: return weekchart;
-      case 31: return monthChart;
+      case 1:
+        return dayChart;
+      case 7:
+        return weekchart;
+      case 31:
+        return monthChart;
     }
   }, [filters.chartPeriod, dayChart, weekchart, monthChart]);
 
@@ -578,10 +720,26 @@ const TokenPriceChange = ({ change }) => {
 
 const SortArrow = ({ sortConfig, sortKey, requestSort }) => {
   return (
-
-    <div style={{ cursor: 'pointer', paddingLeft: '5px' }} onClick={() => requestSort(sortKey)}>{sortConfig.key === sortKey && sortConfig.direction === 'ascending' ? '▲' : '▼'}</div>
-  )
-}
+    <div
+      style={{ cursor: 'pointer', paddingLeft: '5px' }}
+      onClick={() => requestSort(sortKey)}
+    >
+      {' '}
+      <Text
+        color={
+          sortConfig.key === sortKey
+            ? 'blue.500'
+            : 'gray.700'
+        }
+      >
+        {' '}
+        {sortConfig.key === sortKey && sortConfig.direction === 'ascending'
+          ? '▲'
+          : '▼'}
+      </Text>
+    </div>
+  );
+};
 
 const useDetectSticky = (ref, observerSettings = { threshold: [1] }) => {
   const [isSticky, setIsSticky] = useState(false);
