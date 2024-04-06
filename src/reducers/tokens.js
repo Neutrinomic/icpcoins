@@ -21,7 +21,7 @@ const initialState = {
   t1d: {},
 };
 
-const SNS1_lock = 5284;
+const SNS1_lock = 5284 * 800000;
 
 export const tokenSlice = createSlice({
   name: 'tokens',
@@ -34,7 +34,7 @@ export const tokenSlice = createSlice({
       // stored structure [interval][pair]{ start, end, data: [time]}
 
       // state[action.payload.interval].data = d;
-      // for each pair 
+      // for each pair
       for (let pair = 0; pair < data[0].length; pair += 1) {
         let pid = ids.length ? ids[pair] : pair;
         if (!state[interval][pid])
@@ -137,13 +137,12 @@ export const getDirectPairs =
     };
 
 export const selectPairRate =
-  (pid, time = false, interval = "t1h") =>
+  (pid, time = false, interval = 't1h') =>
     state => {
       if (!state.pairs[interval][pid]) throw new Error('Pair not found');
       let idx = !time
         ? state.pairs[interval][pid].data.length - 1
-        : Math.floor((time - state.pairs[interval][pid].start) / (i2t(interval)));
-
+        : Math.floor((time - state.pairs[interval][pid].start) / i2t(interval));
 
       for (let i = 0; i < 10; i++) {
         let r = state.pairs[interval][pid].data[idx - i];
@@ -183,7 +182,9 @@ export const getPriceBetween = state => (t1, t2, interval = 't1h') => {
     3
   );
 
-  let pp = tpaths.map(x => calculatePathPrice(x, getDirectPairs(state), false, interval));
+  let pp = tpaths.map(x =>
+    calculatePathPrice(x, getDirectPairs(state), false, interval)
+  );
   let price = pp.reduce((a, b) => a + b.price, 0) / pp.length;
 
   return price;
@@ -199,7 +200,12 @@ const calculatePairPath = (paths, interval, from, to) => state => {
     return Array(ticks)
       .fill(0)
       .map((_, i) => {
-        return calculatePathPrice(x, getDirectPairs(state), from + dt * i, interval);
+        return calculatePathPrice(
+          x,
+          getDirectPairs(state),
+          from + dt * i,
+          interval
+        );
       });
   });
 
@@ -289,7 +295,7 @@ export const selectTokenList = state => {
           let total = Number(
             ti ? BigInt(ti.total_supply) / 10n ** BigInt(x.decimals) : 0n
           );
-          if (symbol === 'SNS1') total -= SNS1_lock;
+          if (symbol === 'DKP') total -= SNS1_lock;
 
           let treasuryToken = Number(
             ti?.locking
@@ -302,7 +308,7 @@ export const selectTokenList = state => {
               ? BigInt(ti.locking.total_locked) / 10n ** BigInt(x.decimals)
               : 0n
           );
-          if (symbol === 'SNS1') total_locked -= SNS1_lock;
+          if (symbol === 'DKP') total_locked -= SNS1_lock;
 
           let real_circulating = 0;
           let circulating = 0;
@@ -605,7 +611,8 @@ export const selectSingleTokenInfo =
                   .reduce(
                     (p, c, i) =>
                       p +
-                      pathpair[idx][pathpair[idx].length - 1 - i * ticksPerDay].volume24h *
+                      pathpair[idx][pathpair[idx].length - 1 - i * ticksPerDay]
+                        .volume24h *
                       usdprice,
                     0
                   );
