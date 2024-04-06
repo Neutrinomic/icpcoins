@@ -195,9 +195,9 @@ export const TokenList = ({ tokens, baseCurrency }) => {
           bValue = b[sortConfig.key][3];
         }
 
-        // Handle null, undefined, or empty values by treating them as the lowest numbers
-        if (aValue === null || aValue === undefined || aValue === '') aValue = Number.MIN_SAFE_INTEGER;
-        if (bValue === null || bValue === undefined || bValue === '') bValue = Number.MIN_SAFE_INTEGER;
+        // Handle null, undefined, nonNumerical or empty values by treating them as the lowest numbers
+        if (aValue === null || aValue === undefined || aValue === '' || isNaN(aValue)) aValue = Number.MIN_SAFE_INTEGER;
+        if (bValue === null || bValue === undefined || bValue === '' || isNaN(bValue)) bValue = Number.MIN_SAFE_INTEGER;
 
         if (aValue < bValue) {
           return sortConfig.direction === 'ascending' ? -1 : 1;
@@ -296,7 +296,7 @@ export const TokenList = ({ tokens, baseCurrency }) => {
                 </Flex>
               </Th>
               <Th isNumeric w="220px">
-                <Flex flexDirection="row" justifyContent="flex-end" minWidth="min-content"> Market Cap <SortArrow sortConfig={sortConfig} requestSort={requestSort} sortKey="marketCap" /> </Flex>
+                <Flex flexDirection="row" justifyContent="flex-end" minWidth="min-content"> Market Cap <SortArrow sortConfig={sortConfig} requestSort={requestSort} sortKey="marketcap" /> </Flex>
               </Th>
               <Th isNumeric w="150px">
                 <Flex flexDirection="row" justifyContent="flex-end" minWidth="min-content">
