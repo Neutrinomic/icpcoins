@@ -315,7 +315,14 @@ export const TokenList = ({ tokens, baseCurrency }) => {
                   minWidth="min-content"
                 >
                   <Menu>
-                    <MenuButton>
+                    <MenuButton
+                      sx={{
+                        //TO keep font style consitent with <Th>
+                        fontWeight: 'inherit',
+                        fontSize: 'inherit',
+                        color: 'inherit',
+                      }}
+                    >
                       {period2header(filters.priceChangePeriod, '%')}
                     </MenuButton>
                     <MenuList>
@@ -360,7 +367,14 @@ export const TokenList = ({ tokens, baseCurrency }) => {
                   minWidth="min-content"
                 >
                   <Menu>
-                    <MenuButton>
+                    <MenuButton
+                      sx={{
+                        //TO keep font style consitent with <Th>
+                        fontWeight: 'inherit',
+                        fontSize: 'inherit',
+                        color: 'inherit',
+                      }}
+                    >
                       {filters.volumePeriod == 1 ? 24 : filters.volumePeriod}
                       {filters.volumePeriod == 1 ? 'H' : 'D'} Volume
                     </MenuButton>
@@ -413,12 +427,19 @@ export const TokenList = ({ tokens, baseCurrency }) => {
               </Th>
               <Th w={'100px'}>
                 <Menu>
-                  <MenuButton>
+                  <MenuButton
+                    sx={{
+                      //TO keep font style consitent with <Th>
+                      fontWeight: 'inherit',
+                      fontSize: 'inherit',
+                      color: 'inherit',
+                    }}
+                  >
                     {' '}
                     LAST {filters.chartPeriod == 1
                       ? 24
                       : filters.chartPeriod}{' '}
-                    {filters.chartPeriod == 1 ? 'HOURS' : 'DAYS'}
+                    {filters.chartPeriod == 1 ? 'HRS' : 'DAYS'}
                   </MenuButton>
                   <MenuList>
                     <MenuItem onClick={() => chartPeriodOnChange(1)}>
@@ -725,13 +746,7 @@ const SortArrow = ({ sortConfig, sortKey, requestSort }) => {
       onClick={() => requestSort(sortKey)}
     >
       {' '}
-      <Text
-        color={
-          sortConfig.key === sortKey
-            ? 'blue.500'
-            : 'gray.700'
-        }
-      >
+      <Text color={sortConfig.key === sortKey ? 'blue.500' : 'gray.700'}>
         {' '}
         {sortConfig.key === sortKey && sortConfig.direction === 'ascending'
           ? '▲'
