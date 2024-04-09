@@ -99,70 +99,71 @@ export const { setTokens } = tokenSlice.actions;
 
 export const fetchTokens =
   ({ interval, ids, back }) =>
-  async (dispatch, getState) => {
-    let s = getState();
+    async (dispatch, getState) => {
+      let s = getState();
 
-    let aggr = await ic('u45jl-liaaa-aaaam-abppa-cai', aggridl);
+      let aggr = await ic('u45jl-liaaa-aaaam-abppa-cai', aggridl);
 
-    let to = lastStartedTick(i2t(interval), Date.now() / 1000);
-    let from = Math.max(to - i2t(interval) * back, first_tick);
+      let to = lastStartedTick(i2t(interval), Date.now() / 1000);
+      let from = Math.max(to - i2t(interval) * back, first_tick);
 
-    let tokens = await aggr.get_tokens(ids, from * 1000000000, to * 1000000000);
 
-    let start = Number(tokens.ok.first / 1000000000n);
-    let end = Number(tokens.ok.last / 1000000000n);
+      let tokens = await aggr.get_tokens(ids, from * 1000000000, to * 1000000000);
 
-    tokens = toState(tokens.ok.data);
+      let start = Number(tokens.ok.first / 1000000000n);
+      let end = Number(tokens.ok.last / 1000000000n);
 
-    dispatch(setTokens({ interval, data: tokens, ids, start, end }));
-  };
+      tokens = toState(tokens.ok.data);
+
+      dispatch(setTokens({ interval, data: tokens, ids, start, end }));
+    };
 
 export const getDirectPairs =
   state =>
-  (t1, t2, pid, time = false, interval = 't1h') => {
-    let y = state.config.pairs[pid];
+    (t1, t2, pid, time = false, interval = 't1h') => {
+      let y = state.config.pairs[pid];
 
-    if (y.tokens[0] === t1 && y.tokens[1] === t2) {
-      let p = selectPairRate(pid, time, interval)(state);
-      return { p, rev: false };
-    }
+      if (y.tokens[0] === t1 && y.tokens[1] === t2) {
+        let p = selectPairRate(pid, time, interval)(state);
+        return { p, rev: false };
+      }
 
-    if (y.tokens[1] === t1 && y.tokens[0] === t2) {
-      let p = selectPairRate(pid, time, interval)(state);
-      return { p, rev: true };
-    }
+      if (y.tokens[1] === t1 && y.tokens[0] === t2) {
+        let p = selectPairRate(pid, time, interval)(state);
+        return { p, rev: true };
+      }
 
-    return false;
-  };
+      return false;
+    };
 
 export const selectPairRate =
   (pid, time = false, interval = 't1h') =>
-  state => {
-    if (!state.pairs[interval][pid]) throw new Error('Pair not found');
-    let idx = !time
-      ? state.pairs[interval][pid].data.length - 1
-      : Math.floor((time - state.pairs[interval][pid].start) / i2t(interval));
+    state => {
+      if (!state.pairs[interval][pid]) throw new Error('Pair not found');
+      let idx = !time
+        ? state.pairs[interval][pid].data.length - 1
+        : Math.floor((time - state.pairs[interval][pid].start) / i2t(interval));
 
-    for (let i = 0; i < 10; i++) {
-      let r = state.pairs[interval][pid].data[idx - i];
-      if (r) return r;
-    }
-    return null;
-  };
+      for (let i = 0; i < 10; i++) {
+        let r = state.pairs[interval][pid].data[idx - i];
+        if (r) return r;
+      }
+      return null;
+    };
 
 export const selectTokenDay =
   (pid, time = false) =>
-  state => {
-    if (!state.tokens.t1d[pid]) throw new Error('Token not found');
-    let idx = !time
-      ? state.tokens.t1d[pid].data.length - 1
-      : Math.floor((time - state.tokens.t1d[pid].start) / (60 * 60 * 24));
+    state => {
+      if (!state.tokens.t1d[pid]) throw new Error('Token not found');
+      let idx = !time
+        ? state.tokens.t1d[pid].data.length - 1
+        : Math.floor((time - state.tokens.t1d[pid].start) / (60 * 60 * 24));
 
-    let r = state.tokens.t1d[pid].data[idx];
-    if (r) return r;
+      let r = state.tokens.t1d[pid].data[idx];
+      if (r) return r;
 
-    return null;
-  };
+      return null;
+    };
 
 export const selectTokenInfo = tid => state => {
   if (!state.tokens.t1d[tid]) throw new Error('Token info not found ' + tid);
@@ -173,23 +174,21 @@ export const selectTokenInfo = tid => state => {
   return null;
 };
 
-export const getPriceBetween =
-  state =>
-  (t1, t2, interval = 't1h') => {
-    let tpaths = findSwapPaths(
-      state.config.pairs,
-      t1.toString(),
-      t2.toString(),
-      3
-    );
+export const getPriceBetween = state => (t1, t2, interval = 't1h') => {
+  let tpaths = findSwapPaths(
+    state.config.pairs,
+    t1.toString(),
+    t2.toString(),
+    3
+  );
 
-    let pp = tpaths.map(x =>
-      calculatePathPrice(x, getDirectPairs(state), false, interval)
-    );
-    let price = pp.reduce((a, b) => a + b.price, 0) / pp.length;
+  let pp = tpaths.map(x =>
+    calculatePathPrice(x, getDirectPairs(state), false, interval)
+  );
+  let price = pp.reduce((a, b) => a + b.price, 0) / pp.length;
 
-    return price;
-  };
+  return price;
+};
 
 const calculatePairPath = (paths, interval, from, to) => state => {
   let dt = i2t(interval);
@@ -213,6 +212,28 @@ const calculatePairPath = (paths, interval, from, to) => state => {
   return newpairs;
 };
 
+export function getChart(interval, paths, tstart, tlast, state) {
+
+  const wdelta = i2t(interval);
+  let pathpair = calculatePairPath(paths, interval, tstart, tlast)(state);
+
+  const chart = Array(pathpair[0].length)
+    .fill(0)
+    .map((_, i) => {
+      return {
+        p:
+          Array(pathpair.length)
+            .fill(0)
+            .map((_, j) => {
+              return pathpair[j][i].price;
+            })
+            .reduce((a, b) => a + b, 0) / pathpair.length,
+        t: tstart + i * wdelta,
+      };
+    });
+  return chart;
+}
+
 let selectTokenList_mem = {
   last: 0,
   data: false,
@@ -233,8 +254,9 @@ export const selectTokenList = state => {
     const baseCurrency = state.config.baseCurrency;
 
     const tlast = lastStartedTick(60 * 60, Date.now() / 1000);
-
-    const tstart = tlast - 60 * 60 * 24 * 7; //?
+    const tstart1 = tlast - 60 * 60 * 24 * 1; //starting timestamp for 1 day/ 24hours ago
+    const tstart7 = tlast - 60 * 60 * 24 * 7; //starting timestamp for 7 days ago
+    const tstart31 = tlast - 60 * 60 * 24 * 31; //starting timestamp for 31 days ago
 
     let data = config.tokens
       .map((x, idx) => {
@@ -253,32 +275,19 @@ export const selectTokenList = state => {
             3
           );
           if (paths.length === 0) return null;
-          // console.log(paths);
-          // a function that transforms the pair data to another path pair data in specified range
-          const wdelta = i2t('t1h');
-          let pathpair = calculatePairPath(paths, 't1h', tstart, tlast)(state);
+          let dayChart = getChart('t5m', paths, tstart1, tlast, state);
+          let weekchart = getChart('t1h', paths, tstart7, tlast, state);
+          let monthChart = getChart('t1d', paths, tstart31, tlast, state);
 
-          const weekchart = Array(pathpair[0].length)
-            .fill(0)
-            .map((_, i) => {
-              return {
-                p:
-                  Array(pathpair.length)
-                    .fill(0)
-                    .map((_, j) => {
-                      return pathpair[j][i].price;
-                    })
-                    .reduce((a, b) => a + b, 0) / pathpair.length,
-                t: tstart + i * wdelta,
-              };
-            });
+          // console.log("Daychart : ", dayChart);
+          // console.log("Weekchart : ", weekchart);
+          // console.log("Monthchart : ", monthChart);
 
-          const price24ago = weekchart.find(
-            x => x.t === tlast - 60 * 60 * 24
-          ).p;
-          let pp = paths.map(x =>
-            calculatePathPrice(x, getDirectPairs(state), false, 't1h')
-          );
+          const price24ago = weekchart.find(x => x.t === tlast - 60 * 60 * 24).p;
+          const price7ago = weekchart.find(x => x.t === tlast - 60 * 60 * 24 * 7).p;
+          const price31ago = monthChart.find(x => x.t === tlast - 60 * 60 * 24 * 31).p;
+
+          let pp = paths.map(x => calculatePathPrice(x, getDirectPairs(state), false, 't1h'));
           let price = pp.reduce((a, b) => a + b.price, 0) / pp.length;
 
           let ti = selectTokenInfo(idx)(state);
@@ -325,7 +334,7 @@ export const selectTokenList = state => {
               treasury[tr[0]] =
                 (Number(
                   BigInt(tr[1]) /
-                    10n ** BigInt(state.config.tokens[tr[0]].decimals - 2)
+                  10n ** BigInt(state.config.tokens[tr[0]].decimals - 2)
                 ) *
                   tprice) /
                 100;
@@ -335,9 +344,44 @@ export const selectTokenList = state => {
           const depth50Ask = pp.reduce((a, b) => a + b.depthAsk, 0);
 
           const change24 = ((price - price24ago) / price24ago) * 100;
+          const change7 = ((price - price7ago) / price7ago) * 100;
+          const change31 = ((price - price31ago) / price31ago) * 100;
           let usdprice = getPriceBetween(state)('0', baseCurrency);
           const volume24 = pp.reduce((a, b) => a + b.volume24h, 0) * usdprice;
-          // console.log('now', weekchart[0].p, price);
+
+          //console.log("Price Changes : ", change24, change7, change31);
+          let pathpair7 = calculatePairPath(paths, 't1h', tstart7, tlast)(state);
+          let pathpair31 = calculatePairPath(paths, 't1d', tstart31, tlast)(state); // TODO: Optimize repeated calculatePairPath calls
+          let volume31 = 0;
+          let volume7 = 0;
+          const ticksPerDay7 = 24; // 7day data is fetched with t1h interval ( 1 tick per hour )
+          const ticksPerDay31 = 1; // 31day data is fetched with t1d interval ( 1 tick per day )
+          try {
+            paths.forEach((x, idx) => {
+              volume7 += Array(7)
+                .fill(0)
+                .reduce(
+                  (p, c, i) =>
+                    p +
+                    pathpair7[idx][pathpair7[idx].length - 1 - i * ticksPerDay7].volume24h *
+                    usdprice,
+                  0
+                );
+
+              volume31 += Array(31)
+                .fill(0)
+                .reduce(
+                  (p, c, i) =>
+                    p +
+                    pathpair31[idx][pathpair31[idx].length - 1 - i * ticksPerDay31].volume24h *
+                    usdprice,
+                  0
+                );
+            })
+
+          } catch (e) {
+            console.log(e);
+          }
 
           return {
             id: idx,
@@ -353,10 +397,16 @@ export const selectTokenList = state => {
             real_circulating,
             marketcap,
             volume24,
+            volume7,
+            volume31,
             change24,
+            change7,
+            change31,
             depth50Bid,
             depth50Ask,
+            dayChart,
             weekchart,
+            monthChart,
           };
         } catch (e) {
           return null;
@@ -379,213 +429,215 @@ export const selectTokenList = state => {
 
 export const selectSingleTokenInfo =
   ({ symbol, period }) =>
-  state => {
-    try {
-      var interval = 't1d';
-      if (period <= 31) interval = 't1h';
-      if (period <= 5) interval = 't5m';
+    state => {
+      try {
 
-      const config = state.config;
-      const baseCurrency = state.config.baseCurrency;
-      const tlast = lastStartedTick(60 * 60, Date.now() / 1000);
-      const tlast_1d = lastStartedTick(60 * 60 * 24, Date.now() / 1000);
+        var interval = 't1d';
+        if (period <= 31) interval = 't1h';
+        if (period <= 5) interval = 't5m';
 
-      //state.pairs.t5m[0].end;
-      // console.log('last', tlast, new Date(tlast * 1000).toLocaleString());
-      const tstart = Math.max(first_tick, tlast - 60 * 60 * 24 * period); //?
+        const config = state.config;
+        const baseCurrency = state.config.baseCurrency;
+        const tlast = lastStartedTick(60 * 60, Date.now() / 1000);
+        const tlast_1d = lastStartedTick(60 * 60 * 24, Date.now() / 1000);
 
-      let idx = config.tokens.findIndex(x => x.symbol === symbol);
-      let x = config.tokens[idx];
+        //state.pairs.t5m[0].end;
+        // console.log('last', tlast, new Date(tlast * 1000).toLocaleString());
+        const tstart = Math.max(first_tick, tlast - 60 * 60 * 24 * period); //?
 
-      if (idx === 0 || idx === 4) return false;
-      const tid = '' + idx;
-      const name = x.name;
-      const locking = x.locking;
-      let usdprice = getPriceBetween(state)('0', baseCurrency);
-      let icpprice = getPriceBetween(state)('3', baseCurrency);
+        let idx = config.tokens.findIndex(x => x.symbol === symbol);
+        let x = config.tokens[idx];
 
-      let tokenprice = getPriceBetween(state)(idx.toString(), baseCurrency);
 
-      let paths = findSwapPaths(config.pairs, tid, baseCurrency.toString(), 3);
+        if (idx === 0 || idx === 4) return false;
+        const tid = '' + idx;
+        const name = x.name;
+        const locking = x.locking;
+        let usdprice = getPriceBetween(state)('0', baseCurrency);
+        let icpprice = getPriceBetween(state)('3', baseCurrency);
 
-      const wdelta = i2t(interval);
-      let pathpair = calculatePairPath(paths, interval, tstart, tlast)(state);
-      // let missing_ticks = pathpair[0].reduce((a, b) => {
-      //   return a + (b.price ? 0 : 1);
-      // }, 0);
-      // if (missing_ticks > 400) return false;
-      let prev_cs = false;
+        let tokenprice = getPriceBetween(state)(idx.toString(), baseCurrency);
 
-      let nti = selectTokenDay(idx, tlast)(state);
-      if (!nti) nti = selectTokenDay(idx, tlast - 60 * 60 * 24)(state);
+        let paths = findSwapPaths(config.pairs, tid, baseCurrency.toString(), 3);
 
-      let prev_ds = 0;
-      let prev_nds = 0;
-      const neurons = Array(364)
-        .fill(0)
-        .map((_, i) => {
-          let now = Date.now() / 1000;
-          let r = { t: now + i * 60 * 60 * 24 };
+        const wdelta = i2t(interval);
+        let pathpair = calculatePairPath(paths, interval, tstart, tlast)(state);
+        // let missing_ticks = pathpair[0].reduce((a, b) => {
+        //   return a + (b.price ? 0 : 1);
+        // }, 0);
+        // if (missing_ticks > 400) return false;
+        let prev_cs = false;
 
-          if (nti?.locking) {
-            let ds =
-              Number(
-                BigInt(nti.locking.dissolving[i]) / 10n ** BigInt(x.decimals)
-              ) * tokenprice;
-            let nds =
-              Number(
-                BigInt(nti.locking.not_dissolving[i]) /
+        let nti = selectTokenDay(idx, tlast)(state);
+        if (!nti) nti = selectTokenDay(idx, tlast - 60 * 60 * 24)(state);
+
+        let prev_ds = 0;
+        let prev_nds = 0;
+        const neurons = Array(364)
+          .fill(0)
+          .map((_, i) => {
+            let now = Date.now() / 1000;
+            let r = { t: now + i * 60 * 60 * 24 };
+
+            if (nti?.locking) {
+              let ds =
+                Number(
+                  BigInt(nti.locking.dissolving[i]) / 10n ** BigInt(x.decimals)
+                ) * tokenprice;
+              let nds =
+                Number(
+                  BigInt(nti.locking.not_dissolving[i]) /
                   10n ** BigInt(x.decimals)
-              ) * tokenprice;
+                ) * tokenprice;
 
-            prev_ds += ds;
-            prev_nds += nds;
-            r['ds'] = prev_ds;
-            r['nds'] = prev_nds;
-          }
-          return r;
-        });
+              prev_ds += ds;
+              prev_nds += nds;
+              r['ds'] = prev_ds;
+              r['nds'] = prev_nds;
+            }
+            return r;
+          });
 
-      let treasuryICP_prev = false;
-      let treasuryT_prev = false;
+        let treasuryICP_prev = false;
+        let treasuryT_prev = false;
 
-      const merged = Array(pathpair[0].length)
-        .fill(0)
-        .map((_, i) => {
-          let r = { t: tstart + i * wdelta };
+        const merged = Array(pathpair[0].length)
+          .fill(0)
+          .map((_, i) => {
+            let r = { t: tstart + i * wdelta };
 
-          // Find out the difference in circulating supply each day + or -
-          let acc_cs = undefined;
-          let treasuryICP = undefined;
-          let treasuryT = undefined;
-          let treasuryICP_acc = 0;
-          let treasuryT_acc = 0;
+            // Find out the difference in circulating supply each day + or -
+            let acc_cs = undefined;
+            let treasuryICP = undefined;
+            let treasuryT = undefined;
+            let treasuryICP_acc = 0;
+            let treasuryT_acc = 0;
 
-          try {
-            let xst = lastStartedTick(60 * 60 * 24, tstart + i * wdelta);
-            let ti = selectTokenDay(idx, xst)(state);
+            try {
+              let xst = lastStartedTick(60 * 60 * 24, tstart + i * wdelta);
+              let ti = selectTokenDay(idx, xst)(state);
 
-            let total = Number(
-              ti ? BigInt(ti.total_supply) / 10n ** BigInt(x.decimals) : 0n
-            );
+              let total = Number(
+                ti ? BigInt(ti.total_supply) / 10n ** BigInt(x.decimals) : 0n
+              );
 
-            let treasuryToken = Number(
-              ti?.locking
-                ? BigInt(ti.locking.treasury) / 10n ** BigInt(x.decimals)
-                : undefined
-            );
+              let treasuryToken = Number(
+                ti?.locking
+                  ? BigInt(ti.locking.treasury) / 10n ** BigInt(x.decimals)
+                  : undefined
+              );
 
-            let total_locked = Number(
-              ti?.locking
-                ? BigInt(ti.locking.total_locked) / 10n ** BigInt(x.decimals)
-                : 0n
-            );
-            if (total > 0) {
-              let cs = total_locked; //                total - treasuryToken ? treasuryToken : 0n - total_locked;
+              let total_locked = Number(
+                ti?.locking
+                  ? BigInt(ti.locking.total_locked) / 10n ** BigInt(x.decimals)
+                  : 0n
+              );
+              if (total > 0) {
+                let cs = total_locked; //                total - treasuryToken ? treasuryToken : 0n - total_locked;
 
-              if (prev_cs === false) prev_cs = cs;
+                if (prev_cs === false) prev_cs = cs;
 
-              acc_cs = (cs - prev_cs) * tokenprice;
+                acc_cs = (cs - prev_cs) * tokenprice;
+              }
+
+              treasuryT = treasuryToken;
+              treasuryICP = Number(
+                ti?.locking
+                  ? BigInt(ti.locking.other_treasuries[0][1]) / 10n ** 8n
+                  : undefined
+              );
+
+              if (treasuryICP_prev === false) treasuryICP_prev = treasuryICP || 0;
+              if (treasuryT_prev === false) treasuryT_prev = treasuryT || 0;
+
+              treasuryICP_acc =
+                treasuryICP !== undefined
+                  ? (treasuryICP - treasuryICP_prev) * icpprice
+                  : undefined;
+
+              treasuryT_acc =
+                treasuryT !== undefined
+                  ? (treasuryT - treasuryT_prev) * tokenprice
+                  : undefined;
+            } catch (e) {
+              // console.log(e)
             }
 
-            treasuryT = treasuryToken;
-            treasuryICP = Number(
-              ti?.locking
-                ? BigInt(ti.locking.other_treasuries[0][1]) / 10n ** 8n
-                : undefined
-            );
+            r['tt'] = treasuryT_acc;
+            r['ticp'] = treasuryICP_acc;
+            r['cs'] = acc_cs;
+            for (let pidx = 0; pidx < pathpair.length; pidx++) {
+              r['p' + pidx] = pathpair[pidx][i].price;
+              r['v' + pidx] = pathpair[pidx][i].volume24h
+                ? pathpair[pidx][i].volume24h * usdprice
+                : 0;
+              r['l' + pidx] = pathpair[pidx][i].depthBid;
+              r['la' + pidx] = pathpair[pidx][i].depthAsk;
+            }
 
-            if (treasuryICP_prev === false) treasuryICP_prev = treasuryICP || 0;
-            if (treasuryT_prev === false) treasuryT_prev = treasuryT || 0;
+            return r;
+          });
 
-            treasuryICP_acc =
-              treasuryICP !== undefined
-                ? (treasuryICP - treasuryICP_prev) * icpprice
-                : undefined;
 
-            treasuryT_acc =
-              treasuryT !== undefined
-                ? (treasuryT - treasuryT_prev) * tokenprice
-                : undefined;
-          } catch (e) {
-            // console.log(e)
-          }
-
-          r['tt'] = treasuryT_acc;
-          r['ticp'] = treasuryICP_acc;
-          r['cs'] = acc_cs;
-          for (let pidx = 0; pidx < pathpair.length; pidx++) {
-            r['p' + pidx] = pathpair[pidx][i].price;
-            r['v' + pidx] = pathpair[pidx][i].volume24h
-              ? pathpair[pidx][i].volume24h * usdprice
-              : 0;
-            r['l' + pidx] = pathpair[pidx][i].depthBid;
-            r['la' + pidx] = pathpair[pidx][i].depthAsk;
-          }
-
-          return r;
-        });
-
-      let ticksPerDay = (60 * 60 * 24) / i2t(interval);
-      // let pp = paths.map(x => calculatePathPrice(x, getDirectPairs(state)));
-      let resp = {
-        tokenid: idx,
-        tokencfg: x,
-        lines: paths.length,
-        merged,
-        neurons,
-        sources: paths
-          .map((z, idx) => {
-            // if (z.pairs.length > 2) return false;
-            let pairid = z.pairs[0];
-            let pairinfo = config.pairs[pairid];
-            let dexid = Object.keys(pairinfo.config)[0];
-            let volume30 = 0;
-            let volume7 = 0;
-            try {
-              volume7 = Array(7)
-                .fill(0)
-                .reduce(
-                  (p, c, i) =>
-                    p +
-                    pathpair[idx][pathpair[idx].length - 1 - i * ticksPerDay]
-                      .volume24h *
+        let ticksPerDay = (60 * 60 * 24 / i2t(interval));
+        // let pp = paths.map(x => calculatePathPrice(x, getDirectPairs(state)));
+        let resp = {
+          tokenid: idx,
+          tokencfg: x,
+          lines: paths.length,
+          merged,
+          neurons,
+          sources: paths
+            .map((z, idx) => {
+              // if (z.pairs.length > 2) return false;
+              let pairid = z.pairs[0];
+              let pairinfo = config.pairs[pairid];
+              let dexid = Object.keys(pairinfo.config)[0];
+              let volume30 = 0;
+              let volume7 = 0;
+              try {
+                volume7 = Array(7)
+                  .fill(0)
+                  .reduce(
+                    (p, c, i) =>
+                      p +
+                      pathpair[idx][pathpair[idx].length - 1 - i * ticksPerDay].volume24h *
                       usdprice,
-                  0
-                );
+                    0
+                  );
 
-              volume30 = Array(30)
-                .fill(0)
-                .reduce(
-                  (p, c, i) =>
-                    p +
-                    pathpair[idx][pathpair[idx].length - 1 - i * ticksPerDay]
-                      .volume24h *
+                volume30 = Array(30)
+                  .fill(0)
+                  .reduce(
+                    (p, c, i) =>
+                      p +
+                      pathpair[idx][pathpair[idx].length - 1 - i * ticksPerDay]
+                        .volume24h *
                       usdprice,
-                  0
-                );
-            } catch (e) {}
+                    0
+                  );
+              } catch (e) { }
 
-            return {
-              source: { id: dexid, ...dcfg[dexid] },
-              price: pathpair[idx][pathpair[idx].length - 1].price,
-              volume24:
-                pathpair[idx][pathpair[idx].length - 1].volume24h * usdprice,
-              volume7,
-              volume30,
-              liquidity: pathpair[idx][pathpair[idx].length - 1].depthBid,
-              liqask: pathpair[idx][pathpair[idx].length - 1].depthAsk,
-            };
-          })
-          .filter(Boolean),
-      };
+              return {
+                source: { id: dexid, ...dcfg[dexid] },
+                price: pathpair[idx][pathpair[idx].length - 1].price,
+                volume24:
+                  pathpair[idx][pathpair[idx].length - 1].volume24h * usdprice,
+                volume7,
+                volume30,
+                liquidity: pathpair[idx][pathpair[idx].length - 1].depthBid,
+                liqask: pathpair[idx][pathpair[idx].length - 1].depthAsk,
+              };
+            })
+            .filter(Boolean),
+        };
 
-      return resp;
-    } catch (e) {
-      // console.log(e);
-      return null;
-    }
-  };
+        return resp;
+      } catch (e) {
+        // console.log(e);
+        return null;
+      }
+    };
 
 function getUniquePairs(paths) {
   let combinedPairs = [];
@@ -603,17 +655,17 @@ function getUniquePairs(paths) {
 
 export const fetchTokenExtended =
   ({ tid }) =>
-  (dispatch, getState) => {
-    const state = getState();
-    let paths = findSwapPaths(
-      state.config.pairs,
-      tid,
-      state.config.baseCurrency.toString(),
-      3
-    );
-    const pids = getUniquePairs(paths);
-    // dispatch(fetchPairs({ interval: 't5m', pids, back: 12 * 24 * 31 }));
-    dispatch(fetchPairs({ interval: 't1h', pids, back: 31 }));
-  };
+    (dispatch, getState) => {
+      const state = getState();
+      let paths = findSwapPaths(
+        state.config.pairs,
+        tid,
+        state.config.baseCurrency.toString(),
+        3
+      );
+      const pids = getUniquePairs(paths);
+      // dispatch(fetchPairs({ interval: 't5m', pids, back: 12 * 24 * 31 }));
+      dispatch(fetchPairs({ interval: 't1h', pids, back: 31 }));
+    };
 
 export default tokenSlice.reducer;
