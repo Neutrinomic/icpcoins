@@ -4,7 +4,9 @@ export function getPairIds(config, t1, t2) {
       if (
         (Number(x.tokens[0]) === t1 && Number(x.tokens[1]) === t2) ||
         (Number(x.tokens[1]) === t1 && Number(x.tokens[0]) === t2)
-      ) return pid; else return false;
+      )
+        return pid;
+      else return false;
     })
     .filter(x => x !== false);
 }
@@ -93,6 +95,13 @@ export function i2t(interval) {
     default:
       throw new Error('Unknown interval');
   }
+}
+
+export function p2i(period) {
+  var interval = 't1d';
+  if (period <= 31) interval = 't1h';
+  if (period <= 5) interval = 't5m';
+  return interval;
 }
 
 export function period2header(period, suffix) {

@@ -1,58 +1,38 @@
+import { ExternalLinkIcon, InfoIcon } from '@chakra-ui/icons';
 import {
-  LineChart,
-  Line,
-  YAxis,
-  XAxis,
-  ResponsiveContainer,
-  Area,
-  CartesianGrid,
-  AreaChart,
-  BarChart,
-  Bar,
-  Label,
-  Tooltip,
-} from 'recharts';
-import moment from 'moment';
-import { useState, useEffect } from 'react';
-import {
-  Table,
-  Thead,
-  Tbody,
-  Tfoot,
-  Tr,
-  Th,
-  Td,
-  TableCaption,
-  TableContainer,
-  Heading,
-  Skeleton,
   Box,
-  Stack,
-  Link,
   Button,
-  Center,
   ButtonGroup,
+  Center,
+  Link,
+  Table,
+  TableContainer,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tooltip as Tip,
+  Tr,
   useColorModeValue,
   useMediaQuery,
-  Tooltip as Tip,
 } from '@chakra-ui/react';
-import { smartNumber } from './Inline';
-import { ExternalLinkIcon } from '@chakra-ui/icons';
-import { useInterval } from 'react-use';
-import { InfoIcon } from '@chakra-ui/icons';
-import ic from '../icblast.js';
+import moment from 'moment';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectSingleTokenInfo } from '../reducers/tokens';
 import {
-  getPairPrices,
-  getPrices,
-  convertCurrency,
-  getPairIds,
-  getPairRev,
-} from '../utils';
-import { fetchTokens } from '../reducers/tokens';
+  Area,
+  AreaChart,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+import { selectSingleTokenInfo } from '../reducers/tokens';
+import { smartNumber } from './Inline';
 // import { fetchPairs } from '../reducers/pairs.js';
 import { first_tick } from '../config.js';
+import TradingViewWidget from './TradingViewWidget.jsx';
 //https://github.com/recharts/recharts/issues/956
 const dexColors = ['#00a0e5', '#c55de8', '#8BAB43', '#948c52', '#1ca254'];
 export const PriceChart = ({ symbol, onChangePeriod }) => {
@@ -164,6 +144,14 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
                 cursor={{ stroke: '#445566' }}
               />
             </LineChart>
+          </ResponsiveContainer>
+
+          <ResponsiveContainer width={'100%'} height={400}>
+            <TradingViewWidget
+              data={data.merged}
+              noOfPaths={data.lines}
+              period={period}
+            />
           </ResponsiveContainer>
 
           {isDex ? (
