@@ -1,4 +1,5 @@
 import { ExternalLinkIcon, InfoIcon } from '@chakra-ui/icons';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -33,15 +34,17 @@ import { smartNumber } from './Inline';
 // import { fetchPairs } from '../reducers/pairs.js';
 import { first_tick } from '../config.js';
 import TradingViewWidget from './TradingViewWidget.jsx';
+import ToggleSelector from './ChartTypeToggleSelector.jsx';
 //https://github.com/recharts/recharts/issues/956
 const dexColors = ['#00a0e5', '#c55de8', '#8BAB43', '#948c52', '#1ca254'];
 export const PriceChart = ({ symbol, onChangePeriod }) => {
   const dispatch = useDispatch();
+  const [selectedOption, setSelectedOption] = useState('line');
   const config = useSelector(state => state.config);
   const baseCurrency = useSelector(state => state.config.baseCurrency);
   const baseCurrencySymbol = config.tokens[baseCurrency].symbol;
   const [isLarge] = useMediaQuery('(min-width: 1024px)');
-
+  const [selectedCandleInterval, setSelectedCandleInterval] = useState('1d'); // Interval( width) of each candle
   const bg2 = useColorModeValue(
     'linear-gradient(180deg, rgba(227,232,239,1) 0%, rgba(234,239,245,1) 14%)',
     'linear-gradient(180deg, rgba(23,25,34,1) 0%, rgba(27,32,43,1) 100%)'
@@ -62,6 +65,23 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
 
   const period = useSelector(state => state.page.params.period);
 
+  const [candleIntervalOptions, setCandleIntervalOptions] = useState([]);
+
+  useEffect(() => {
+    let options;
+    if (period <= 7) {
+      options = ['1d', '3h', '1h'].reverse();
+      setSelectedCandleInterval('1h');
+    } else if (period <= 31) {
+      options = ['3d', '1d'].reverse();
+      setSelectedCandleInterval('1d');
+    } else {
+      options = ['7d', '3d'].reverse();
+      setSelectedCandleInterval('3d');
+    }
+    setCandleIntervalOptions(options);
+  }, [period]);
+
   let data = useSelector(selectSingleTokenInfo({ period, symbol }));
 
   if (!data) return null;
@@ -79,80 +99,101 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
     <>
       <Box mt="15px" pt="15px" ml="-15px" mr="-15px">
         <Box maxW="1278px" m="auto">
-          <ResponsiveContainer width={'100%'} height={400}>
-            <LineChart
-              data={data.merged}
-              margin={{ top: 10, bottom: 10 }}
-              syncId="main"
-            >
-              {/* <defs>
+          <ToggleSelector
+            {...{
+              selectedOption,
+              setSelectedOption,
+              selectedCandleInterval,
+              setSelectedCandleInterval,
+              candleIntervalOptions,
+            }}
+          />
+
+          {selectedOption === 'line' && (
+            <ResponsiveContainer width={'100%'} height={400}>
+              <LineChart
+                data={data.merged}
+                margin={{ top: 10, bottom: 10 }}
+                syncId="main"
+              >
+                {/* <defs>
             <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="#129a74" stopOpacity={0.3} />
               <stop offset="95%" stopColor="#FFFFFF" stopOpacity={0.3} />
             </linearGradient>
           </defs> */}
-              {Array(data.lines)
-                .fill(0)
-                .map((_, idx) => (
-                  <Line
-                    isAnimationActive={false}
-                    key={idx}
-                    type="line"
-                    dataKey={'p' + idx}
-                    strokeWidth={2}
-                    stroke={dexColors[idx]}
-                    dot={false}
-                    activeDot={activeDotStyle}
-                  />
-                ))}
+                {Array(data.lines)
+                  .fill(0)
+                  .map((_, idx) => (
+                    <Line
+                      isAnimationActive={false}
+                      key={idx}
+                      type="line"
+                      dataKey={'p' + idx}
+                      strokeWidth={2}
+                      stroke={dexColors[idx]}
+                      dot={false}
+                      activeDot={activeDotStyle}
+                    />
+                  ))}
 
-              <YAxis
-                orientation="right"
-                dx={5}
-                stroke="#8893a8"
-                domain={['auto', 'auto']}
-                axisLine={false}
-                tickLine={{
-                  stroke: '#334455',
-                }}
-                tick={{ fontSize: '12px' }}
-              />
-              <XAxis
-                hide={false}
-                domain={['auto', 'auto']}
-                type="number"
-                dataKey="t"
-                scale="time"
-                dy={5}
-                dx={32}
-                minTickGap={50}
-                tickFormatter={t =>
-                  period <= 24
-                    ? moment.unix(t).format('HH:mm')
-                    : moment.unix(t).format('Do MMM')
-                }
-                interval={'equidistantPreserveStart'}
-                tick={{ fill: '#8893a8' }}
-                tickLine={{
-                  stroke: '#334455',
-                }}
-                axisLine={{ stroke: '#334455' }}
-              />
-              <Tooltip
-                content={<CustomTooltip symbol={baseCurrencySymbol} />}
-                isAnimationActive={false}
-                cursor={{ stroke: '#445566' }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+                <YAxis
+                  orientation="right"
+                  dx={5}
+                  stroke="#8893a8"
+                  domain={['auto', 'auto']}
+                  axisLine={false}
+                  tickLine={{
+                    stroke: '#334455',
+                  }}
+                  tick={{ fontSize: '12px' }}
+                />
+                <XAxis
+                  hide={false}
+                  domain={['auto', 'auto']}
+                  type="number"
+                  dataKey="t"
+                  scale="time"
+                  dy={5}
+                  dx={32}
+                  minTickGap={50}
+                  tickFormatter={t =>
+                    period <= 24
+                      ? moment.unix(t).format('HH:mm')
+                      : moment.unix(t).format('Do MMM')
+                  }
+                  interval={'equidistantPreserveStart'}
+                  tick={{ fill: '#8893a8' }}
+                  tickLine={{
+                    stroke: '#334455',
+                  }}
+                  axisLine={{ stroke: '#334455' }}
+                />
+                <Tooltip
+                  content={<CustomTooltip symbol={baseCurrencySymbol} />}
+                  isAnimationActive={false}
+                  cursor={{ stroke: '#445566' }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
 
-          <ResponsiveContainer width={'100%'} height={400}>
+          {selectedOption === 'candlestick' && (
+            <TradingViewWidget
+              data={data.merged}
+              noOfPaths={data.lines}
+              period={period}
+              selectedCandleInterval={selectedCandleInterval}
+            />
+          )}
+
+          {/* <ResponsiveContainer width={'100%'} height={400}>
             <TradingViewWidget
               data={data.merged}
               noOfPaths={data.lines}
               period={period}
             />
-          </ResponsiveContainer>
+          </ResponsiveContainer> */}
 
           {isDex ? (
             <>

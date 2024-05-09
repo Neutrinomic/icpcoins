@@ -100,8 +100,34 @@ export function i2t(interval) {
 export function p2i(period) {
   var interval = 't1d';
   if (period <= 31) interval = 't1h';
-  if (period <= 5) interval = 't5m';
+  if (period <= 7) interval = 't5m';
   return interval;
+}
+
+export function candleIntervalToMinutes(candleInterval) {
+  var mins = 60;
+
+  switch (candleInterval) {
+    case '1h':
+      mins = 60;
+      break;
+    case '3h':
+      mins = 3 * 60;
+      break;
+    case '1d':
+      mins = 24 * 60;
+      break;
+    case '3d':
+      mins = 3 * 24 * 60;
+      break;
+    case '7d':
+      mins = 7 * 24 * 60;
+      break;
+    default:
+      mins = 60;
+  }
+
+  return mins;
 }
 
 export function period2header(period, suffix) {
