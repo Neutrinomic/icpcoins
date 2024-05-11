@@ -247,8 +247,7 @@ export const ChartComponent = props => {
         },
       },
       timeScale: {
-        visible: true,
-        timeVisible: true,
+        visible: false,
       },
       crosshair: {
         mode: CrosshairMode.Normal,
