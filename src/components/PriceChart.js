@@ -35,8 +35,10 @@ import { smartNumber } from './Inline';
 import { first_tick } from '../config.js';
 import TradingViewWidget from './TradingViewWidget.jsx';
 import ToggleSelector from './ChartTypeToggleSelector.jsx';
+import { bigTickFormatter } from '../utils.js';
 //https://github.com/recharts/recharts/issues/956
-const dexColors = ['#00a0e5', '#c55de8', '#8BAB43', '#948c52', '#1ca254'];
+import { dexColors } from '../utils/colors.js';
+
 export const PriceChart = ({ symbol, onChangePeriod }) => {
   const dispatch = useDispatch();
   const [selectedOption, setSelectedOption] = useState('line');
@@ -91,8 +93,6 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
   const locking = 'sns' in data.tokencfg.locking;
   const activeDotStyle = { r: 1, stroke: '#445566', zIndex: 1000 };
 
-  const bigTickFormatter = t =>
-    t < 1000000 ? (t / 1000).toFixed(1) + 'k' : (t / 1000000).toFixed(2) + 'm';
   const days_from_start = daysFromStart();
 
   return (

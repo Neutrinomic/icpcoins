@@ -2,6 +2,8 @@ import { createChart, ColorType, CrosshairMode } from 'lightweight-charts';
 import React, { useEffect, useRef } from 'react';
 import moment from 'moment';
 import { p2i, i2t, candleIntervalToMinutes } from '../utils';
+import { bigTickFormatter } from '../utils.js';
+import { dexColors } from '../utils/colors.js';
 
 // function generateCandleData(numberOfPoints = 250, endDate) {
 //   const lineData = generateLineData(numberOfPoints, endDate);
@@ -135,6 +137,22 @@ function calculateSingleCandleDataFromPriceSubArray(priceSubArray, noOfPaths) {
   };
 }
 
+function getCrosshairDataPoint(series, param) {
+  if (!param.time) {
+    return null;
+  }
+  const dataPoint = param.seriesData.get(series);
+  return dataPoint || null;
+}
+
+function syncCrosshair(chart, series, dataPoint) {
+  if (dataPoint) {
+    chart.setCrosshairPosition(dataPoint.value, dataPoint.time, series);
+    return;
+  }
+  chart.clearCrosshairPosition();
+}
+
 export const ChartComponent = props => {
   const {
     data,
@@ -150,20 +168,20 @@ export const ChartComponent = props => {
     } = {},
   } = props;
 
-  const chartContainerRef = useRef();
-
+  const chart1ContainerRef = useRef();
+  const chart2ContainerRef = useRef();
   useEffect(() => {
     const handleResize = () => {
-      chart.applyOptions({ width: chartContainerRef.current.clientWidth });
+      chart.applyOptions({ width: chart1ContainerRef.current.clientWidth });
     };
 
-    const chart = createChart(chartContainerRef.current, {
+    const chart = createChart(chart1ContainerRef.current, {
       layout: {
         background: { type: ColorType.Solid, color: 'transparent' },
         textColor: '#8893a8',
         borderColor: '#8893a8',
       },
-      width: chartContainerRef.current.clientWidth,
+      width: chart1ContainerRef.current.clientWidth,
       height: 400,
       grid: {
         vertLines: {
@@ -185,7 +203,7 @@ export const ChartComponent = props => {
         ticksVisible: true,
         borderVisible: false,
 
-        minimumWidth: 10,
+        width: 10,
       },
       handleScroll: false,
       handleScale: false,
@@ -212,12 +230,72 @@ export const ChartComponent = props => {
       })
     );
 
+    const chart2 = createChart(chart2ContainerRef.current, {
+      layout: {
+        textColor: '#8893a8',
+        borderColor: '#8893a8',
+        background: { type: ColorType.Solid, color: 'transparent' },
+      },
+      width: chart2ContainerRef.current.clientWidth,
+      height: 150,
+      grid: {
+        vertLines: {
+          visible: false,
+        },
+        horzLines: {
+          visible: false,
+        },
+      },
+      timeScale: {
+        visible: true,
+        timeVisible: true,
+      },
+      crosshair: {
+        mode: CrosshairMode.Normal,
+      },
+      rightPriceScale: {
+        ticksVisible: true,
+        borderVisible: false,
+
+        minimumWidth: 10,
+      },
+      localization: {
+        priceFormatter: bigTickFormatter,
+      },
+      handleScroll: false,
+      handleScale: false,
+    });
+    const areaSeries = chart2.addAreaSeries({
+      lineColor: dexColors[0],
+      lineVisible: false,
+      topColor: dexColors[0],
+      bottomColor: 'rgba(41, 98, 255, 0.28)',
+    });
+
+    areaSeries.setData(
+      data.map(d => {
+        return { value: d.v0, time: d.t };
+      })
+    );
+
+    chart2.timeScale().fitContent();
+
     window.addEventListener('resize', handleResize);
+
+    chart.subscribeCrosshairMove(param => {
+      const dataPoint = getCrosshairDataPoint(candlestickSeries, param);
+      syncCrosshair(chart2, areaSeries, dataPoint);
+    });
+    chart2.subscribeCrosshairMove(param => {
+      const dataPoint = getCrosshairDataPoint(areaSeries, param);
+      syncCrosshair(chart, candlestickSeries, dataPoint);
+    });
 
     return () => {
       window.removeEventListener('resize', handleResize);
 
       chart.remove();
+      chart2.remove();
     };
   }, [
     data,
@@ -228,7 +306,12 @@ export const ChartComponent = props => {
     areaBottomColor,
   ]);
 
-  return <div ref={chartContainerRef} />;
+  return (
+    <>
+      <div ref={chart1ContainerRef} />
+      <div ref={chart2ContainerRef} />
+    </>
+  );
 };
 
 export default function TradingViewWidget(props) {
