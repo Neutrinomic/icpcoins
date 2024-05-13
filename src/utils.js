@@ -156,3 +156,6 @@ export function lastStartedTick(tickInterval, currentTimestamp) {
   let tn = Math.floor(elapsedTime / tickInterval);
   return tn * tickInterval + startTick;
 }
+
+export const bigTickFormatter = t =>
+  t < 1000000 ? (t / 1000).toFixed(1) + 'k' : (t / 1000000).toFixed(2) + 'm';
