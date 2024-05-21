@@ -3,7 +3,8 @@ import React, { useEffect, useRef } from 'react';
 import moment from 'moment';
 import { p2i, i2t, candleIntervalToMinutes } from '../utils';
 import { bigTickFormatter } from '../utils.js';
-import { dexColors } from '../utils/colors.js';
+import { areaSeriesBottomOpacity, dexColors, hexToRgba } from '../utils/colors.js';
+import { minZeroAutoScalingProvider } from '../utils/chartUtils.js';
 
 // function generateCandleData(numberOfPoints = 250, endDate) {
 //   const lineData = generateLineData(numberOfPoints, endDate);
@@ -126,6 +127,11 @@ function calculateSingleCandleDataFromPriceSubArray(priceSubArray, noOfPaths) {
     }
   });
 
+  if (low == Number.MAX_SAFE_INTEGER || high == Number.MIN_SAFE_INTEGER) {
+    low = 0;
+    high = 0;
+  }
+
   return {
     time: moment(
       priceSubArray[Math.floor(priceSubArray.length / 2)].t
@@ -168,20 +174,26 @@ export const ChartComponent = props => {
     } = {},
   } = props;
 
-  const chart1ContainerRef = useRef();
-  const chart2ContainerRef = useRef();
+  const candleChartContainerRef = useRef();
+  const volume24ChartContainerRef = useRef();
+  const depth100ChartContainerRef = useRef();
+
   useEffect(() => {
     const handleResize = () => {
-      chart.applyOptions({ width: chart1ContainerRef.current.clientWidth });
+      candleChart.applyOptions({ width: candleChartContainerRef.current.clientWidth });
     };
 
-    const chart = createChart(chart1ContainerRef.current, {
+    // ------------------------------------
+    // candleSeries plot
+    // ------------------------------------
+
+    const candleChart = createChart(candleChartContainerRef.current, {
       layout: {
         background: { type: ColorType.Solid, color: 'transparent' },
         textColor: '#8893a8',
         borderColor: '#8893a8',
       },
-      width: chart1ContainerRef.current.clientWidth,
+      width: candleChartContainerRef.current.clientWidth,
       height: 400,
       grid: {
         vertLines: {
@@ -202,23 +214,27 @@ export const ChartComponent = props => {
       rightPriceScale: {
         ticksVisible: true,
         borderVisible: false,
-
         width: 10,
+        scaleMargins: {
+          top: 0,
+          bottom: 0
+        }
       },
       handleScroll: false,
       handleScale: false,
     });
-    chart.timeScale().fitContent();
+    candleChart.timeScale().fitContent();
 
-    // const maSeries = chart.addLineSeries({ color: '#2962FF', lineWidth: 1 });
-    // maSeries.setData(maData);
-
-    const candlestickSeries = chart.addCandlestickSeries({
+    const candlestickSeries = candleChart.addCandlestickSeries({
       upColor: '#26a69a',
       downColor: '#ef5350',
       borderVisible: false,
       wickUpColor: '#26a69a',
       wickDownColor: '#ef5350',
+      autoscaleInfoProvider: minZeroAutoScalingProvider,
+      localization: {
+        priceFormatter: bigTickFormatter,
+      },
     });
     //candlestickSeries.setData(barData);
     candlestickSeries.setData(
@@ -230,13 +246,13 @@ export const ChartComponent = props => {
       })
     );
 
-    const chart2 = createChart(chart2ContainerRef.current, {
+    const volume24Chart = createChart(volume24ChartContainerRef.current, {
       layout: {
         textColor: '#8893a8',
         borderColor: '#8893a8',
         background: { type: ColorType.Solid, color: 'transparent' },
       },
-      width: chart2ContainerRef.current.clientWidth,
+      width: volume24ChartContainerRef.current.clientWidth,
       height: 150,
       grid: {
         vertLines: {
@@ -255,46 +271,94 @@ export const ChartComponent = props => {
       rightPriceScale: {
         ticksVisible: true,
         borderVisible: false,
-
         minimumWidth: 10,
+
+        scaleMargins: {
+          top: 0,
+          bottom: 0
+        }
       },
-      localization: {
-        priceFormatter: bigTickFormatter,
-      },
+      // localization: {
+      //   priceFormatter: bigTickFormatter,
+      // },
       handleScroll: false,
       handleScale: false,
     });
-    const areaSeries = chart2.addAreaSeries({
+
+
+    // ------------------------------------
+    // volume24 plot
+    // ------------------------------------
+
+    /**
+     * volumeSeries0 , is the volume series on the first path (index 0)
+     * it is added outside the follwing loop, to maintain reference for syncing crosshair across graphs
+     */
+
+    const volumeSeries0 = volume24Chart.addAreaSeries({
       lineColor: dexColors[0],
       lineVisible: false,
       topColor: dexColors[0],
-      bottomColor: 'rgba(41, 98, 255, 0.28)',
+      bottomColor: hexToRgba(dexColors[0], areaSeriesBottomOpacity),
+      autoscaleInfoProvider: minZeroAutoScalingProvider,
+      priceFormat: {
+        type: 'volume'
+      }
     });
 
-    areaSeries.setData(
+    volumeSeries0.setData(
       data.map(d => {
-        return { value: d.v0, time: d.t };
+        return { value: d['v0'], time: d.t };
       })
     );
 
-    chart2.timeScale().fitContent();
+    // chart volume24 for other paths, without maintaining the reference
+    if (noOfPaths > 1) {
+      for (let idx = 1; idx < noOfPaths; idx++) {
+        let a = volume24Chart.addAreaSeries({
+          lineColor: dexColors[idx],
+          lineVisible: false,
+          topColor: dexColors[idx],
+          bottomColor: hexToRgba(dexColors[idx], areaSeriesBottomOpacity),
+          autoscaleInfoProvider: minZeroAutoScalingProvider,
+          priceFormat: {
+            type: 'volume'
+          }
+        });
+
+        a.setData(
+          data.map(d => {
+            return { value: d[`v${idx}`], time: d.t };
+          })
+        );
+      }
+    }
+
+
+    volume24Chart.timeScale().fitContent();
 
     window.addEventListener('resize', handleResize);
 
-    chart.subscribeCrosshairMove(param => {
+
+
+    // ------------------------------------
+    // Sync all charts
+    // ------------------------------------
+
+    candleChart.subscribeCrosshairMove(param => {
       const dataPoint = getCrosshairDataPoint(candlestickSeries, param);
-      syncCrosshair(chart2, areaSeries, dataPoint);
+      syncCrosshair(volume24Chart, volumeSeries0, dataPoint);
     });
-    chart2.subscribeCrosshairMove(param => {
-      const dataPoint = getCrosshairDataPoint(areaSeries, param);
-      syncCrosshair(chart, candlestickSeries, dataPoint);
+    volume24Chart.subscribeCrosshairMove(param => {
+      const dataPoint = getCrosshairDataPoint(volumeSeries0, param);
+      syncCrosshair(candleChart, candlestickSeries, dataPoint);
     });
 
     return () => {
       window.removeEventListener('resize', handleResize);
 
-      chart.remove();
-      chart2.remove();
+      candleChart.remove();
+      volume24Chart.remove();
     };
   }, [
     data,
@@ -307,8 +371,8 @@ export const ChartComponent = props => {
 
   return (
     <>
-      <div ref={chart1ContainerRef} />
-      <div ref={chart2ContainerRef} />
+      <div ref={candleChartContainerRef} />
+      <div ref={volume24ChartContainerRef} />
     </>
   );
 };
