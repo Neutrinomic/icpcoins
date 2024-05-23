@@ -6,7 +6,7 @@ export const dexColors = [
   '#1ca254',
 ];
 
-export const areaSeriesBottomOpacity = 0.2;
+export const areaSeriesBottomOpacity = 0.4;
 
 export function hexToRgba(hex, opacity) {
   // Remove the hash at the start if it's there

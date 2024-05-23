@@ -1,10 +1,11 @@
 import { createChart, ColorType, CrosshairMode } from 'lightweight-charts';
 import React, { useEffect, useRef } from 'react';
 import moment from 'moment';
-import { p2i, i2t, candleIntervalToMinutes } from '../utils';
-import { bigTickFormatter } from '../utils.js';
-import { areaSeriesBottomOpacity, dexColors, hexToRgba } from '../utils/colors.js';
-import { minZeroAutoScalingProvider } from '../utils/chartUtils.js';
+import { p2i, i2t, candleIntervalToMinutes } from '../../utils.js';
+import { bigTickFormatter } from '../../utils.js';
+import { areaSeriesBottomOpacity, dexColors, hexToRgba } from '../../utils/colors.js';
+import { defaultChartOptions, minZeroAutoScalingProvider } from '../../utils/chartUtils.js';
+import ChartWrapper from './ChartWrapper.jsx';
 
 // function generateCandleData(numberOfPoints = 250, endDate) {
 //   const lineData = generateLineData(numberOfPoints, endDate);
@@ -174,9 +175,11 @@ export const ChartComponent = props => {
     } = {},
   } = props;
 
+  //References for each chart in the stack
   const candleChartContainerRef = useRef();
   const volume24ChartContainerRef = useRef();
   const depth100ChartContainerRef = useRef();
+  const depth50ChartContainerRef = useRef();
 
   useEffect(() => {
     const handleResize = () => {
@@ -188,40 +191,12 @@ export const ChartComponent = props => {
     // ------------------------------------
 
     const candleChart = createChart(candleChartContainerRef.current, {
-      layout: {
-        background: { type: ColorType.Solid, color: 'transparent' },
-        textColor: '#8893a8',
-        borderColor: '#8893a8',
-      },
+      ...defaultChartOptions,
       width: candleChartContainerRef.current.clientWidth,
       height: 400,
-      grid: {
-        vertLines: {
-          visible: false,
-        },
-        horzLines: {
-          visible: false,
-        },
-      },
       timeScale: {
-        timeVisible: true,
-        secondsVisible: false,
-        allowBoldLabels: false,
+        visible: true,
       },
-      crosshair: {
-        mode: CrosshairMode.Normal,
-      },
-      rightPriceScale: {
-        ticksVisible: true,
-        borderVisible: false,
-        width: 10,
-        scaleMargins: {
-          top: 0,
-          bottom: 0
-        }
-      },
-      handleScroll: false,
-      handleScale: false,
     });
     candleChart.timeScale().fitContent();
 
@@ -246,45 +221,6 @@ export const ChartComponent = props => {
       })
     );
 
-    const volume24Chart = createChart(volume24ChartContainerRef.current, {
-      layout: {
-        textColor: '#8893a8',
-        borderColor: '#8893a8',
-        background: { type: ColorType.Solid, color: 'transparent' },
-      },
-      width: volume24ChartContainerRef.current.clientWidth,
-      height: 150,
-      grid: {
-        vertLines: {
-          visible: false,
-        },
-        horzLines: {
-          visible: false,
-        },
-      },
-      timeScale: {
-        visible: false,
-      },
-      crosshair: {
-        mode: CrosshairMode.Normal,
-      },
-      rightPriceScale: {
-        ticksVisible: true,
-        borderVisible: false,
-        minimumWidth: 10,
-
-        scaleMargins: {
-          top: 0,
-          bottom: 0
-        }
-      },
-      // localization: {
-      //   priceFormatter: bigTickFormatter,
-      // },
-      handleScroll: false,
-      handleScale: false,
-    });
-
 
     // ------------------------------------
     // volume24 plot
@@ -295,29 +231,19 @@ export const ChartComponent = props => {
      * it is added outside the follwing loop, to maintain reference for syncing crosshair across graphs
      */
 
-    const volumeSeries0 = volume24Chart.addAreaSeries({
-      lineColor: dexColors[0],
-      lineVisible: false,
-      topColor: dexColors[0],
-      bottomColor: hexToRgba(dexColors[0], areaSeriesBottomOpacity),
-      autoscaleInfoProvider: minZeroAutoScalingProvider,
-      priceFormat: {
-        type: 'volume'
-      }
+    const volume24Chart = createChart(volume24ChartContainerRef.current, {
+      ...defaultChartOptions,
+      width: volume24ChartContainerRef.current.clientWidth,
     });
-
-    volumeSeries0.setData(
-      data.map(d => {
-        return { value: d['v0'], time: d.t };
-      })
-    );
 
     // chart volume24 for other paths, without maintaining the reference
     if (noOfPaths > 1) {
       for (let idx = 1; idx < noOfPaths; idx++) {
         let a = volume24Chart.addAreaSeries({
           lineColor: dexColors[idx],
-          lineVisible: false,
+          lineVisible: true,
+          lineWidth: 1,
+          priceLineVisible: false,
           topColor: dexColors[idx],
           bottomColor: hexToRgba(dexColors[idx], areaSeriesBottomOpacity),
           autoscaleInfoProvider: minZeroAutoScalingProvider,
@@ -334,31 +260,199 @@ export const ChartComponent = props => {
       }
     }
 
+    const volumeSeries0 = volume24Chart.addAreaSeries({
+      lineColor: dexColors[0],
+      lineVisible: true,
+      lineWidth: 1,
+      topColor: dexColors[0],
+      priceLineVisible: false,
+      bottomColor: hexToRgba(dexColors[0], areaSeriesBottomOpacity),
+      autoscaleInfoProvider: minZeroAutoScalingProvider,
+      priceFormat: {
+        type: 'volume'
+      }
+    });
+
+    volumeSeries0.setData(
+      data.map(d => {
+        return { value: d['v0'], time: d.t };
+      })
+    );
 
     volume24Chart.timeScale().fitContent();
 
-    window.addEventListener('resize', handleResize);
 
+    // ------------------------------------
+    // depth 100 (Ask) plot
+    // ------------------------------------
 
+    /**
+     * depth100Series0 , is the depth100 (Ask) series on the first path (index 0)
+     * it is added outside the follwing loop, to maintain reference for syncing crosshair across graphs
+     */
 
+    const depth100Chart = createChart(depth100ChartContainerRef.current, {
+      ...defaultChartOptions,
+      width: depth100ChartContainerRef.current.clientWidth,
+      height: 100,
+      rightPriceScale: {
+        ...defaultChartOptions.rightPriceScale,
+        invertScale: true,
+      },
+    });
+
+    // chart depth100 for other paths, without maintaining the reference
+    if (noOfPaths > 1) {
+      for (let idx = 1; idx < noOfPaths; idx++) {
+        let a = depth100Chart.addAreaSeries({
+          lineColor: dexColors[idx],
+          lineVisible: true,
+          lineWidth: 1,
+          priceLineVisible: false,
+          bottomColor: dexColors[idx],
+          topColor: hexToRgba(dexColors[idx], areaSeriesBottomOpacity),
+          autoscaleInfoProvider: minZeroAutoScalingProvider,
+          priceFormat: {
+            type: 'volume'
+          },
+          invertFilledArea: true,
+        });
+
+        a.setData(
+          data.map(d => {
+            return { value: d[`la${idx}`], time: d.t };
+          })
+        );
+      }
+    }
+
+    const depth100Series0 = depth100Chart.addAreaSeries({
+      lineColor: dexColors[0],
+      lineVisible: true,
+      lineWidth: 1,
+      priceLineVisible: false,
+      bottomColor: dexColors[0],
+      topColor: hexToRgba(dexColors[0], areaSeriesBottomOpacity),
+      autoscaleInfoProvider: minZeroAutoScalingProvider,
+      priceFormat: {
+        type: 'volume'
+      },
+      invertFilledArea: true,
+    });
+
+    depth100Series0.setData(
+      data.map(d => {
+        return { value: d['la0'], time: d.t };
+      })
+    );
+
+    depth100Chart.timeScale().fitContent();
+
+    // ------------------------------------
+    // depth 50 (Bid) plot
+    // ------------------------------------
+
+    /**
+     * depth50Series0 , is the depth100 (Ask) series on the first path (index 0)
+     * it is added outside the follwing loop, to maintain reference for syncing crosshair across graphs
+     */
+
+    const depth50Chart = createChart(depth50ChartContainerRef.current, {
+      ...defaultChartOptions,
+      width: depth50ChartContainerRef.current.clientWidth,
+      height: 100,
+    });
+
+    // chart depth100 for other paths, without maintaining the reference
+    if (noOfPaths > 1) {
+      for (let idx = 1; idx < noOfPaths; idx++) {
+        let a = depth50Chart.addAreaSeries({
+          lineColor: dexColors[idx],
+          lineVisible: true,
+          lineWidth: 1,
+          priceLineVisible: false,
+          topColor: dexColors[idx],
+          bottomColor: hexToRgba(dexColors[idx], areaSeriesBottomOpacity),
+          autoscaleInfoProvider: minZeroAutoScalingProvider,
+          priceFormat: {
+            type: 'volume'
+          },
+        });
+
+        a.setData(
+          data.map(d => {
+            return { value: d[`l${idx}`], time: d.t };
+          })
+        );
+      }
+    }
+
+    const depth50Series0 = depth50Chart.addAreaSeries({
+      lineColor: dexColors[0],
+      lineVisible: true,
+      lineWidth: 1,
+      priceLineVisible: false,
+      topColor: dexColors[0],
+      bottomColor: hexToRgba(dexColors[0], areaSeriesBottomOpacity),
+      autoscaleInfoProvider: minZeroAutoScalingProvider,
+      priceFormat: {
+        type: 'volume'
+      },
+    });
+
+    depth50Series0.setData(
+      data.map(d => {
+        return { value: d['l0'], time: d.t };
+      })
+    );
+
+    depth50Chart.timeScale().fitContent();
     // ------------------------------------
     // Sync all charts
     // ------------------------------------
 
+    window.addEventListener('resize', handleResize);
+
     candleChart.subscribeCrosshairMove(param => {
       const dataPoint = getCrosshairDataPoint(candlestickSeries, param);
+      //syncCrosshair(candleChart, candlestickSeries, dataPoint);
       syncCrosshair(volume24Chart, volumeSeries0, dataPoint);
+      syncCrosshair(depth100Chart, depth100Series0, dataPoint);
+      syncCrosshair(depth50Chart, depth50Series0, dataPoint);
     });
     volume24Chart.subscribeCrosshairMove(param => {
       const dataPoint = getCrosshairDataPoint(volumeSeries0, param);
       syncCrosshair(candleChart, candlestickSeries, dataPoint);
+      //syncCrosshair(volume24Chart, volumeSeries0, dataPoint);
+      syncCrosshair(depth100Chart, depth100Series0, dataPoint);
+      syncCrosshair(depth50Chart, depth50Series0, dataPoint);
+    });
+
+    depth100Chart.subscribeCrosshairMove(param => {
+      const dataPoint = getCrosshairDataPoint(depth100Series0, param);
+      syncCrosshair(candleChart, candlestickSeries, dataPoint);
+      syncCrosshair(volume24Chart, volumeSeries0, dataPoint);
+      //syncCrosshair(depth100Chart, depth100Series0, dataPoint);
+      syncCrosshair(depth50Chart, depth50Series0, dataPoint);
+    });
+
+    depth50Chart.subscribeCrosshairMove(param => {
+      const dataPoint = getCrosshairDataPoint(depth50Series0, param);
+      syncCrosshair(candleChart, candlestickSeries, dataPoint);
+      syncCrosshair(volume24Chart, volumeSeries0, dataPoint);
+      syncCrosshair(depth100Chart, depth100Series0, dataPoint);
+      //syncCrosshair(depth50Chart, depth50Series0, dataPoint);
     });
 
     return () => {
       window.removeEventListener('resize', handleResize);
-
+      // ------------------------------------
+      // Cleanup all charts
+      // ------------------------------------
       candleChart.remove();
       volume24Chart.remove();
+      depth100Chart.remove();
+      depth50Chart.remove();
     };
   }, [
     data,
@@ -372,7 +466,18 @@ export const ChartComponent = props => {
   return (
     <>
       <div ref={candleChartContainerRef} />
-      <div ref={volume24ChartContainerRef} />
+      <ChartWrapper title="Depth +100% (Ask)">
+        <div ref={depth100ChartContainerRef} />
+      </ChartWrapper>
+      <ChartWrapper title="Depth -50% (Bid)">
+        <div ref={depth50ChartContainerRef} />
+      </ChartWrapper>
+      <ChartWrapper title="Volume24h">
+        <div ref={volume24ChartContainerRef} />
+      </ChartWrapper>
+
+
+
     </>
   );
 };

@@ -29,15 +29,15 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { selectSingleTokenInfo } from '../reducers/tokens';
-import { smartNumber } from './Inline';
+import { selectSingleTokenInfo } from '../../reducers/tokens.js';
+import { smartNumber } from '../Inline.js';
 // import { fetchPairs } from '../reducers/pairs.js';
-import { first_tick } from '../config.js';
+import { first_tick } from '../../config.js';
 import TradingViewWidget from './TradingViewWidget.jsx';
 import ToggleSelector from './ChartTypeToggleSelector.jsx';
-import { bigTickFormatter } from '../utils.js';
+import { bigTickFormatter } from '../../utils.js';
 //https://github.com/recharts/recharts/issues/956
-import { dexColors } from '../utils/colors.js';
+import { dexColors } from '../../utils/colors.js';
 
 export const PriceChart = ({ symbol, onChangePeriod }) => {
   const dispatch = useDispatch();
@@ -232,7 +232,7 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
                           stackId="1"
                           fill={dexColors[idx]}
                           activeDot={activeDotStyle}
-                          // dot={false}
+                        // dot={false}
                         />
                       ))}
 
@@ -319,7 +319,7 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
                           stackId="1"
                           fill={dexColors[idx]}
                           activeDot={activeDotStyle}
-                          // dot={false}
+                        // dot={false}
                         />
                       ))}
 
@@ -407,7 +407,7 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
                       stackId="1"
                       fill={dexColors[idx]}
                       activeDot={activeDotStyle}
-                      // dot={false}
+                    // dot={false}
                     />
                   ))}
 
@@ -655,7 +655,7 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
                           stackId="1"
                           fill={'#445566'}
                           activeDot={activeDotStyle}
-                          // dot={false}
+                        // dot={false}
                         />
 
                         <YAxis
