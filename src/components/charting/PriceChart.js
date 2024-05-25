@@ -184,6 +184,7 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
               noOfPaths={data.lines}
               period={period}
               selectedCandleInterval={selectedCandleInterval}
+              symbol={symbol}
             />
           )}
 
