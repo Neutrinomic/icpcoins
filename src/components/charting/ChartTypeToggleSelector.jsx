@@ -33,7 +33,7 @@ const ToggleSelector = ({
   };
 
   return (
-    <Box bg={wrapperColor} borderRadius="md" display="inline-block" p={1}>
+    <Box bg={wrapperColor} borderRadius="md" display="inline-block" p={1} mb={'15px'}>
       <Flex alignItems="center">
         <IconButton
           icon={<MdOutlineSsidChart />}
