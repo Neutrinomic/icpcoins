@@ -7,7 +7,8 @@ import {
   Select,
   Divider,
 } from '@chakra-ui/react';
-import { FaChartLine, FaRegChartBar } from 'react-icons/fa';
+import { MdOutlineSsidChart, MdCandlestickChart } from "react-icons/md";
+
 
 const ToggleSelector = ({
   selectedOption,
@@ -35,7 +36,7 @@ const ToggleSelector = ({
     <Box bg={wrapperColor} borderRadius="md" display="inline-block" p={1}>
       <Flex alignItems="center">
         <IconButton
-          icon={<FaChartLine />}
+          icon={<MdOutlineSsidChart />}
           color={selectedOption === 'line' ? activeIconColor : iconColor}
           bg={selectedOption === 'line' ? bgColor : 'transparent'}
           onClick={() => handleSelectOption('line')}
@@ -44,7 +45,7 @@ const ToggleSelector = ({
           size={buttonSize}
         />
         <IconButton
-          icon={<FaRegChartBar />}
+          icon={<MdCandlestickChart />}
           color={selectedOption === 'candlestick' ? activeIconColor : iconColor}
           bg={selectedOption === 'candlestick' ? bgColor : 'transparent'}
           onClick={() => handleSelectOption('candlestick')}

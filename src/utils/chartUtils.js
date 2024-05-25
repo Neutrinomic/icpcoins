@@ -9,14 +9,18 @@ export const minZeroAutoScalingProvider = (original) => {
 
     // }
     // return res;
-    return {
-        ...res,
-        priceRange: {
-            minValue: Math.max(res.priceRange.minValue, 0),
-            maxValue: res.priceRange.maxValue,
-        },
+    if (res != null) {
+        return {
+            ...res,
+            priceRange: {
+                minValue: Math.max(res.priceRange.minValue, 0),
+                maxValue: res.priceRange.maxValue,
+            },
 
+        }
     }
+    return res;
+
 }
 
 
