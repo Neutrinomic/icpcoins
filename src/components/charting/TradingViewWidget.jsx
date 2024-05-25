@@ -153,7 +153,7 @@ function getCrosshairDataPoint(series, param) {
 }
 
 function syncCrosshair(chart, series, dataPoint) {
-  if (dataPoint) {
+  if (dataPoint && series && chart) {
     chart.setCrosshairPosition(dataPoint.value, dataPoint.time, series);
     return;
   }
@@ -167,6 +167,8 @@ export const ChartComponent = props => {
     period,
     selectedCandleInterval,
     symbol,
+    isDex,
+    locking,
     colors: {
       backgroundColor = 'white',
       lineColor = 'red',
@@ -295,7 +297,7 @@ export const ChartComponent = props => {
      * it is added outside the follwing loop, to maintain reference for syncing crosshair across graphs
      */
 
-    const depth100Chart = createChart(depth100ChartContainerRef.current, {
+    const depth100Chart = isDex ? createChart(depth100ChartContainerRef.current, {
       ...defaultChartOptions,
       width: depth100ChartContainerRef.current.clientWidth,
       height: 100,
@@ -303,10 +305,10 @@ export const ChartComponent = props => {
         ...defaultChartOptions.rightPriceScale,
         invertScale: true,
       },
-    });
+    }) : null;
 
     // chart depth100 for other paths, without maintaining the reference
-    if (noOfPaths > 1) {
+    if (noOfPaths > 1 && isDex) {
       for (let idx = 1; idx < noOfPaths; idx++) {
         let a = depth100Chart.addAreaSeries({
           lineColor: dexColors[idx],
@@ -330,7 +332,7 @@ export const ChartComponent = props => {
       }
     }
 
-    const depth100Series0 = depth100Chart.addAreaSeries({
+    const depth100Series0 = isDex ? depth100Chart.addAreaSeries({
       lineColor: dexColors[0],
       lineVisible: true,
       lineWidth: 1,
@@ -342,15 +344,17 @@ export const ChartComponent = props => {
         type: 'volume'
       },
       invertFilledArea: true,
-    });
+    }) : null;
 
-    depth100Series0.setData(
-      data.map(d => {
-        return { value: d['la0'], time: d.t };
-      })
-    );
+    if (isDex) {
+      depth100Series0.setData(
+        data.map(d => {
+          return { value: d['la0'], time: d.t };
+        })
+      );
 
-    depth100Chart.timeScale().fitContent();
+      depth100Chart.timeScale().fitContent();
+    }
 
     // ------------------------------------
     // depth 50 (Bid) plot
@@ -361,14 +365,14 @@ export const ChartComponent = props => {
      * it is added outside the follwing loop, to maintain reference for syncing crosshair across graphs
      */
 
-    const depth50Chart = createChart(depth50ChartContainerRef.current, {
+    const depth50Chart = isDex ? createChart(depth50ChartContainerRef.current, {
       ...defaultChartOptions,
       width: depth50ChartContainerRef.current.clientWidth,
       height: 100,
-    });
+    }) : null;
 
-    // chart depth100 for other paths, without maintaining the reference
-    if (noOfPaths > 1) {
+    // chart depth50 for other paths, without maintaining the reference
+    if (noOfPaths > 1 && isDex) {
       for (let idx = 1; idx < noOfPaths; idx++) {
         let a = depth50Chart.addAreaSeries({
           lineColor: dexColors[idx],
@@ -391,7 +395,7 @@ export const ChartComponent = props => {
       }
     }
 
-    const depth50Series0 = depth50Chart.addAreaSeries({
+    const depth50Series0 = isDex ? depth50Chart.addAreaSeries({
       lineColor: dexColors[0],
       lineVisible: true,
       lineWidth: 1,
@@ -402,27 +406,29 @@ export const ChartComponent = props => {
       priceFormat: {
         type: 'volume'
       },
-    });
+    }) : null;
 
-    depth50Series0.setData(
-      data.map(d => {
-        return { value: d['l0'], time: d.t };
-      })
-    );
+    if (isDex) {
+      depth50Series0.setData(
+        data.map(d => {
+          return { value: d['l0'], time: d.t };
+        })
+      );
 
-    depth50Chart.timeScale().fitContent();
+      depth50Chart.timeScale().fitContent();
+    }
 
     // ------------------------------------
     // treasury token movement plot
     // ------------------------------------
 
-    const treasuryTokenChart = createChart(treasuryTokenChartContainerRef.current, {
+    const treasuryTokenChart = (isDex && locking) ? createChart(treasuryTokenChartContainerRef.current, {
       ...defaultChartOptions,
       width: treasuryTokenChartContainerRef.current.clientWidth,
       height: 50,
-    });
+    }) : null;
 
-    const treasuryTokenMovementLineSeries = treasuryTokenChart.addLineSeries({
+    const treasuryTokenMovementLineSeries = (isDex && locking) ? treasuryTokenChart.addLineSeries({
       color: '#446600',
       lineVisible: true,
       lineWidth: 1,
@@ -431,27 +437,29 @@ export const ChartComponent = props => {
       priceFormat: {
         type: 'volume'
       },
-    });
+    }) : null;
 
-    treasuryTokenMovementLineSeries.setData(
-      data.map(d => {
-        return { value: d['tt'], time: d.t };
-      })
-    );
+    if (isDex && locking) {
+      treasuryTokenMovementLineSeries.setData(
+        data.map(d => {
+          return { value: d['tt'], time: d.t };
+        })
+      );
 
-    treasuryTokenChart.timeScale().fitContent();
+      treasuryTokenChart.timeScale().fitContent();
+    }
 
     // ------------------------------------
     // treasury ICP movement plot
     // ------------------------------------
 
-    const treasuryICPChart = createChart(treasuryICPChartContainerRef.current, {
+    const treasuryICPChart = (isDex && locking) ? createChart(treasuryICPChartContainerRef.current, {
       ...defaultChartOptions,
       width: treasuryICPChartContainerRef.current.clientWidth,
       height: 50,
-    });
+    }) : null;
 
-    const treasuryICPMovementLineSeries = treasuryICPChart.addLineSeries({
+    const treasuryICPMovementLineSeries = (isDex && locking) ? treasuryICPChart.addLineSeries({
       color: '#446600',
       lineVisible: true,
       lineWidth: 1,
@@ -460,46 +468,59 @@ export const ChartComponent = props => {
       priceFormat: {
         type: 'volume'
       },
-    });
+    }) : null;
 
-    treasuryICPMovementLineSeries.setData(
-      data.map(d => {
-        return { value: d['ticp'], time: d.t };
-      })
-    );
+    if (isDex && locking) {
+      treasuryICPMovementLineSeries.setData(
+        data.map(d => {
+          return { value: d['ticp'], time: d.t };
+        })
+      );
 
-    treasuryICPChart.timeScale().fitContent();
+      treasuryICPChart.timeScale().fitContent();
+    }
+
 
     // ------------------------------------
     // total locked movement plot
     // ------------------------------------
 
-    const totalLockedMovementChart = createChart(totalLockedChartContainerRef.current, {
+    const totalLockedMovementChart = (isDex && locking) ? createChart(totalLockedChartContainerRef.current, {
       ...defaultChartOptions,
       width: totalLockedChartContainerRef.current.clientWidth,
       height: 50,
-    });
+    }) : null;
 
-    const totalLockedMovementSeries = totalLockedMovementChart.addAreaSeries({
-      lineColor: '#445566',
+    const totalLockedMovementSeries = (isDex && locking) ? totalLockedMovementChart.addBaselineSeries({
+      topLineColor: '#445566',
+      bottomLineColor: '#445566',
       lineVisible: true,
       lineWidth: 1,
       priceLineVisible: false,
-      topColor: '#445566',
-      bottomColor: hexToRgba('#445566', areaSeriesBottomOpacity),
-      autoscaleInfoProvider: minZeroAutoScalingProvider,
+      topFillColor1: '#445566',
+      topFillColor2: hexToRgba('#445566', areaSeriesBottomOpacity),
+      bottomFillColor2: '#445566',
+      bottomFillColor1: hexToRgba('#445566', areaSeriesBottomOpacity),
+      //autoscaleInfoProvider: minZeroAutoScalingProvider,
       priceFormat: {
         type: 'volume'
       },
-    });
+      baseValue: {
+        type: 'price',
+        price: 0,
+      }
+    }) : null;
 
-    totalLockedMovementSeries.setData(
-      data.map(d => {
-        return { value: d['cs'], time: d.t };
-      })
-    );
+    if (isDex && locking) {
+      totalLockedMovementSeries.setData(
+        data.map(d => {
+          return { value: d['cs'], time: d.t };
+        })
+      );
 
-    totalLockedMovementChart.timeScale().fitContent();
+      totalLockedMovementChart.timeScale().fitContent();
+
+    }
 
     // ------------------------------------
     // Sync all charts
@@ -528,60 +549,65 @@ export const ChartComponent = props => {
       syncCrosshair(totalLockedMovementChart, totalLockedMovementSeries, dataPoint);
     });
 
-    depth100Chart.subscribeCrosshairMove(param => {
-      const dataPoint = getCrosshairDataPoint(depth100Series0, param);
-      syncCrosshair(candleChart, candlestickSeries, dataPoint);
-      syncCrosshair(volume24Chart, volumeSeries0, dataPoint);
-      //syncCrosshair(depth100Chart, depth100Series0, dataPoint);
-      syncCrosshair(depth50Chart, depth50Series0, dataPoint);
-      syncCrosshair(treasuryTokenChart, treasuryTokenMovementLineSeries, dataPoint);
-      syncCrosshair(treasuryICPChart, treasuryICPMovementLineSeries, dataPoint);
-      syncCrosshair(totalLockedMovementChart, totalLockedMovementSeries, dataPoint);
-    });
+    if (isDex) {
+      depth100Chart.subscribeCrosshairMove(param => {
+        const dataPoint = getCrosshairDataPoint(depth100Series0, param);
+        syncCrosshair(candleChart, candlestickSeries, dataPoint);
+        syncCrosshair(volume24Chart, volumeSeries0, dataPoint);
+        //syncCrosshair(depth100Chart, depth100Series0, dataPoint);
+        syncCrosshair(depth50Chart, depth50Series0, dataPoint);
+        syncCrosshair(treasuryTokenChart, treasuryTokenMovementLineSeries, dataPoint);
+        syncCrosshair(treasuryICPChart, treasuryICPMovementLineSeries, dataPoint);
+        syncCrosshair(totalLockedMovementChart, totalLockedMovementSeries, dataPoint);
+      });
 
-    depth50Chart.subscribeCrosshairMove(param => {
-      const dataPoint = getCrosshairDataPoint(depth50Series0, param);
-      syncCrosshair(candleChart, candlestickSeries, dataPoint);
-      syncCrosshair(volume24Chart, volumeSeries0, dataPoint);
-      syncCrosshair(depth100Chart, depth100Series0, dataPoint);
-      //syncCrosshair(depth50Chart, depth50Series0, dataPoint);
-      syncCrosshair(treasuryTokenChart, treasuryTokenMovementLineSeries, dataPoint);
-      syncCrosshair(treasuryICPChart, treasuryICPMovementLineSeries, dataPoint);
-      syncCrosshair(totalLockedMovementChart, totalLockedMovementSeries, dataPoint);
-    });
+      depth50Chart.subscribeCrosshairMove(param => {
+        const dataPoint = getCrosshairDataPoint(depth50Series0, param);
+        syncCrosshair(candleChart, candlestickSeries, dataPoint);
+        syncCrosshair(volume24Chart, volumeSeries0, dataPoint);
+        syncCrosshair(depth100Chart, depth100Series0, dataPoint);
+        //syncCrosshair(depth50Chart, depth50Series0, dataPoint);
+        syncCrosshair(treasuryTokenChart, treasuryTokenMovementLineSeries, dataPoint);
+        syncCrosshair(treasuryICPChart, treasuryICPMovementLineSeries, dataPoint);
+        syncCrosshair(totalLockedMovementChart, totalLockedMovementSeries, dataPoint);
+      });
+    }
 
-    treasuryTokenChart.subscribeCrosshairMove(param => {
-      const dataPoint = getCrosshairDataPoint(treasuryTokenMovementLineSeries, param);
-      syncCrosshair(candleChart, candlestickSeries, dataPoint);
-      syncCrosshair(volume24Chart, volumeSeries0, dataPoint);
-      syncCrosshair(depth100Chart, depth100Series0, dataPoint);
-      syncCrosshair(depth50Chart, depth50Series0, dataPoint);
-      //syncCrosshair(treasuryTokenChart, treasuryTokenMovementLineSeries, dataPoint);
-      syncCrosshair(treasuryICPChart, treasuryICPMovementLineSeries, dataPoint);
-      syncCrosshair(totalLockedMovementChart, totalLockedMovementSeries, dataPoint);
-    });
+    if (isDex && locking) {
+      treasuryTokenChart.subscribeCrosshairMove(param => {
+        const dataPoint = getCrosshairDataPoint(treasuryTokenMovementLineSeries, param);
+        syncCrosshair(candleChart, candlestickSeries, dataPoint);
+        syncCrosshair(volume24Chart, volumeSeries0, dataPoint);
+        syncCrosshair(depth100Chart, depth100Series0, dataPoint);
+        syncCrosshair(depth50Chart, depth50Series0, dataPoint);
+        //syncCrosshair(treasuryTokenChart, treasuryTokenMovementLineSeries, dataPoint);
+        syncCrosshair(treasuryICPChart, treasuryICPMovementLineSeries, dataPoint);
+        syncCrosshair(totalLockedMovementChart, totalLockedMovementSeries, dataPoint);
+      });
 
-    treasuryICPChart.subscribeCrosshairMove(param => {
-      const dataPoint = getCrosshairDataPoint(depth50Series0, param);
-      syncCrosshair(candleChart, candlestickSeries, dataPoint);
-      syncCrosshair(volume24Chart, volumeSeries0, dataPoint);
-      syncCrosshair(depth100Chart, depth100Series0, dataPoint);
-      syncCrosshair(depth50Chart, depth50Series0, dataPoint);
-      syncCrosshair(treasuryTokenChart, treasuryTokenMovementLineSeries, dataPoint);
-      //syncCrosshair(treasuryICPChart, treasuryICPMovementLineSeries, dataPoint);
-      syncCrosshair(totalLockedMovementChart, totalLockedMovementSeries, dataPoint);
-    });
+      treasuryICPChart.subscribeCrosshairMove(param => {
+        const dataPoint = getCrosshairDataPoint(treasuryICPMovementLineSeries, param);
+        syncCrosshair(candleChart, candlestickSeries, dataPoint);
+        syncCrosshair(volume24Chart, volumeSeries0, dataPoint);
+        syncCrosshair(depth100Chart, depth100Series0, dataPoint);
+        syncCrosshair(depth50Chart, depth50Series0, dataPoint);
+        syncCrosshair(treasuryTokenChart, treasuryTokenMovementLineSeries, dataPoint);
+        //syncCrosshair(treasuryICPChart, treasuryICPMovementLineSeries, dataPoint);
+        syncCrosshair(totalLockedMovementChart, totalLockedMovementSeries, dataPoint);
+      });
 
-    totalLockedMovementChart.subscribeCrosshairMove(param => {
-      const dataPoint = getCrosshairDataPoint(depth50Series0, param);
-      syncCrosshair(candleChart, candlestickSeries, dataPoint);
-      syncCrosshair(volume24Chart, volumeSeries0, dataPoint);
-      syncCrosshair(depth100Chart, depth100Series0, dataPoint);
-      syncCrosshair(depth50Chart, depth50Series0, dataPoint);
-      syncCrosshair(treasuryTokenChart, treasuryTokenMovementLineSeries, dataPoint);
-      syncCrosshair(treasuryICPChart, treasuryICPMovementLineSeries, dataPoint);
-      //syncCrosshair(totalLockedMovementChart, totalLockedMovementSeries, dataPoint);
-    });
+      totalLockedMovementChart.subscribeCrosshairMove(param => {
+        const dataPoint = getCrosshairDataPoint(totalLockedMovementSeries, param);
+        syncCrosshair(candleChart, candlestickSeries, dataPoint);
+        syncCrosshair(volume24Chart, volumeSeries0, dataPoint);
+        syncCrosshair(depth100Chart, depth100Series0, dataPoint);
+        syncCrosshair(depth50Chart, depth50Series0, dataPoint);
+        syncCrosshair(treasuryTokenChart, treasuryTokenMovementLineSeries, dataPoint);
+        syncCrosshair(treasuryICPChart, treasuryICPMovementLineSeries, dataPoint);
+        //syncCrosshair(totalLockedMovementChart, totalLockedMovementSeries, dataPoint);
+      });
+    }
+
 
     return () => {
       window.removeEventListener('resize', handleResize);
@@ -590,11 +616,11 @@ export const ChartComponent = props => {
       // ------------------------------------
       candleChart.remove();
       volume24Chart.remove();
-      depth100Chart.remove();
-      depth50Chart.remove();
-      treasuryTokenChart.remove();
-      treasuryICPChart.remove();
-      totalLockedMovementChart.remove();
+      depth100Chart?.remove();
+      depth50Chart?.remove();
+      treasuryTokenChart?.remove();
+      treasuryICPChart?.remove();
+      totalLockedMovementChart?.remove();
     };
   }, [
     data,
@@ -608,24 +634,31 @@ export const ChartComponent = props => {
   return (
     <>
       <div ref={candleChartContainerRef} />
-      <ChartWrapper title="Depth +100% (Ask)">
-        <div ref={depth100ChartContainerRef} />
-      </ChartWrapper>
-      <ChartWrapper title="Depth -50% (Bid)">
-        <div ref={depth50ChartContainerRef} />
-      </ChartWrapper>
+      {isDex && <>
+        <ChartWrapper title="Depth +100% (Ask)">
+          <div ref={depth100ChartContainerRef} />
+        </ChartWrapper>
+        <ChartWrapper title="Depth -50% (Bid)">
+          <div ref={depth50ChartContainerRef} />
+        </ChartWrapper>
+      </>}
       <ChartWrapper title="Volume24h">
         <div ref={volume24ChartContainerRef} />
       </ChartWrapper>
-      <ChartWrapper title={`Treasury ${symbol} movement`}>
-        <div ref={treasuryTokenChartContainerRef} />
-      </ChartWrapper>
-      <ChartWrapper title={`Treasury ICP movement`}>
-        <div ref={treasuryICPChartContainerRef} />
-      </ChartWrapper>
-      <ChartWrapper title={`Total locked movement`}>
-        <div ref={totalLockedChartContainerRef} />
-      </ChartWrapper>
+      {(isDex && locking) &&
+        <>
+          <ChartWrapper title={`Treasury ${symbol} movement`}>
+            <div ref={treasuryTokenChartContainerRef} />
+          </ChartWrapper>
+          <ChartWrapper title={`Treasury ICP movement`}>
+            <div ref={treasuryICPChartContainerRef} />
+          </ChartWrapper>
+          <ChartWrapper title={`Total locked movement`}>
+            <div ref={totalLockedChartContainerRef} />
+          </ChartWrapper>
+        </>
+      }
+
     </>
   );
 };

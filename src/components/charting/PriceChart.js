@@ -185,6 +185,8 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
               period={period}
               selectedCandleInterval={selectedCandleInterval}
               symbol={symbol}
+              isDex={isDex}
+              locking={locking}
             />
           )}
 
@@ -196,7 +198,7 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
             />
           </ResponsiveContainer> */}
 
-          {isDex ? (
+          {(isDex && selectedOption === 'line') ? (
             <>
               <Box sx={{ position: 'relative' }}>
                 <Box
@@ -373,145 +375,148 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
               </Box>
             </>
           ) : null}
-          <Box sx={{ position: 'relative' }}>
-            <Box
-              sx={{
-                position: 'absolute',
-                left: '0px',
-                top: '-8px',
-                fontSize: '12px',
-              }}
-              color="gray.500"
-            >
-              Volume24h
-            </Box>
-            <ResponsiveContainer width={'100%'} height={150}>
-              <AreaChart
-                height={150}
-                data={data.merged}
-                margin={{
-                  top: 10,
-                  bottom: 10,
+          {selectedOption == 'line' &&
+            <Box sx={{ position: 'relative' }}>
+              <Box
+                sx={{
+                  position: 'absolute',
+                  left: '0px',
+                  top: '-8px',
+                  fontSize: '12px',
                 }}
-                syncId="main"
+                color="gray.500"
               >
-                {Array(data.lines)
-                  .fill(0)
-                  .map((_, idx) => (
-                    <Area
-                      isAnimationActive={false}
-                      key={'xq' + idx}
-                      type="monotone"
-                      dataKey={'v' + idx}
-                      strokeWidth={0}
-                      stroke={dexColors[idx]}
-                      stackId="1"
-                      fill={dexColors[idx]}
-                      activeDot={activeDotStyle}
-                    // dot={false}
-                    />
-                  ))}
-
-                <YAxis
-                  orientation="right"
-                  dx={5}
-                  stroke="#8893a8"
-                  domain={['auto', 'auto']}
-                  axisLine={false}
-                  tickLine={{
-                    stroke: '#334455',
+                Volume24h
+              </Box>
+              <ResponsiveContainer width={'100%'} height={150}>
+                <AreaChart
+                  height={150}
+                  data={data.merged}
+                  margin={{
+                    top: 10,
+                    bottom: 10,
                   }}
-                  tick={{ fontSize: '12px' }}
-                  tickLineColor="#8893a8"
-                  tickFormatter={bigTickFormatter}
-                ></YAxis>
-                {/* <XAxis
-                      hide={true}
-                      domain={['auto', 'auto']}
-                      type="number"
-                      dataKey="t"
-                      scale="time"
-                      dy={15}
-                      tickFormatter={t =>
-                        period <= 24
-                          ? moment.unix(t).format('HH:mm')
-                          : moment.unix(t).format('Do')
-                      }
-                      interval={
-                        period < 24
-                          ? 30
-                          : period < 24 * 5
-                          ? 30
-                          : period < 24 * 30
-                          ? 30
-                          : 30
-                      }
-                      tick={{ fill: '#8893a8' }}
-                      axisLine={false}
-                      tickLine={false}
-                    ></XAxis> */}
-                <Tooltip
-                  content={() => null}
-                  isAnimationActive={false}
-                  cursor={{ stroke: '#445566' }}
-                />
-                {/* </LineChart> */}
-              </AreaChart>
-            </ResponsiveContainer>
-          </Box>
+                  syncId="main"
+                >
+                  {Array(data.lines)
+                    .fill(0)
+                    .map((_, idx) => (
+                      <Area
+                        isAnimationActive={false}
+                        key={'xq' + idx}
+                        type="monotone"
+                        dataKey={'v' + idx}
+                        strokeWidth={0}
+                        stroke={dexColors[idx]}
+                        stackId="1"
+                        fill={dexColors[idx]}
+                        activeDot={activeDotStyle}
+                      // dot={false}
+                      />
+                    ))}
+
+                  <YAxis
+                    orientation="right"
+                    dx={5}
+                    stroke="#8893a8"
+                    domain={['auto', 'auto']}
+                    axisLine={false}
+                    tickLine={{
+                      stroke: '#334455',
+                    }}
+                    tick={{ fontSize: '12px' }}
+                    tickLineColor="#8893a8"
+                    tickFormatter={bigTickFormatter}
+                  ></YAxis>
+                  {/* <XAxis
+                    hide={true}
+                    domain={['auto', 'auto']}
+                    type="number"
+                    dataKey="t"
+                    scale="time"
+                    dy={15}
+                    tickFormatter={t =>
+                      period <= 24
+                        ? moment.unix(t).format('HH:mm')
+                        : moment.unix(t).format('Do')
+                    }
+                    interval={
+                      period < 24
+                        ? 30
+                        : period < 24 * 5
+                        ? 30
+                        : period < 24 * 30
+                        ? 30
+                        : 30
+                    }
+                    tick={{ fill: '#8893a8' }}
+                    axisLine={false}
+                    tickLine={false}
+                  ></XAxis> */}
+                  <Tooltip
+                    content={() => null}
+                    isAnimationActive={false}
+                    cursor={{ stroke: '#445566' }}
+                  />
+                  {/* </LineChart> */}
+                </AreaChart>
+              </ResponsiveContainer>
+            </Box>}
           {isDex ? (
             <>
               {locking ? (
                 <>
-                  <Box sx={{ position: 'relative' }}>
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        left: '0px',
-                        top: '-8px',
-                        fontSize: '12px',
-                      }}
-                      color="gray.500"
-                    >
-                      Treasury {symbol} movement
-                    </Box>
-                    <ResponsiveContainer width={'100%'} height={50}>
-                      <LineChart
-                        height={50}
-                        data={data.merged}
-                        margin={{
-                          top: 10,
-                          bottom: 10,
-                        }}
-                        syncId="main"
-                      >
-                        <Line
-                          isAnimationActive={false}
-                          key={'tt'}
-                          type="monotone"
-                          dataKey={'tt'}
-                          strokeWidth={1}
-                          stroke={'#446600'}
-                          stackId="1"
-                          fill={'transparent'}
-                          dot={false}
-                          activeDot={activeDotStyle}
-                        />
-
-                        <YAxis
-                          orientation="right"
-                          dx={5}
-                          stroke="#8893a8"
-                          domain={['auto', 'auto']}
-                          axisLine={false}
-                          tickLine={{
-                            stroke: '#334455',
+                  {selectedOption == 'line' &&
+                    <>
+                      <Box sx={{ position: 'relative' }}>
+                        <Box
+                          sx={{
+                            position: 'absolute',
+                            left: '0px',
+                            top: '-8px',
+                            fontSize: '12px',
                           }}
-                          tick={{ fontSize: '12px' }}
-                          tickLineColor="#8893a8"
-                          tickFormatter={bigTickFormatter}
-                        ></YAxis>
-                        {/* <XAxis
+                          color="gray.500"
+                        >
+                          Treasury {symbol} movement
+                        </Box>
+                        <ResponsiveContainer width={'100%'} height={50}>
+                          <LineChart
+                            height={50}
+                            data={data.merged}
+                            margin={{
+                              top: 10,
+                              bottom: 10,
+                            }}
+                            syncId="main"
+                          >
+                            <Line
+                              isAnimationActive={false}
+                              key={'tt'}
+                              type="monotone"
+                              dataKey={'tt'}
+                              strokeWidth={1}
+                              stroke={'#446600'}
+                              stackId="1"
+                              fill={'transparent'}
+                              dot={false}
+                              activeDot={activeDotStyle}
+                            />
+
+                            <YAxis
+                              orientation="right"
+                              dx={5}
+                              stroke="#8893a8"
+                              domain={['auto', 'auto']}
+                              axisLine={false}
+                              tickLine={{
+                                stroke: '#334455',
+                              }}
+                              tick={{ fontSize: '12px' }}
+                              tickLineColor="#8893a8"
+                              tickFormatter={bigTickFormatter}
+                            ></YAxis>
+                            {/* <XAxis
                       hide={true}
                       domain={['auto', 'auto']}
                       type="number"
@@ -536,65 +541,65 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
                       axisLine={false}
                       tickLine={false}
                     ></XAxis> */}
-                        <Tooltip
-                          content={() => null}
-                          isAnimationActive={false}
-                          cursor={{ stroke: '#445566' }}
-                        />
-                        {/* </LineChart> */}
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </Box>
+                            <Tooltip
+                              content={() => null}
+                              isAnimationActive={false}
+                              cursor={{ stroke: '#445566' }}
+                            />
+                            {/* </LineChart> */}
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </Box>
 
-                  <Box sx={{ position: 'relative' }}>
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        left: '0px',
-                        top: '-8px',
-                        fontSize: '12px',
-                      }}
-                      color="gray.500"
-                    >
-                      Treasury ICP movement
-                    </Box>
-                    <ResponsiveContainer width={'100%'} height={50}>
-                      <LineChart
-                        height={50}
-                        data={data.merged}
-                        margin={{
-                          top: 10,
-                          bottom: 10,
-                        }}
-                        syncId="main"
-                      >
-                        <Line
-                          isAnimationActive={false}
-                          key={'ticp'}
-                          type="line  "
-                          dataKey={'ticp'}
-                          strokeWidth={1}
-                          stroke={'#446600'}
-                          stackId="1"
-                          fill={''}
-                          dot={false}
-                          activeDot={activeDotStyle}
-                        />
-
-                        <YAxis
-                          orientation="right"
-                          dx={5}
-                          stroke="#8893a8"
-                          domain={['auto', 'auto']}
-                          axisLine={false}
-                          tickLine={{
-                            stroke: '#334455',
+                      <Box sx={{ position: 'relative' }}>
+                        <Box
+                          sx={{
+                            position: 'absolute',
+                            left: '0px',
+                            top: '-8px',
+                            fontSize: '12px',
                           }}
-                          tick={{ fontSize: '12px' }}
-                          tickLineColor="#8893a8"
-                          tickFormatter={bigTickFormatter}
-                        ></YAxis>
-                        {/* <XAxis
+                          color="gray.500"
+                        >
+                          Treasury ICP movement
+                        </Box>
+                        <ResponsiveContainer width={'100%'} height={50}>
+                          <LineChart
+                            height={50}
+                            data={data.merged}
+                            margin={{
+                              top: 10,
+                              bottom: 10,
+                            }}
+                            syncId="main"
+                          >
+                            <Line
+                              isAnimationActive={false}
+                              key={'ticp'}
+                              type="line  "
+                              dataKey={'ticp'}
+                              strokeWidth={1}
+                              stroke={'#446600'}
+                              stackId="1"
+                              fill={''}
+                              dot={false}
+                              activeDot={activeDotStyle}
+                            />
+
+                            <YAxis
+                              orientation="right"
+                              dx={5}
+                              stroke="#8893a8"
+                              domain={['auto', 'auto']}
+                              axisLine={false}
+                              tickLine={{
+                                stroke: '#334455',
+                              }}
+                              tick={{ fontSize: '12px' }}
+                              tickLineColor="#8893a8"
+                              tickFormatter={bigTickFormatter}
+                            ></YAxis>
+                            {/* <XAxis
                       hide={true}
                       domain={['auto', 'auto']}
                       type="number"
@@ -614,64 +619,64 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
                       axisLine={false}
                       tickLine={false}
                     ></XAxis> */}
-                        <Tooltip
-                          content={() => null}
-                          isAnimationActive={false}
-                          cursor={{ stroke: '#445566' }}
-                        />
-                        {/* </LineChart> */}
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </Box>
+                            <Tooltip
+                              content={() => null}
+                              isAnimationActive={false}
+                              cursor={{ stroke: '#445566' }}
+                            />
+                            {/* </LineChart> */}
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </Box>
 
-                  <Box sx={{ position: 'relative' }} mt="2">
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        left: '0px',
-                        top: '-8px',
-                        fontSize: '12px',
-                      }}
-                      color="gray.500"
-                    >
-                      Total locked movement
-                    </Box>
-                    <ResponsiveContainer width={'100%'} height={50}>
-                      <AreaChart
-                        height={50}
-                        data={data.merged}
-                        margin={{
-                          top: 10,
-                          bottom: 10,
-                        }}
-                        syncId="main"
-                      >
-                        <Area
-                          isAnimationActive={false}
-                          key={'cs'}
-                          type="monotone"
-                          dataKey={'cs'}
-                          strokeWidth={2}
-                          stroke={'#445566'}
-                          stackId="1"
-                          fill={'#445566'}
-                          activeDot={activeDotStyle}
-                        // dot={false}
-                        />
-
-                        <YAxis
-                          orientation="right"
-                          dx={5}
-                          stroke="#8893a8"
-                          domain={['auto', 'auto']}
-                          axisLine={false}
-                          tickLine={{
-                            stroke: '#334455',
+                      <Box sx={{ position: 'relative' }} mt="2">
+                        <Box
+                          sx={{
+                            position: 'absolute',
+                            left: '0px',
+                            top: '-8px',
+                            fontSize: '12px',
                           }}
-                          tick={{ fontSize: '12px' }}
-                          tickFormatter={bigTickFormatter}
-                        />
-                        {/* <XAxis
+                          color="gray.500"
+                        >
+                          Total locked movement
+                        </Box>
+                        <ResponsiveContainer width={'100%'} height={50}>
+                          <AreaChart
+                            height={50}
+                            data={data.merged}
+                            margin={{
+                              top: 10,
+                              bottom: 10,
+                            }}
+                            syncId="main"
+                          >
+                            <Area
+                              isAnimationActive={false}
+                              key={'cs'}
+                              type="monotone"
+                              dataKey={'cs'}
+                              strokeWidth={2}
+                              stroke={'#445566'}
+                              stackId="1"
+                              fill={'#445566'}
+                              activeDot={activeDotStyle}
+                            // dot={false}
+                            />
+
+                            <YAxis
+                              orientation="right"
+                              dx={5}
+                              stroke="#8893a8"
+                              domain={['auto', 'auto']}
+                              axisLine={false}
+                              tickLine={{
+                                stroke: '#334455',
+                              }}
+                              tick={{ fontSize: '12px' }}
+                              tickFormatter={bigTickFormatter}
+                            />
+                            {/* <XAxis
                   hide={true}
                   domain={['auto', 'auto']}
                   type="number"
@@ -691,15 +696,17 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
                     stroke: '#334455',
                   }}
                 /> */}
-                        <Tooltip
-                          content={() => null}
-                          isAnimationActive={false}
-                          cursor={{ stroke: '#445566' }}
-                        />
-                        {/* </LineChart> */}
-                      </AreaChart>
-                    </ResponsiveContainer>
-                  </Box>
+                            <Tooltip
+                              content={() => null}
+                              isAnimationActive={false}
+                              cursor={{ stroke: '#445566' }}
+                            />
+                            {/* </LineChart> */}
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      </Box>
+                    </>
+                  }
 
                   <Box sx={{ position: 'relative' }} mt="5">
                     <Box
