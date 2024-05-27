@@ -157,7 +157,7 @@ function syncCrosshair(chart, series, dataPoint) {
     chart.setCrosshairPosition(dataPoint.value, dataPoint.time, series);
     return;
   }
-  chart.clearCrosshairPosition();
+  chart?.clearCrosshairPosition();
 }
 
 export const ChartComponent = props => {
@@ -204,7 +204,6 @@ export const ChartComponent = props => {
         visible: true,
       },
     });
-    candleChart.timeScale().fitContent();
 
     const candlestickSeries = candleChart.addCandlestickSeries({
       upColor: '#26a69a',
@@ -212,7 +211,7 @@ export const ChartComponent = props => {
       borderVisible: false,
       wickUpColor: '#26a69a',
       wickDownColor: '#ef5350',
-      autoscaleInfoProvider: minZeroAutoScalingProvider,
+      //autoscaleInfoProvider: minZeroAutoScalingProvider,
       localization: {
         priceFormatter: bigTickFormatter,
       },
@@ -227,7 +226,7 @@ export const ChartComponent = props => {
       })
     );
 
-
+    candleChart.timeScale().fitContent();
     // ------------------------------------
     // volume24 plot
     // ------------------------------------
