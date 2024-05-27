@@ -211,7 +211,7 @@ export const ChartComponent = props => {
       borderVisible: false,
       wickUpColor: '#26a69a',
       wickDownColor: '#ef5350',
-      //autoscaleInfoProvider: minZeroAutoScalingProvider,
+      autoscaleInfoProvider: minZeroAutoScalingProvider,
       localization: {
         priceFormatter: bigTickFormatter,
       },
