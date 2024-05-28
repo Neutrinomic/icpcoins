@@ -4,7 +4,7 @@ import moment from 'moment';
 import { p2i, i2t, candleIntervalToMinutes } from '../../utils.js';
 import { bigTickFormatter } from '../../utils.js';
 import { areaSeriesBottomOpacity, dexColors, hexToRgba } from '../../utils/colors.js';
-import { defaultChartOptions, minZeroAutoScalingProvider } from '../../utils/chartUtils.js';
+import { customAutoScalingProvider, defaultChartOptions, minZeroAutoScalingProvider } from '../../utils/chartUtils.js';
 import ChartWrapper from './ChartWrapper.jsx';
 
 // function generateCandleData(numberOfPoints = 250, endDate) {
@@ -204,26 +204,38 @@ export const ChartComponent = props => {
         visible: true,
       },
     });
+    const calculatedCandleData = convertRawDataToCandleData({
+      rawData: data,
+      noOfPaths: noOfPaths,
+      period: period,
+      selectedCandleInterval: selectedCandleInterval,
+    });
 
+    //manually calculate min and max, to pass to auto scaler and limit Y-axis
+    let priceMinGreaterThanZero = Number.MAX_SAFE_INTEGER;
+    let priceMaxGreaterThanZero = Number.MIN_SAFE_INTEGER;
+    calculatedCandleData.forEach((candle) => {
+      if (candle.open == 0 || candle.close == 0 || candle.high == 0 || candle.low == 0) {
+
+      } else {
+        if (candle.low < priceMinGreaterThanZero) priceMinGreaterThanZero = candle.low;
+        if (candle.high > priceMaxGreaterThanZero) priceMaxGreaterThanZero = candle.high;
+      }
+    })
     const candlestickSeries = candleChart.addCandlestickSeries({
       upColor: '#26a69a',
       downColor: '#ef5350',
       borderVisible: false,
       wickUpColor: '#26a69a',
       wickDownColor: '#ef5350',
-      autoscaleInfoProvider: minZeroAutoScalingProvider,
+      autoscaleInfoProvider: (original) => customAutoScalingProvider(original, priceMinGreaterThanZero, priceMaxGreaterThanZero),
       localization: {
         priceFormatter: bigTickFormatter,
       },
     });
     //candlestickSeries.setData(barData);
     candlestickSeries.setData(
-      convertRawDataToCandleData({
-        rawData: data,
-        noOfPaths: noOfPaths,
-        period: period,
-        selectedCandleInterval: selectedCandleInterval,
-      })
+      calculatedCandleData
     );
 
     candleChart.timeScale().fitContent();

@@ -2,19 +2,28 @@ import { bigTickFormatter } from '../utils.js';
 import { ColorType, CrosshairMode } from 'lightweight-charts';
 export const minZeroAutoScalingProvider = (original) => {
     const res = original();
-    // if (res !== null) {
-    //     if (res.priceRange.minValue < 0) {
-    //         res.priceRange.minValue = 0;
-    //     }
-
-    // }
-    // return res;
     if (res != null) {
         return {
             ...res,
             priceRange: {
                 minValue: Math.max(res.priceRange.minValue, 0),
                 maxValue: res.priceRange.maxValue,
+            },
+
+        }
+    }
+    return res;
+
+}
+
+export const customAutoScalingProvider = (original, min, max) => {
+    const res = original();
+    if (res != null) {
+        return {
+            ...res,
+            priceRange: {
+                minValue: min,
+                maxValue: max,
             },
 
         }
