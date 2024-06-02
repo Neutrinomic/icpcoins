@@ -251,6 +251,9 @@ export const ChartComponent = props => {
     const volume24Chart = createChart(volume24ChartContainerRef.current, {
       ...defaultChartOptions,
       width: volume24ChartContainerRef.current.clientWidth,
+      localization: {
+        priceFormatter: bigTickFormatter,
+      },
     });
 
     // chart volume24 for other paths, without maintaining the reference
@@ -266,7 +269,7 @@ export const ChartComponent = props => {
           autoscaleInfoProvider: minZeroAutoScalingProvider,
           priceFormat: {
             type: 'volume'
-          }
+          },
         });
 
         a.setData(
@@ -315,6 +318,9 @@ export const ChartComponent = props => {
       rightPriceScale: {
         ...defaultChartOptions.rightPriceScale,
         invertScale: true,
+      },
+      localization: {
+        priceFormatter: bigTickFormatter,
       },
     }) : null;
 
@@ -380,6 +386,9 @@ export const ChartComponent = props => {
       ...defaultChartOptions,
       width: depth50ChartContainerRef.current.clientWidth,
       height: 100,
+      localization: {
+        priceFormatter: bigTickFormatter,
+      },
     }) : null;
 
     // chart depth50 for other paths, without maintaining the reference
@@ -437,6 +446,9 @@ export const ChartComponent = props => {
       ...defaultChartOptions,
       width: treasuryTokenChartContainerRef.current.clientWidth,
       height: 50,
+      localization: {
+        priceFormatter: bigTickFormatter,
+      },
     }) : null;
 
     const treasuryTokenMovementLineSeries = (isDex && locking) ? treasuryTokenChart.addLineSeries({
@@ -468,6 +480,9 @@ export const ChartComponent = props => {
       ...defaultChartOptions,
       width: treasuryICPChartContainerRef.current.clientWidth,
       height: 50,
+      localization: {
+        priceFormatter: bigTickFormatter,
+      },
     }) : null;
 
     const treasuryICPMovementLineSeries = (isDex && locking) ? treasuryICPChart.addLineSeries({
@@ -500,6 +515,9 @@ export const ChartComponent = props => {
       ...defaultChartOptions,
       width: totalLockedChartContainerRef.current.clientWidth,
       height: 50,
+      localization: {
+        priceFormatter: bigTickFormatter,
+      },
     }) : null;
 
     const totalLockedMovementSeries = (isDex && locking) ? totalLockedMovementChart.addBaselineSeries({
@@ -618,7 +636,6 @@ export const ChartComponent = props => {
         //syncCrosshair(totalLockedMovementChart, totalLockedMovementSeries, dataPoint);
       });
     }
-
 
     return () => {
       window.removeEventListener('resize', handleResize);

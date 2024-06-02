@@ -56,9 +56,9 @@ export const defaultChartOptions = {
     },
     rightPriceScale: {
         ticksVisible: true,
+        visible: true,
+        minimumWidth: 60,
         borderVisible: false,
-        minimumWidth: 10,
-
         scaleMargins: {
             top: 0,
             bottom: 0
