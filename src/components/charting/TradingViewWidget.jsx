@@ -88,7 +88,7 @@ function convertRawDataToCandleData({
   let candleChartData = [];
 
   for (let i = 0; i < rawData.length; i += blockSize) {
-    const block = rawData.slice(i, i + blockSize);
+    const block = rawData.slice(i, i + blockSize + 1);
     candleChartData.push(
       calculateSingleCandleDataFromPriceSubArray(block, noOfPaths)
     );
