@@ -1,39 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import {
-  ChakraProvider,
-  Box,
-  Text,
-  VStack,
-  Code,
-  Grid,
-  Flex,
-  Spacer,
-  Image,
-  HStack,
-  Alert,
-  AlertIcon,
-  AlertTitle,
-  AlertDescription,
-} from '@chakra-ui/react';
-import theme from './theme.js';
-import { ColorModeSwitcher } from './ColorModeSwitcher';
-import { TokenPage } from './components/TokenList';
-import { TokenInfo } from './components/TokenInfo';
-import { useInterval } from 'react-use';
-import { Routes, Route, Outlet, Link } from 'react-router-dom';
-import { toState } from '@infu/icblast';
-import { getPairPrices, getPrices } from './utils';
-import { SwitchCurrency } from './components/SwitchCurrency';
-import { useDispatch, useSelector } from 'react-redux';
-import { TermsPage } from './pages/terms';
-import { ListingPage } from './pages/listing';
+import { Box, ChakraProvider, Flex, HStack, Spacer } from '@chakra-ui/react';
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { Route, Routes } from 'react-router-dom';
 import './App.css';
+import { ColorModeSwitcher } from './ColorModeSwitcher';
 import { Footer } from './components/Footer';
-import { AboutPage } from './pages/about';
 import { Logo } from './components/Logo';
-import { idlFactory } from './impulse.idl.js';
+import { SwitchCurrency } from './components/SwitchCurrency';
+import { TokenInfo } from './components/TokenInfo';
+import { TokenPage } from './components/TokenList';
 import ic from './icblast.js';
-import { CountdownTimer } from './components/Countdown.js';
+import { idlFactory } from './impulse.idl.js';
+import { AboutPage } from './pages/about';
+import { ListingPage } from './pages/listing';
+import { TermsPage } from './pages/terms';
+import theme from './theme.js';
 
 function App() {
   const ready = useSelector(

@@ -4,7 +4,9 @@ export function getPairIds(config, t1, t2) {
       if (
         (Number(x.tokens[0]) === t1 && Number(x.tokens[1]) === t2) ||
         (Number(x.tokens[1]) === t1 && Number(x.tokens[0]) === t2)
-      ) return pid; else return false;
+      )
+        return pid;
+      else return false;
     })
     .filter(x => x !== false);
 }
@@ -95,6 +97,39 @@ export function i2t(interval) {
   }
 }
 
+export function p2i(period) {
+  var interval = 't1d';
+  if (period <= 31) interval = 't1h';
+  if (period <= 7) interval = 't5m';
+  return interval;
+}
+
+export function candleIntervalToMinutes(candleInterval) {
+  var mins = 60;
+
+  switch (candleInterval) {
+    case '1h':
+      mins = 60;
+      break;
+    case '3h':
+      mins = 3 * 60;
+      break;
+    case '1d':
+      mins = 24 * 60;
+      break;
+    case '3d':
+      mins = 3 * 24 * 60;
+      break;
+    case '7d':
+      mins = 7 * 24 * 60;
+      break;
+    default:
+      mins = 60;
+  }
+
+  return mins;
+}
+
 export function period2header(period, suffix) {
   let header = '';
   switch (period) {
@@ -121,3 +156,6 @@ export function lastStartedTick(tickInterval, currentTimestamp) {
   let tn = Math.floor(elapsedTime / tickInterval);
   return tn * tickInterval + startTick;
 }
+
+export const bigTickFormatter = t =>
+  t < 1000000 ? (t / 1000).toFixed(1) + 'k' : (t / 1000000).toFixed(2) + 'm';
