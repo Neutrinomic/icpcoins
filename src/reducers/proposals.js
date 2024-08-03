@@ -41,6 +41,8 @@ export const getProposals = ({tid=false} = {}) => async (dispatch, getState) => 
 
   for (let t of tokens) {
     if (tid !== false && t.id !== tid) continue;
+    if (t.deleted) continue;
+
     if ('sns' in t.locking) {
       dispatch(fetchProposals({ symbol: t.symbol, info: t.locking.sns }));
     }

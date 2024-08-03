@@ -63,6 +63,7 @@ const ToggleSelector = ({
             />
             {candleIntervalOptions.map(interval => (
               <CandleIntervalOption
+                key={interval}
                 interval={interval}
                 selectedCandleInterval={selectedCandleInterval}
                 setSelectedCandleInterval={setSelectedCandleInterval}

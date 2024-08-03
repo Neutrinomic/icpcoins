@@ -94,6 +94,13 @@ function convertRawDataToCandleData({
     );
   }
 
+  // If last tick has the same time as previous tick, remove previous tick QUICK FIX, should be wrong
+  if (candleChartData.length > 1) {
+    if (candleChartData[candleChartData.length - 1].time == candleChartData[candleChartData.length - 2].time) {
+      candleChartData.pop();
+    }
+  }
+
   return candleChartData;
 }
 
