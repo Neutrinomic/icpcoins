@@ -26,11 +26,12 @@ export const isFloat = n => {
   return Number(n) === n && n % 1 !== 0;
 };
 
+const locale = 'en-US';
 export const smartNumber = n => {
   if (isFloat(n)) {
     if (n < 0.001)
       return colorDecimals(
-        n.toLocaleString(undefined, {
+        n.toLocaleString(locale, {
           minimumFractionDigits: 4,
           maximumFractionDigits: 6,
         })
@@ -38,18 +39,18 @@ export const smartNumber = n => {
 
     if (n < 10)
       return colorDecimals(
-        n.toLocaleString(undefined, {
+        n.toLocaleString(locale, {
           minimumFractionDigits: 4,
           maximumFractionDigits: 4,
         })
       );
     if (n > 1000)
       return colorDecimals(
-        n.toLocaleString(undefined, { maximumFractionDigits: 0 })
+        n.toLocaleString(locale, { maximumFractionDigits: 0 })
       );
     else
       return colorDecimals(
-        n.toLocaleString(undefined, {
+        n.toLocaleString(locale, {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         })
