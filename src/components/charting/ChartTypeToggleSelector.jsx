@@ -70,6 +70,7 @@ const ToggleSelector = ({
                 buttonHeight={buttonHeight}
                 buttonWidth={buttonWidth}
                 buttonSize={buttonSize}
+                key={interval}
               />
             ))}
           </>

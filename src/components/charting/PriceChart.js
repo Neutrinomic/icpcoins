@@ -38,6 +38,7 @@ import ToggleSelector from './ChartTypeToggleSelector.jsx';
 import { bigTickFormatter } from '../../utils.js';
 //https://github.com/recharts/recharts/issues/956
 import { dexColors } from '../../utils/colors.js';
+import { getValidCandleIntervalOptions } from '../../utils/chartUtils.js';
 
 export const PriceChart = ({ symbol, onChangePeriod }) => {
   const dispatch = useDispatch();
@@ -70,18 +71,9 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
   const [candleIntervalOptions, setCandleIntervalOptions] = useState([]);
 
   useEffect(() => {
-    let options;
-    if (period <= 7) {
-      options = ['1d', '3h', '1h'].reverse();
-      setSelectedCandleInterval('1h');
-    } else if (period <= 31) {
-      options = ['3d', '1d'].reverse();
-      setSelectedCandleInterval('1d');
-    } else {
-      options = ['7d', '3d'].reverse();
-      setSelectedCandleInterval('3d');
-    }
+    const options = getValidCandleIntervalOptions(period);
     setCandleIntervalOptions(options);
+    setSelectedCandleInterval(options[0]);
   }, [period]);
 
   let data = useSelector(selectSingleTokenInfo({ period, symbol }));
@@ -178,7 +170,7 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
             </ResponsiveContainer>
           )}
 
-          {selectedOption === 'candlestick' && (
+          {(selectedOption === 'candlestick' &&  getValidCandleIntervalOptions(period).includes(selectedCandleInterval) ) && (
             <TradingViewWidget
               data={data.merged}
               noOfPaths={data.lines}

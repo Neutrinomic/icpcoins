@@ -70,3 +70,14 @@ export const defaultChartOptions = {
     handleScroll: false,
     handleScale: false,
 }
+
+// Function to get candle interval options based on period
+export const getValidCandleIntervalOptions = (period) => {
+    if (period <= 7) {
+        return ['1h', '3h', '1d'];
+    } else if (period <= 31) {
+        return ['1d', '3d'];
+    } else {
+        return ['3d', '7d'];
+    }
+};
