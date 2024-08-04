@@ -124,7 +124,7 @@ Canister is governed by the NNS
       app: 'https://oc.app/',
       whitepaper: 'https://oc.app/whitepaper',
       roadmap: 'https://oc.app/roadmap',
-      github: 'https://github.com/open-ic',
+      github: 'https://github.com/open-chat-labs/open-chat',
     },
     article: `
 # What is OpenChat?
