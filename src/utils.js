@@ -159,3 +159,12 @@ export function lastStartedTick(tickInterval, currentTimestamp) {
 
 export const bigTickFormatter = t =>
   t < 1000000 ? (t / 1000).toFixed(1) + 'k' : (t / 1000000).toFixed(2) + 'm';
+
+export const customTickFormatter = t =>
+  t < 0.0001 ? t.toExponential(2) :
+  t < 1 ? t.toFixed(4) :
+  t < 10 ? t.toFixed(3) :
+  t < 100 ? t.toFixed(2) :
+  t < 1000 ? t.toFixed(1) :
+  t < 10000 ? t.toFixed(0) :
+  bigTickFormatter(t);

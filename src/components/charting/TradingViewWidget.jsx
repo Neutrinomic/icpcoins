@@ -1,7 +1,7 @@
 import { createChart, ColorType, CrosshairMode } from 'lightweight-charts';
 import React, { useEffect, useRef } from 'react';
 import moment from 'moment';
-import { p2i, i2t, candleIntervalToMinutes } from '../../utils.js';
+import { p2i, i2t, candleIntervalToMinutes, customTickFormatter } from '../../utils.js';
 import { bigTickFormatter } from '../../utils.js';
 import { areaSeriesBottomOpacity, dexColors, hexToRgba } from '../../utils/colors.js';
 import { customAutoScalingProvider, defaultChartOptions, minZeroAutoScalingProvider } from '../../utils/chartUtils.js';
@@ -229,8 +229,12 @@ export const ChartComponent = props => {
       wickUpColor: '#26a69a',
       wickDownColor: '#ef5350',
       autoscaleInfoProvider: (original) => customAutoScalingProvider(original, priceMinGreaterThanZero, priceMaxGreaterThanZero),
-      localization: {
-        priceFormatter: bigTickFormatter,
+      // localization: {
+      //   priceFormatter: customTickFormatter,
+      // },
+      priceFormat: {
+        type: "custom",
+        formatter: customTickFormatter
       },
     });
     //candlestickSeries.setData(barData);

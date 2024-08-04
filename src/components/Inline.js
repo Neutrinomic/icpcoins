@@ -29,6 +29,10 @@ export const isFloat = n => {
 const locale = 'en-US';
 export const smartNumber = n => {
   if (isFloat(n)) {
+    if (n < 0.0001)
+      return colorDecimals(
+        n.toExponential(2)
+      );
     if (n < 0.001)
       return colorDecimals(
         n.toLocaleString(locale, {
@@ -56,7 +60,7 @@ export const smartNumber = n => {
         })
       );
   } else {
-    return colorDecimals(n.toLocaleString());
+    return colorDecimals(n.toLocaleString(locale));
   }
 };
 
