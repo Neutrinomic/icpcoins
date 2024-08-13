@@ -15,6 +15,7 @@ import { AboutPage } from './pages/about';
 import { ListingPage } from './pages/listing';
 import { TermsPage } from './pages/terms';
 import theme from './theme.js';
+import {CanScan}  from './components/CanScan';
 
 function App() {
   const ready = useSelector(
@@ -58,6 +59,7 @@ function App() {
           <Route path="terms" element={<TermsPage />} />
           <Route path="listing" element={<ListingPage />} />
           <Route path="about" element={<AboutPage />} />
+          <Route path="canscan" element={<CanScan />} />
         </Routes>
 
         <Footer />

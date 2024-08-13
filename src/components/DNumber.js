@@ -7,6 +7,7 @@ export function DNumber({
   n,
   isPercent = false,
   noDecimals = false,
+  anim=true
 }) {
   const prevN = usePreviousValue(n);
   let hl = {
@@ -15,7 +16,7 @@ export function DNumber({
   };
 
   hl.className += ' hlspan';
-
+  if (!anim) hl = {}
   if (noDecimals)
     return (
       <Box as="span" {...hl}>
@@ -43,7 +44,7 @@ export function DNumber({
 function Currency({ c }) {
   if (c === 'USD') return <Box className="dollar-currency">$</Box>;
   if (c === 'ICP') return <Box className="icp-currency"></Box>;
-  else return <Box as="span">{c}</Box>;
+  else return <Box as="span">{c} </Box>;
 }
 
 const usePreviousValue = value => {

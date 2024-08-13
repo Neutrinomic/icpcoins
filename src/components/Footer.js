@@ -82,6 +82,9 @@ export function Footer() {
             >
               Github <ExternalLinkIcon mx="2px" />
             </Box>
+            <Box as="a" href={'#/canscan'}>
+              CanScan
+            </Box>
           </Stack>
           <Stack align={'flex-start'}>
             <ListHeader>Socials</ListHeader>
