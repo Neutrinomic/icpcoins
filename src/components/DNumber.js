@@ -43,7 +43,7 @@ export function DNumber({
 
 function Currency({ c }) {
   if (c === 'USD') return <Box className="dollar-currency">$</Box>;
-  if (c === 'ICP') return <Box className="icp-currency"></Box>;
+  
   else return <Box as="span">{c} </Box>;
 }
 

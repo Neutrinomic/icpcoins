@@ -82,8 +82,8 @@ export function Footer() {
             >
               Github <ExternalLinkIcon mx="2px" />
             </Box>
-            <Box as="a" href={'#/canscan'}>
-              CanScan
+            <Box as="a" href={'#/topcans'}>
+              TopCans
             </Box>
           </Stack>
           <Stack align={'flex-start'}>

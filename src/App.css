@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&display=swap');
+
 .symbol {
     position: sticky;
     left: 0px;
@@ -5,8 +7,22 @@
     text-transform: none;
     
 }
+
+.fontspecial {
+
+    font-family: "Caveat", cursive;
+    font-optical-sizing: auto;
+    font-style: normal;
+    font-weight: 400;
+
+}
+
 .symbol-sticky .symbol {
     background-color: var(--chakra-colors-chakra-body-bg);
+}
+
+.somelink {
+  text-decoration: underline;
 }
 body {overflow-y: scroll;}
 @keyframes hl-up {
@@ -45,7 +61,7 @@ body {overflow-y: scroll;}
     }
 
 
-    .hlspan {padding:5px;border-radius:4px;}
+    .hlspan {padding:5px;border-radius:4px;position:relative}
 
     span.decimals {opacity:0.6;position:relative;bottom:2px;font-size:90%};
 
@@ -142,4 +158,32 @@ body {overflow-y: scroll;}
       font-size: 12px;
       padding: 20px 0 0;
   }
+}
+
+
+.change-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: 1em;
+  pointer-events: none;
+}
+
+@keyframes flyUp {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-30px);
+    opacity: 0;
+  }
+}
+
+.up {
+  color:#5d8cbb
+}
+
+.down {
+  color:#ff4d9a
 }
