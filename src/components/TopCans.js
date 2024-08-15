@@ -41,7 +41,7 @@ export const TopCans = () => {
     let nonsense = ["quzhj-7aaaa-aaaag-qjwga-cai", "ddhwp-fqaaa-aaaag-qcgoa-cai"];
 
     let loadOnce = async() => {
-        let can = await ic("p2clb-ryaaa-aaaal-qjpia-cai");
+        let can = await ic("nvpgs-iaaaa-aaaal-qjqba-cai");
         let cans_r = toState(await can.getKnownCanisters());
         let xcans = {};
         for (let z of cans_r) {
@@ -52,7 +52,7 @@ export const TopCans = () => {
 
     let load = async () => {
         if (!conf || !cans) return;
-        let can = await ic("p2clb-ryaaa-aaaal-qjpia-cai");
+        let can = await ic("nvpgs-iaaaa-aaaal-qjqba-cai");
 
         let rez = await can.getAccounts();
         let aggr = await ic("u45jl-liaaa-aaaam-abppa-cai");
@@ -141,7 +141,7 @@ export const TopCans = () => {
 
         setList(orv)
 
-        let evs = await can.getEventsBwd(Math.round(Date.now() / 1000) << 32, 100)
+        let evs = await can.getEventsBwd(Math.round(Date.now() / 1000) << 32, 1000)
 
         evs = evs.results.map(x => x[1]);
         evs = evs.map(x => {
@@ -157,7 +157,7 @@ export const TopCans = () => {
             let txlink = undefined;
             if (snsRoot) txlink = `https://dashboard.internetcomputer.org/sns/${snsRoot}/transaction/${x.txid}`;
             return { ledger: x.ledger, txlink, txid:x.txid, movetype, time: x.time, name: getName(x.owner), symbol, amount, amountUSD: getPrice(amount, x.ledger.toText()) }
-        }).filter(Boolean);
+        }).filter(Boolean).filter(x => x.amountUSD > 500);
         // let evr1 = await can.get_whale_events({start:0, length: 0})
         // let total = Number(evr1.ok.total);
         // let evr2 = await can.get_whale_events({start: total - 500, length: 500});
@@ -210,7 +210,7 @@ export const TopCans = () => {
     return (
         <Box maxW="1278" m="auto" pt="20" pb="20" className="mdp scbi">
             <Box textAlign="center" fontSize="50px">
-                <span className="fontspecial">Top DeFi <Icon w={"30px"} color="blue.400" as={GiCannedFish} mb="-4"/>Canisters</span><Tag colorScheme="red">LIVE</Tag>
+                <span className="fontspecial">Top DeFi Canisters</span><Tag colorScheme="red">LIVE</Tag>
                 <Box fontSize="14px" color="gray.500">Internet Computer DeFi canisters by token value</Box>
             </Box>
 
@@ -230,9 +230,8 @@ export const TopCans = () => {
                 </Alert>
             </Stack>
 
-            <Box textAlign={"center"} lineHeight="40px" color="gray.500"> 100% on-chain. Built with Motoko using <a target="_blank" className="somelink" href="https://mops.one/devefi-icp-ledger">mops:devefi-icp-ledger</a> <a target="_blank" className="somelink" href="https://mops.one/devefi-icrc-ledger">mops:devefi-icrc-ledger</a></Box>
 
-            <Box className="fontspecial" fontSize="22px">Lil whale alerts <Icon as={GiSharkFin} mb="-5px"/></Box>
+            <Box className="fontspecial" fontSize="22px">High-value transactions involving top canisters <Icon as={GiSharkFin} mb="-5px"/></Box>
             <Box
                 fontSize="12px"
                 lineHeight="15px"
@@ -288,6 +287,8 @@ export const TopCans = () => {
                     </Box>)}</Wrap></Box>
                 </Box>)}
             </Stack>
+
+            <Box textAlign={"center"} mt="5" lineHeight="40px" color="gray.500"> Top DeFi Canisters is 100% on-chain. Built with Motoko using <a target="_blank" className="somelink" href="https://mops.one/devefi-icp-ledger">mops:devefi-icp-ledger</a> <a target="_blank" className="somelink" href="https://mops.one/devefi-icrc-ledger">mops:devefi-icrc-ledger</a></Box>
 
         </Box>
     );
