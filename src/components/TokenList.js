@@ -550,7 +550,7 @@ const TokenListItem = ({ idx, data, baseCurrency, filters }) => {
     change31,
   } = data;
 
-  const nns = symbol === 'ckETH' || symbol === 'ckBTC' || symbol === 'ICP';
+  const nns = symbol === 'ckETH' || symbol === 'ckBTC' || symbol === 'ICP' || symbol ===  "ckUSDC" || symbol === "ckUSDT" || symbol === "ckPEPE" || symbol === "ckLINK" || symbol === "ckSHIB" || symbol === "ckUNI";
   const sns = 'sns' in data.locking;
   const overbg = useColorModeValue(
     'linear-gradient(0deg, rgba(227,232,239,1) 0%, rgba(234,239,245,1) 15%)',
