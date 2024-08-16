@@ -12,9 +12,9 @@ import {
     Tr,
     Th,
     Td,
-    TableCaption,Image,
+    TableCaption,Image,Center,
     TableContainer,
-    Stack, Wrap, HStack, Tag, Flex, Spacer, Icon, Alert, AlertIcon,useBreakpointValue, useColorMode
+    Stack, Wrap, HStack, Tag, Flex, Spacer, Icon, Alert, AlertIcon,useBreakpointValue, useColorMode, Select
 } from '@chakra-ui/react'
 import icplogo from '../assets/icp.svg';
 import { Skeleton, SkeletonCircle, SkeletonText } from '@chakra-ui/react'
@@ -257,29 +257,55 @@ export const TopCans = () => {
 
     fevents = fevents.slice(0,100);
 
+    function textIntro() {
+        if (!selectedToken && !filterFresh && !filterHot) return <Box mt="1" className="fontspecial" fontSize="22px">Canisters ordered by coin value</Box>;
+        let txt = "";
+        if (filterFresh && filterHot) txt += "Fresh and Hot ";
+        else if (filterFresh) txt += "Fresh ";
+        else if (filterHot) txt += "Hot ";
+
+        if (selectedToken) txt += "canisters with " + selectedToken;
+        else txt += "canisters";
+
+        txt += " ordered by 24h volume";
+
+        // Uppercase first char
+        txt = txt.charAt(0).toUpperCase() + txt.slice(1);
+        return <Box mt="1" className="fontspecial" fontSize="22px" >{txt}</Box>;
+
+    }
 
     return (
         <Box maxW="1278" m="auto" pt="20" pb="20" className="mdp scbi">
             <Box textAlign="center" fontSize="50px">
                 <span className="fontspecial">Top <Image src={icplogo} w={"40px"} ml="2" sx={{display:"inline"}}/> DeFi Canisters</span><Tag colorScheme="red">LIVE</Tag>
-                <Box fontSize="14px" color="gray.500">Internet Computer DeFi canisters by token value</Box>
+                {textIntro()}
             </Box>
 
 
-
+            <Center>
             <Wrap mt="4">
             <Box className="fontspecial" fontSize="22px">Filters</Box>
 
                 <Button onClick={() => setFilterFresh(!filterFresh)} leftIcon={<RiLeafFill/>} variant={filterFresh?"solid":"outline"} colorScheme='green'>Fresh</Button>
                 <Button onClick={() => setFilterHot(!filterHot)} leftIcon={<FaHotjar/>} variant={filterHot?"solid":"outline"} colorScheme='orange'> Hot</Button>
-                <Box className="fontspecial" fontSize="22px">Selecting 'hot' or a token will order canisters by 24h volume</Box>
+                <Select w={"200px"} placeholder='All coins' 
+                onChange={(e) => setSelectedToken(e.target.value)}
+            >
+                {xtokens.map(([id,symbol]) => <option key={id} value={symbol} 
+                    selected={selectedToken == symbol?"selected":null}
+                >{symbol}</option>)}
+            </Select>
+                
             </Wrap>
-            
-            <Wrap mt="4">{xtokens.map(([id,symbol]) => <Button key={id} size="xs" variant={selectedToken == symbol?"solid":"outline"} colorScheme={selectedToken == symbol?"blue":"gray"} onClick={()=> setSelectedToken(selectedToken == symbol?false:symbol)}>{symbol}</Button>)}</Wrap>
+            </Center>
 
+          
         
-            <HStack><Box className="fontspecial" mt="4" fontSize="22px">High-value transactions involving top canisters <Icon as={GiSharkFin} mb="-5px"/></Box><Button w={"80px"} mb="-4" onClick={() => setWhaleTx(!whaleTx)} variant="outline" size="xs" colorScheme='gray'>{whaleTx?"Hide":"Show"}</Button></HStack>
-            {whaleTx?<Box
+
+            <Center mt="2"><Button onClick={() => setWhaleTx(!whaleTx)} variant="outline" size="xs" colorScheme='gray'>{whaleTx?"Hide transactions":"Show transactions"}</Button></Center>
+            {whaleTx?<><Box className="fontspecial" mt="2" fontSize="22px" color="gray.500">High-value transactions involving top canisters <Icon as={GiSharkFin} mb="-5px"/></Box>
+            <Box
                 fontSize="12px"
                 lineHeight="15px"
                 height="300px"
@@ -306,19 +332,21 @@ export const TopCans = () => {
 
                     )}
                 </Stack>
-            </Box>:null}
+            </Box></>:null}
 
             <Stack>
                 {!loaded ? <><Skeleton height="40px" /><Skeleton height="40px" /><Skeleton height="40px" /><Skeleton height="40px" /></> : null}
                 {loaded && flist.length === 0 ? <Box textAlign="center"  fontSize="20px" color="gray.500" mt="100px" height={"100px"} >No canisters found with these filters</Box> : null}
                 {flist.map((x, idx) => <Box key={x.id} borderTop="2px solid" borderColor={deepbg} pt="5" mt="5">
                     <Flex mb="3"  direction={{ base: 'column', md: 'row' }} >
-                        <Box color="gray.600"><b>{idx + 1}.{" "}</b>{x.meta?.sns ? <Tag bg={deepbg}>SNS</Tag> : null} <Box as="span" color="gray.500" >{x.name}</Box></Box>
+                        <Wrap><Box color="gray.600"><b>{idx + 1}.{" "}</b>{x.meta?.sns ? <Tag bg={deepbg}>SNS</Tag> : null} <Box as="span" color="gray.500" >{x.name}</Box></Box>
                         <Box color="green.500" pl="3"><DNumber currency={"USD"} n={x.sum} anim={false} /></Box>
+                        </Wrap>
                         <Spacer />
 
-                        <Box pl="3">{x?.meta?.appurl ? <a href={x.meta.appurl} target="_blank">app <ExternalLinkIcon /></a> : null}</Box>
-                      <Box color="gray.600" pl="3"><a href={"https://dashboard.internetcomputer.org/canister/" + x.id} target="_blank">{x.id} <ExternalLinkIcon /></a></Box>
+                        <Wrap><Box pl="3">{x?.meta?.appurl ? <a href={x.meta.appurl} target="_blank">app <ExternalLinkIcon /></a> : null}</Box>
+                        <Box color="gray.600" pl="3"><a href={"https://dashboard.internetcomputer.org/canister/" + x.id} target="_blank">{x.id} <ExternalLinkIcon /></a></Box>
+                        </Wrap>
                         <Box pl="3">{x?.meta?.icrc ? x.meta.icrc.map(t => <Tag>{t}</Tag>) : null}</Box>
                     </Flex>
 
