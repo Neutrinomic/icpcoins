@@ -53,6 +53,7 @@ It has since become the most well-known cryptocurrency in the world. Its popular
       NNS: 'https://nns.ic0.app/',
       ICA: 'https://association.internetcomputer.org/',
       Dfinity: 'https://dfinity.org/',
+      Discord: 'https://discord.gg/WHewyHyqUW',
       dashboard: 'https://dashboard.internetcomputer.org/',
     },
     article: `
