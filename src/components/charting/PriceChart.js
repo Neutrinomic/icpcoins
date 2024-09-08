@@ -839,6 +839,12 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
                 1D
               </Button> */}
               <Button
+                variant={period === 1 ? 'solid' : 'outline'}
+                onClick={() => onChangePeriod(1)}
+              >
+                1D
+              </Button>
+              <Button
                 variant={period === 7 ? 'solid' : 'outline'}
                 onClick={() => onChangePeriod(7)}
               >

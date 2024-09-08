@@ -62,7 +62,6 @@ function tokenPage(dispatch, getState) {
     let s = getState();
 
     if (s.config.tokens.length <= 0) return;
-
     // need xrc ICP/USD and BTC/USD so we can convert to quote currencies
     let pids = unique([
       1,

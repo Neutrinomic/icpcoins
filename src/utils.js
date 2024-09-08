@@ -108,6 +108,7 @@ export function candleIntervalToMinutes(candleInterval) {
   var mins = 60;
 
   switch (candleInterval) {
+    case '5m': mins = 5; break;
     case '1h':
       mins = 60;
       break;
@@ -153,7 +154,7 @@ export const startTick = 1660052760;
 
 export function lastStartedTick(tickInterval, currentTimestamp) {
   const elapsedTime = currentTimestamp - startTick;
-  let tn = Math.floor(elapsedTime / tickInterval);
+  let tn = Math.ceil(elapsedTime / tickInterval);
   return tn * tickInterval + startTick;
 }
 

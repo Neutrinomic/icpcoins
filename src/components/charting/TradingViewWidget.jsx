@@ -93,7 +93,9 @@ function convertRawDataToCandleData({
       calculateSingleCandleDataFromPriceSubArray(block, noOfPaths)
     );
   }
-
+  if (candleChartData[ candleChartData.length -1 ].time == candleChartData[ candleChartData.length -2 ].time) {
+    candleChartData.pop();
+  }
   return candleChartData;
 }
 
@@ -112,6 +114,7 @@ function calculateSingleCandleDataFromPriceSubArray(priceSubArray, noOfPaths) {
   let close = 0;
 
   priceSubArray.forEach((d, index) => {
+
     for (let i = 0; i < noOfPaths; i++) {
       if (index == 0) {
         open += d[`p${i}`];
