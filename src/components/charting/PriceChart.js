@@ -39,9 +39,9 @@ import { bigTickFormatter } from '../../utils.js';
 //https://github.com/recharts/recharts/issues/956
 import { dexColors } from '../../utils/colors.js';
 import { getValidCandleIntervalOptions } from '../../utils/chartUtils.js';
+import CustomParamsSelector from './chartParamsSelector.jsx';
 
 export const PriceChart = ({ symbol, onChangePeriod }) => {
-  const dispatch = useDispatch();
   const [selectedOption, setSelectedOption] = useState('line');
   const config = useSelector(state => state.config);
   const baseCurrency = useSelector(state => state.config.baseCurrency);
@@ -91,6 +91,7 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
     <>
       <Box mt="15px" pt="15px" ml="-15px" mr="-15px">
         <Box maxW="1278px" m="auto">
+          <CustomParamsSelector />
           <ToggleSelector
             {...{
               selectedOption,
@@ -100,7 +101,40 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
               candleIntervalOptions,
             }}
           />
-
+          <Center mt="15px" mb="10px">
+            <ButtonGroup spacing="6">
+              {/* <Button
+                variant={period ===  1 ? 'solid' : 'outline'}
+                onClick={() => onChangePeriod( 1)}
+              >
+                1D
+              </Button> */}
+              <Button
+                variant={period === 7 ? 'solid' : 'outline'}
+                onClick={() => onChangePeriod(7)}
+              >
+                7D
+              </Button>
+              <Button
+                variant={period === 30 ? 'solid' : 'outline'}
+                onClick={() => onChangePeriod(30)}
+              >
+                1M
+              </Button>
+              <Button
+                variant={period === 30 * 12 ? 'solid' : 'outline'}
+                onClick={() => onChangePeriod(30 * 12)}
+              >
+                1Y
+              </Button>
+              <Button
+                variant={period === days_from_start ? 'solid' : 'outline'}
+                onClick={() => onChangePeriod(days_from_start)}
+              >
+                All
+              </Button>
+            </ButtonGroup>
+          </Center>
           {selectedOption === 'line' && (
             <ResponsiveContainer width={'100%'} height={400}>
               <LineChart
@@ -170,7 +204,7 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
             </ResponsiveContainer>
           )}
 
-          {(selectedOption === 'candlestick' &&  getValidCandleIntervalOptions(period).includes(selectedCandleInterval) ) && (
+          {(selectedOption === 'candlestick' && getValidCandleIntervalOptions(period).includes(selectedCandleInterval)) && (
             <TradingViewWidget
               data={data.merged}
               noOfPaths={data.lines}
@@ -830,40 +864,6 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
               ) : null}
             </>
           ) : null}
-          <Center mt="15px" mb="10px">
-            <ButtonGroup spacing="6">
-              {/* <Button
-                variant={period ===  1 ? 'solid' : 'outline'}
-                onClick={() => onChangePeriod( 1)}
-              >
-                1D
-              </Button> */}
-              <Button
-                variant={period === 7 ? 'solid' : 'outline'}
-                onClick={() => onChangePeriod(7)}
-              >
-                7D
-              </Button>
-              <Button
-                variant={period === 30 ? 'solid' : 'outline'}
-                onClick={() => onChangePeriod(30)}
-              >
-                1M
-              </Button>
-              <Button
-                variant={period === 30 * 12 ? 'solid' : 'outline'}
-                onClick={() => onChangePeriod(30 * 12)}
-              >
-                1Y
-              </Button>
-              <Button
-                variant={period === days_from_start ? 'solid' : 'outline'}
-                onClick={() => onChangePeriod(days_from_start)}
-              >
-                All
-              </Button>
-            </ButtonGroup>
-          </Center>
         </Box>
       </Box>
       {data?.sources?.length ? (
