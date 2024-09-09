@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
     Box,
     Button,
+    ButtonGroup,
     Menu,
     MenuButton,
     MenuList,
@@ -51,7 +52,7 @@ const CustomParamsSelector = () => {
         <Box
             p={2}
             borderWidth="1px"
-            borderRadius="lg"
+            borderRadius="md"
             borderColor={borderColor}
             bg={bgColor}
             width={'fit-content'}
@@ -59,7 +60,7 @@ const CustomParamsSelector = () => {
             <HStack>
                 {/* Chart Type Selector */}
                 <Menu>
-                    <MenuButton as={Button}>
+                    <MenuButton as={Button} size={'sm'}>
                         {chartType === 'line' ? <MdOutlineSsidChart /> : <MdCandlestickChart />}
                     </MenuButton>
                     <MenuList>
@@ -78,7 +79,7 @@ const CustomParamsSelector = () => {
                 {/* Conditionally render Candle Width Selector with transition */}
                 <Collapse in={chartType === 'candle'} animateOpacity>
                     <Menu>
-                        <MenuButton as={Button}>
+                        <MenuButton as={Button} size={'sm'}>
                             {candleWidth}
                         </MenuButton>
                         <MenuList>
@@ -95,10 +96,10 @@ const CustomParamsSelector = () => {
                 </Collapse>
 
                 {/* Divider */}
-                <Divider orientation="vertical" height="50px" borderColor={borderColor} />
+                <Divider orientation="vertical" height="20px" borderColor={borderColor} />
 
                 {/* Period Selector */}
-                <HStack spacing={2}>
+                {/* <HStack spacing={2}>
                     {periods.map((period) => (
                         <Button
                             key={period}
@@ -109,7 +110,22 @@ const CustomParamsSelector = () => {
                             {period}
                         </Button>
                     ))}
-                </HStack>
+                </HStack> */}
+
+                {/* Period Selector V2 */}
+                <ButtonGroup isAttached={true}>
+                    {periods.map((period) => (
+                        <Button
+                            key={period}
+                            variant={selectedPeriod === period ? 'solid' : 'outline'}
+                            colorScheme="blue"
+                            size="sm"
+                            onClick={() => setSelectedPeriod(period)}
+                        >
+                            {period}
+                        </Button>
+                    ))}
+                </ButtonGroup>
             </HStack>
         </Box>
     );

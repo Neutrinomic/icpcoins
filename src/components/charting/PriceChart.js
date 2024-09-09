@@ -89,10 +89,10 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
 
   return (
     <>
-      <Box mt="15px" pt="15px" ml="-15px" mr="-15px">
+      <Box mt="15px" pt="5px" ml="-15px" mr="-15px">
         <Box maxW="1278px" m="auto">
           <CustomParamsSelector />
-          <ToggleSelector
+          {/* <ToggleSelector
             {...{
               selectedOption,
               setSelectedOption,
@@ -100,15 +100,15 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
               setSelectedCandleInterval,
               candleIntervalOptions,
             }}
-          />
-          <Center mt="15px" mb="10px">
+          /> */}
+          {/* <Center mt="15px" mb="10px">
             <ButtonGroup spacing="6">
-              {/* <Button
+              <Button
                 variant={period ===  1 ? 'solid' : 'outline'}
                 onClick={() => onChangePeriod( 1)}
               >
                 1D
-              </Button> */}
+              </Button>
               <Button
                 variant={period === 7 ? 'solid' : 'outline'}
                 onClick={() => onChangePeriod(7)}
@@ -134,7 +134,7 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
                 All
               </Button>
             </ButtonGroup>
-          </Center>
+          </Center> */}
           {selectedOption === 'line' && (
             <ResponsiveContainer width={'100%'} height={400}>
               <LineChart
