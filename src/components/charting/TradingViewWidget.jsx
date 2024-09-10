@@ -75,6 +75,8 @@ function convertRawDataToCandleData({
    * @property {number} ticp - Treasury ICP accumulation
    * @property {number} cs - Circulating supply difference
    * @property {...number} pN - Price of the Nth path
+   * @property {...number} plN - Lowest Price in candele of the Nth path
+   * @property {...number} phN - Highest Price in candle of the Nth path
    * @property {...number} vN - Volume of the Nth path converted to USD
    * @property {...number} lN - Depth of bid of the Nth path
    * @property {...number} laN - Depth of ask of the Nth path
@@ -138,11 +140,11 @@ function calculateSingleCandleDataFromPriceSubArray(priceSubArray, noOfPaths) {
       if (index == priceSubArray.length - 1) {
         close += d[`p${i}`];
       }
-      if (d[`p${i}`] < low) {
-        low = d[`p${i}`];
+      if (d[`pl${i}`] < low) {
+        low = d[`pl${i}`];
       }
-      if (d[`p${i}`] > high) {
-        high = d[`p${i}`];
+      if (d[`ph${i}`] > high) {
+        high = d[`ph${i}`];
       }
     }
   });

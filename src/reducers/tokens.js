@@ -579,6 +579,8 @@ export const selectSingleTokenInfo =
           r['cs'] = acc_cs;
           for (let pidx = 0; pidx < pathpair.length; pidx++) {
             r['p' + pidx] = pathpair[pidx][i].price;
+            r['pl' + pidx] = pathpair[pidx][i].low;
+            r['ph' + pidx] = pathpair[pidx][i].high;
             r['v' + pidx] = pathpair[pidx][i].volume24h
               ? pathpair[pidx][i].volume24h * usdprice
               : 0;
