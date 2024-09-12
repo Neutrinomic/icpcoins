@@ -11,8 +11,8 @@ import {
     Divider,
     useColorModeValue,
     Collapse,
+    Tooltip
 } from '@chakra-ui/react';
-import { ChevronDownIcon } from '@chakra-ui/icons';
 import { MdOutlineSsidChart, MdCandlestickChart } from "react-icons/md";
 
 const CustomParamsSelector = () => {
@@ -23,6 +23,8 @@ const CustomParamsSelector = () => {
     // Colors for light and dark mode
     const borderColor = useColorModeValue('gray.300', 'gray.600');
     const bgColor = useColorModeValue('white', 'gray.700');
+    const tooltipBgColor = useColorModeValue('gray.100', 'gray.600'); // Tooltip background to match color mode
+    const tooltipTextColor = useColorModeValue('black', 'white'); // Tooltip text color to match color mode
 
     const chartTypes = [
         { label: 'Line Chart', icon: MdOutlineSsidChart, value: 'line' },
@@ -38,7 +40,13 @@ const CustomParamsSelector = () => {
         { label: '1 month', value: '1M' },
     ];
 
-    const periods = ['1D', '7D', '1M', '1Y', 'All'];
+    const periods = [
+        { label: '1 Day', value: '1D' },
+        { label: '7 Days', value: '7D' },
+        { label: '1 Month', value: '1M' },
+        { label: '1 Year', value: '1Y' },
+        { label: 'All Time', value: 'All' },
+    ];
 
     const handleChartTypeSelect = (value) => {
         setChartType(value);
@@ -46,6 +54,10 @@ const CustomParamsSelector = () => {
 
     const handleCandleWidthSelect = (value) => {
         setCandleWidth(value);
+    };
+
+    const handlePeriodSelect = (value) => {
+        setSelectedPeriod(value);
     };
 
     return (
@@ -60,9 +72,14 @@ const CustomParamsSelector = () => {
             <HStack>
                 {/* Chart Type Selector */}
                 <Menu>
-                    <MenuButton as={Button} size={'sm'}>
-                        {chartType === 'line' ? <MdOutlineSsidChart /> : <MdCandlestickChart />}
-                    </MenuButton>
+                    <Tooltip label={chartType === 'line' ? 'Line Chart' : 'Candle Chart'}
+                        bg={tooltipBgColor}
+                        color={tooltipTextColor}
+                        aria-label="Chart Type Tooltip">
+                        <MenuButton as={Button} size={'sm'}>
+                            {chartType === 'line' ? <MdOutlineSsidChart /> : <MdCandlestickChart />}
+                        </MenuButton>
+                    </Tooltip>
                     <MenuList>
                         {chartTypes.map((type) => (
                             <MenuItem
@@ -79,9 +96,14 @@ const CustomParamsSelector = () => {
                 {/* Conditionally render Candle Width Selector with transition */}
                 <Collapse in={chartType === 'candle'} animateOpacity>
                     <Menu>
-                        <MenuButton as={Button} size={'sm'}>
-                            {candleWidth}
-                        </MenuButton>
+                        <Tooltip label={candleWidths.find(w => w.value === candleWidth)?.label}
+                            bg={tooltipBgColor}
+                            color={tooltipTextColor}
+                            aria-label="Candle Width Tooltip">
+                            <MenuButton as={Button} size={'sm'}>
+                                {candleWidth}
+                            </MenuButton>
+                        </Tooltip>
                         <MenuList>
                             {candleWidths.map((width) => (
                                 <MenuItem
@@ -99,31 +121,22 @@ const CustomParamsSelector = () => {
                 <Divider orientation="vertical" height="20px" borderColor={borderColor} />
 
                 {/* Period Selector */}
-                {/* <HStack spacing={2}>
-                    {periods.map((period) => (
-                        <Button
-                            key={period}
-                            variant={selectedPeriod === period ? 'solid' : 'outline'}
-                            colorScheme="blue"
-                            onClick={() => setSelectedPeriod(period)}
-                        >
-                            {period}
-                        </Button>
-                    ))}
-                </HStack> */}
-
-                {/* Period Selector V2 */}
                 <ButtonGroup isAttached={true}>
                     {periods.map((period) => (
-                        <Button
-                            key={period}
-                            variant={selectedPeriod === period ? 'solid' : 'outline'}
-                            colorScheme="blue"
-                            size="sm"
-                            onClick={() => setSelectedPeriod(period)}
-                        >
-                            {period}
-                        </Button>
+                        <Tooltip key={period.value}
+                            label={period.label}
+                            bg={tooltipBgColor}
+                            color={tooltipTextColor}
+                            aria-label={`Period Tooltip ${period.label}`}>
+                            <Button
+                                variant={selectedPeriod === period.value ? 'solid' : 'outline'}
+                                colorScheme="blue"
+                                size="sm"
+                                onClick={() => handlePeriodSelect(period.value)}
+                            >
+                                {period.value}
+                            </Button>
+                        </Tooltip>
                     ))}
                 </ButtonGroup>
             </HStack>
