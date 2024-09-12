@@ -1,10 +1,23 @@
 import { createChart, ColorType, CrosshairMode } from 'lightweight-charts';
 import React, { useEffect, useRef } from 'react';
 import moment from 'moment';
-import { p2i, i2t, candleIntervalToMinutes, customTickFormatter } from '../../utils.js';
+import {
+  p2i,
+  i2t,
+  candleIntervalToMinutes,
+  customTickFormatter,
+} from '../../utils.js';
 import { bigTickFormatter } from '../../utils.js';
-import { areaSeriesBottomOpacity, dexColors, hexToRgba } from '../../utils/colors.js';
-import { customAutoScalingProvider, defaultChartOptions, minZeroAutoScalingProvider } from '../../utils/chartUtils.js';
+import {
+  areaSeriesBottomOpacity,
+  dexColors,
+  hexToRgba,
+} from '../../utils/colors.js';
+import {
+  customAutoScalingProvider,
+  defaultChartOptions,
+  minZeroAutoScalingProvider,
+} from '../../utils/chartUtils.js';
 import ChartWrapper from './ChartWrapper.jsx';
 
 // function generateCandleData(numberOfPoints = 250, endDate) {
@@ -93,7 +106,13 @@ function convertRawDataToCandleData({
       calculateSingleCandleDataFromPriceSubArray(block, noOfPaths)
     );
   }
-
+  if (
+    candleChartData.length >= 2 &&
+    candleChartData[candleChartData.length - 1].time ==
+      candleChartData[candleChartData.length - 2].time
+  ) {
+    candleChartData.pop();
+  }
   return candleChartData;
 }
 
@@ -189,7 +208,9 @@ export const ChartComponent = props => {
 
   useEffect(() => {
     const handleResize = () => {
-      candleChart.applyOptions({ width: candleChartContainerRef.current.clientWidth });
+      candleChart.applyOptions({
+        width: candleChartContainerRef.current.clientWidth,
+      });
     };
 
     // ------------------------------------
@@ -214,33 +235,42 @@ export const ChartComponent = props => {
     //manually calculate min and max, to pass to auto scaler and limit Y-axis
     let priceMinGreaterThanZero = Number.MAX_SAFE_INTEGER;
     let priceMaxGreaterThanZero = Number.MIN_SAFE_INTEGER;
-    calculatedCandleData.forEach((candle) => {
-      if (candle.open == 0 || candle.close == 0 || candle.high == 0 || candle.low == 0) {
-
+    calculatedCandleData.forEach(candle => {
+      if (
+        candle.open == 0 ||
+        candle.close == 0 ||
+        candle.high == 0 ||
+        candle.low == 0
+      ) {
       } else {
-        if (candle.low < priceMinGreaterThanZero) priceMinGreaterThanZero = candle.low;
-        if (candle.high > priceMaxGreaterThanZero) priceMaxGreaterThanZero = candle.high;
+        if (candle.low < priceMinGreaterThanZero)
+          priceMinGreaterThanZero = candle.low;
+        if (candle.high > priceMaxGreaterThanZero)
+          priceMaxGreaterThanZero = candle.high;
       }
-    })
+    });
     const candlestickSeries = candleChart.addCandlestickSeries({
       upColor: '#26a69a',
       downColor: '#ef5350',
       borderVisible: false,
       wickUpColor: '#26a69a',
       wickDownColor: '#ef5350',
-      autoscaleInfoProvider: (original) => customAutoScalingProvider(original, priceMinGreaterThanZero, priceMaxGreaterThanZero),
+      autoscaleInfoProvider: original =>
+        customAutoScalingProvider(
+          original,
+          priceMinGreaterThanZero,
+          priceMaxGreaterThanZero
+        ),
       // localization: {
       //   priceFormatter: customTickFormatter,
       // },
       priceFormat: {
-        type: "custom",
-        formatter: customTickFormatter
+        type: 'custom',
+        formatter: customTickFormatter,
       },
     });
     //candlestickSeries.setData(barData);
-    candlestickSeries.setData(
-      calculatedCandleData
-    );
+    candlestickSeries.setData(calculatedCandleData);
 
     candleChart.timeScale().fitContent();
     // ------------------------------------
@@ -272,7 +302,7 @@ export const ChartComponent = props => {
           bottomColor: hexToRgba(dexColors[idx], areaSeriesBottomOpacity),
           autoscaleInfoProvider: minZeroAutoScalingProvider,
           priceFormat: {
-            type: 'volume'
+            type: 'volume',
           },
         });
 
@@ -293,8 +323,8 @@ export const ChartComponent = props => {
       bottomColor: hexToRgba(dexColors[0], areaSeriesBottomOpacity),
       autoscaleInfoProvider: minZeroAutoScalingProvider,
       priceFormat: {
-        type: 'volume'
-      }
+        type: 'volume',
+      },
     });
 
     volumeSeries0.setData(
@@ -305,7 +335,6 @@ export const ChartComponent = props => {
 
     volume24Chart.timeScale().fitContent();
 
-
     // ------------------------------------
     // depth 100 (Ask) plot
     // ------------------------------------
@@ -315,18 +344,20 @@ export const ChartComponent = props => {
      * it is added outside the follwing loop, to maintain reference for syncing crosshair across graphs
      */
 
-    const depth100Chart = isDex ? createChart(depth100ChartContainerRef.current, {
-      ...defaultChartOptions,
-      width: depth100ChartContainerRef.current.clientWidth,
-      height: 100,
-      rightPriceScale: {
-        ...defaultChartOptions.rightPriceScale,
-        invertScale: true,
-      },
-      localization: {
-        priceFormatter: bigTickFormatter,
-      },
-    }) : null;
+    const depth100Chart = isDex
+      ? createChart(depth100ChartContainerRef.current, {
+          ...defaultChartOptions,
+          width: depth100ChartContainerRef.current.clientWidth,
+          height: 100,
+          rightPriceScale: {
+            ...defaultChartOptions.rightPriceScale,
+            invertScale: true,
+          },
+          localization: {
+            priceFormatter: bigTickFormatter,
+          },
+        })
+      : null;
 
     // chart depth100 for other paths, without maintaining the reference
     if (noOfPaths > 1 && isDex) {
@@ -340,7 +371,7 @@ export const ChartComponent = props => {
           topColor: hexToRgba(dexColors[idx], areaSeriesBottomOpacity),
           autoscaleInfoProvider: minZeroAutoScalingProvider,
           priceFormat: {
-            type: 'volume'
+            type: 'volume',
           },
           invertFilledArea: true,
         });
@@ -353,19 +384,21 @@ export const ChartComponent = props => {
       }
     }
 
-    const depth100Series0 = isDex ? depth100Chart.addAreaSeries({
-      lineColor: dexColors[0],
-      lineVisible: true,
-      lineWidth: 1,
-      priceLineVisible: false,
-      bottomColor: dexColors[0],
-      topColor: hexToRgba(dexColors[0], areaSeriesBottomOpacity),
-      autoscaleInfoProvider: minZeroAutoScalingProvider,
-      priceFormat: {
-        type: 'volume'
-      },
-      invertFilledArea: true,
-    }) : null;
+    const depth100Series0 = isDex
+      ? depth100Chart.addAreaSeries({
+          lineColor: dexColors[0],
+          lineVisible: true,
+          lineWidth: 1,
+          priceLineVisible: false,
+          bottomColor: dexColors[0],
+          topColor: hexToRgba(dexColors[0], areaSeriesBottomOpacity),
+          autoscaleInfoProvider: minZeroAutoScalingProvider,
+          priceFormat: {
+            type: 'volume',
+          },
+          invertFilledArea: true,
+        })
+      : null;
 
     if (isDex) {
       depth100Series0.setData(
@@ -386,14 +419,16 @@ export const ChartComponent = props => {
      * it is added outside the follwing loop, to maintain reference for syncing crosshair across graphs
      */
 
-    const depth50Chart = isDex ? createChart(depth50ChartContainerRef.current, {
-      ...defaultChartOptions,
-      width: depth50ChartContainerRef.current.clientWidth,
-      height: 100,
-      localization: {
-        priceFormatter: bigTickFormatter,
-      },
-    }) : null;
+    const depth50Chart = isDex
+      ? createChart(depth50ChartContainerRef.current, {
+          ...defaultChartOptions,
+          width: depth50ChartContainerRef.current.clientWidth,
+          height: 100,
+          localization: {
+            priceFormatter: bigTickFormatter,
+          },
+        })
+      : null;
 
     // chart depth50 for other paths, without maintaining the reference
     if (noOfPaths > 1 && isDex) {
@@ -407,7 +442,7 @@ export const ChartComponent = props => {
           bottomColor: hexToRgba(dexColors[idx], areaSeriesBottomOpacity),
           autoscaleInfoProvider: minZeroAutoScalingProvider,
           priceFormat: {
-            type: 'volume'
+            type: 'volume',
           },
         });
 
@@ -419,18 +454,20 @@ export const ChartComponent = props => {
       }
     }
 
-    const depth50Series0 = isDex ? depth50Chart.addAreaSeries({
-      lineColor: dexColors[0],
-      lineVisible: true,
-      lineWidth: 1,
-      priceLineVisible: false,
-      topColor: dexColors[0],
-      bottomColor: hexToRgba(dexColors[0], areaSeriesBottomOpacity),
-      autoscaleInfoProvider: minZeroAutoScalingProvider,
-      priceFormat: {
-        type: 'volume'
-      },
-    }) : null;
+    const depth50Series0 = isDex
+      ? depth50Chart.addAreaSeries({
+          lineColor: dexColors[0],
+          lineVisible: true,
+          lineWidth: 1,
+          priceLineVisible: false,
+          topColor: dexColors[0],
+          bottomColor: hexToRgba(dexColors[0], areaSeriesBottomOpacity),
+          autoscaleInfoProvider: minZeroAutoScalingProvider,
+          priceFormat: {
+            type: 'volume',
+          },
+        })
+      : null;
 
     if (isDex) {
       depth50Series0.setData(
@@ -446,25 +483,31 @@ export const ChartComponent = props => {
     // treasury token movement plot
     // ------------------------------------
 
-    const treasuryTokenChart = (isDex && locking) ? createChart(treasuryTokenChartContainerRef.current, {
-      ...defaultChartOptions,
-      width: treasuryTokenChartContainerRef.current.clientWidth,
-      height: 50,
-      localization: {
-        priceFormatter: bigTickFormatter,
-      },
-    }) : null;
+    const treasuryTokenChart =
+      isDex && locking
+        ? createChart(treasuryTokenChartContainerRef.current, {
+            ...defaultChartOptions,
+            width: treasuryTokenChartContainerRef.current.clientWidth,
+            height: 50,
+            localization: {
+              priceFormatter: bigTickFormatter,
+            },
+          })
+        : null;
 
-    const treasuryTokenMovementLineSeries = (isDex && locking) ? treasuryTokenChart.addLineSeries({
-      color: '#446600',
-      lineVisible: true,
-      lineWidth: 1,
-      priceLineVisible: false,
-      //autoscaleInfoProvider: minZeroAutoScalingProvider,
-      priceFormat: {
-        type: 'volume'
-      },
-    }) : null;
+    const treasuryTokenMovementLineSeries =
+      isDex && locking
+        ? treasuryTokenChart.addLineSeries({
+            color: '#446600',
+            lineVisible: true,
+            lineWidth: 1,
+            priceLineVisible: false,
+            //autoscaleInfoProvider: minZeroAutoScalingProvider,
+            priceFormat: {
+              type: 'volume',
+            },
+          })
+        : null;
 
     if (isDex && locking) {
       treasuryTokenMovementLineSeries.setData(
@@ -480,25 +523,31 @@ export const ChartComponent = props => {
     // treasury ICP movement plot
     // ------------------------------------
 
-    const treasuryICPChart = (isDex && locking) ? createChart(treasuryICPChartContainerRef.current, {
-      ...defaultChartOptions,
-      width: treasuryICPChartContainerRef.current.clientWidth,
-      height: 50,
-      localization: {
-        priceFormatter: bigTickFormatter,
-      },
-    }) : null;
+    const treasuryICPChart =
+      isDex && locking
+        ? createChart(treasuryICPChartContainerRef.current, {
+            ...defaultChartOptions,
+            width: treasuryICPChartContainerRef.current.clientWidth,
+            height: 50,
+            localization: {
+              priceFormatter: bigTickFormatter,
+            },
+          })
+        : null;
 
-    const treasuryICPMovementLineSeries = (isDex && locking) ? treasuryICPChart.addLineSeries({
-      color: '#446600',
-      lineVisible: true,
-      lineWidth: 1,
-      priceLineVisible: false,
-      //autoscaleInfoProvider: minZeroAutoScalingProvider,
-      priceFormat: {
-        type: 'volume'
-      },
-    }) : null;
+    const treasuryICPMovementLineSeries =
+      isDex && locking
+        ? treasuryICPChart.addLineSeries({
+            color: '#446600',
+            lineVisible: true,
+            lineWidth: 1,
+            priceLineVisible: false,
+            //autoscaleInfoProvider: minZeroAutoScalingProvider,
+            priceFormat: {
+              type: 'volume',
+            },
+          })
+        : null;
 
     if (isDex && locking) {
       treasuryICPMovementLineSeries.setData(
@@ -510,39 +559,44 @@ export const ChartComponent = props => {
       treasuryICPChart.timeScale().fitContent();
     }
 
-
     // ------------------------------------
     // total locked movement plot
     // ------------------------------------
 
-    const totalLockedMovementChart = (isDex && locking) ? createChart(totalLockedChartContainerRef.current, {
-      ...defaultChartOptions,
-      width: totalLockedChartContainerRef.current.clientWidth,
-      height: 50,
-      localization: {
-        priceFormatter: bigTickFormatter,
-      },
-    }) : null;
+    const totalLockedMovementChart =
+      isDex && locking
+        ? createChart(totalLockedChartContainerRef.current, {
+            ...defaultChartOptions,
+            width: totalLockedChartContainerRef.current.clientWidth,
+            height: 50,
+            localization: {
+              priceFormatter: bigTickFormatter,
+            },
+          })
+        : null;
 
-    const totalLockedMovementSeries = (isDex && locking) ? totalLockedMovementChart.addBaselineSeries({
-      topLineColor: '#445566',
-      bottomLineColor: '#445566',
-      lineVisible: true,
-      lineWidth: 1,
-      priceLineVisible: false,
-      topFillColor1: '#445566',
-      topFillColor2: hexToRgba('#445566', areaSeriesBottomOpacity),
-      bottomFillColor2: '#445566',
-      bottomFillColor1: hexToRgba('#445566', areaSeriesBottomOpacity),
-      //autoscaleInfoProvider: minZeroAutoScalingProvider,
-      priceFormat: {
-        type: 'volume'
-      },
-      baseValue: {
-        type: 'price',
-        price: 0,
-      }
-    }) : null;
+    const totalLockedMovementSeries =
+      isDex && locking
+        ? totalLockedMovementChart.addBaselineSeries({
+            topLineColor: '#445566',
+            bottomLineColor: '#445566',
+            lineVisible: true,
+            lineWidth: 1,
+            priceLineVisible: false,
+            topFillColor1: '#445566',
+            topFillColor2: hexToRgba('#445566', areaSeriesBottomOpacity),
+            bottomFillColor2: '#445566',
+            bottomFillColor1: hexToRgba('#445566', areaSeriesBottomOpacity),
+            //autoscaleInfoProvider: minZeroAutoScalingProvider,
+            priceFormat: {
+              type: 'volume',
+            },
+            baseValue: {
+              type: 'price',
+              price: 0,
+            },
+          })
+        : null;
 
     if (isDex && locking) {
       totalLockedMovementSeries.setData(
@@ -552,7 +606,6 @@ export const ChartComponent = props => {
       );
 
       totalLockedMovementChart.timeScale().fitContent();
-
     }
 
     // ------------------------------------
@@ -567,9 +620,17 @@ export const ChartComponent = props => {
       syncCrosshair(volume24Chart, volumeSeries0, dataPoint);
       syncCrosshair(depth100Chart, depth100Series0, dataPoint);
       syncCrosshair(depth50Chart, depth50Series0, dataPoint);
-      syncCrosshair(treasuryTokenChart, treasuryTokenMovementLineSeries, dataPoint);
+      syncCrosshair(
+        treasuryTokenChart,
+        treasuryTokenMovementLineSeries,
+        dataPoint
+      );
       syncCrosshair(treasuryICPChart, treasuryICPMovementLineSeries, dataPoint);
-      syncCrosshair(totalLockedMovementChart, totalLockedMovementSeries, dataPoint);
+      syncCrosshair(
+        totalLockedMovementChart,
+        totalLockedMovementSeries,
+        dataPoint
+      );
     });
     volume24Chart.subscribeCrosshairMove(param => {
       const dataPoint = getCrosshairDataPoint(volumeSeries0, param);
@@ -577,9 +638,17 @@ export const ChartComponent = props => {
       //syncCrosshair(volume24Chart, volumeSeries0, dataPoint);
       syncCrosshair(depth100Chart, depth100Series0, dataPoint);
       syncCrosshair(depth50Chart, depth50Series0, dataPoint);
-      syncCrosshair(treasuryTokenChart, treasuryTokenMovementLineSeries, dataPoint);
+      syncCrosshair(
+        treasuryTokenChart,
+        treasuryTokenMovementLineSeries,
+        dataPoint
+      );
       syncCrosshair(treasuryICPChart, treasuryICPMovementLineSeries, dataPoint);
-      syncCrosshair(totalLockedMovementChart, totalLockedMovementSeries, dataPoint);
+      syncCrosshair(
+        totalLockedMovementChart,
+        totalLockedMovementSeries,
+        dataPoint
+      );
     });
 
     if (isDex) {
@@ -589,9 +658,21 @@ export const ChartComponent = props => {
         syncCrosshair(volume24Chart, volumeSeries0, dataPoint);
         //syncCrosshair(depth100Chart, depth100Series0, dataPoint);
         syncCrosshair(depth50Chart, depth50Series0, dataPoint);
-        syncCrosshair(treasuryTokenChart, treasuryTokenMovementLineSeries, dataPoint);
-        syncCrosshair(treasuryICPChart, treasuryICPMovementLineSeries, dataPoint);
-        syncCrosshair(totalLockedMovementChart, totalLockedMovementSeries, dataPoint);
+        syncCrosshair(
+          treasuryTokenChart,
+          treasuryTokenMovementLineSeries,
+          dataPoint
+        );
+        syncCrosshair(
+          treasuryICPChart,
+          treasuryICPMovementLineSeries,
+          dataPoint
+        );
+        syncCrosshair(
+          totalLockedMovementChart,
+          totalLockedMovementSeries,
+          dataPoint
+        );
       });
 
       depth50Chart.subscribeCrosshairMove(param => {
@@ -600,43 +681,88 @@ export const ChartComponent = props => {
         syncCrosshair(volume24Chart, volumeSeries0, dataPoint);
         syncCrosshair(depth100Chart, depth100Series0, dataPoint);
         //syncCrosshair(depth50Chart, depth50Series0, dataPoint);
-        syncCrosshair(treasuryTokenChart, treasuryTokenMovementLineSeries, dataPoint);
-        syncCrosshair(treasuryICPChart, treasuryICPMovementLineSeries, dataPoint);
-        syncCrosshair(totalLockedMovementChart, totalLockedMovementSeries, dataPoint);
+        syncCrosshair(
+          treasuryTokenChart,
+          treasuryTokenMovementLineSeries,
+          dataPoint
+        );
+        syncCrosshair(
+          treasuryICPChart,
+          treasuryICPMovementLineSeries,
+          dataPoint
+        );
+        syncCrosshair(
+          totalLockedMovementChart,
+          totalLockedMovementSeries,
+          dataPoint
+        );
       });
     }
 
     if (isDex && locking) {
       treasuryTokenChart.subscribeCrosshairMove(param => {
-        const dataPoint = getCrosshairDataPoint(treasuryTokenMovementLineSeries, param);
+        const dataPoint = getCrosshairDataPoint(
+          treasuryTokenMovementLineSeries,
+          param
+        );
         syncCrosshair(candleChart, candlestickSeries, dataPoint);
         syncCrosshair(volume24Chart, volumeSeries0, dataPoint);
         syncCrosshair(depth100Chart, depth100Series0, dataPoint);
         syncCrosshair(depth50Chart, depth50Series0, dataPoint);
         //syncCrosshair(treasuryTokenChart, treasuryTokenMovementLineSeries, dataPoint);
-        syncCrosshair(treasuryICPChart, treasuryICPMovementLineSeries, dataPoint);
-        syncCrosshair(totalLockedMovementChart, totalLockedMovementSeries, dataPoint);
+        syncCrosshair(
+          treasuryICPChart,
+          treasuryICPMovementLineSeries,
+          dataPoint
+        );
+        syncCrosshair(
+          totalLockedMovementChart,
+          totalLockedMovementSeries,
+          dataPoint
+        );
       });
 
       treasuryICPChart.subscribeCrosshairMove(param => {
-        const dataPoint = getCrosshairDataPoint(treasuryICPMovementLineSeries, param);
+        const dataPoint = getCrosshairDataPoint(
+          treasuryICPMovementLineSeries,
+          param
+        );
         syncCrosshair(candleChart, candlestickSeries, dataPoint);
         syncCrosshair(volume24Chart, volumeSeries0, dataPoint);
         syncCrosshair(depth100Chart, depth100Series0, dataPoint);
         syncCrosshair(depth50Chart, depth50Series0, dataPoint);
-        syncCrosshair(treasuryTokenChart, treasuryTokenMovementLineSeries, dataPoint);
+        syncCrosshair(
+          treasuryTokenChart,
+          treasuryTokenMovementLineSeries,
+          dataPoint
+        );
         //syncCrosshair(treasuryICPChart, treasuryICPMovementLineSeries, dataPoint);
-        syncCrosshair(totalLockedMovementChart, totalLockedMovementSeries, dataPoint);
+        syncCrosshair(
+          totalLockedMovementChart,
+          totalLockedMovementSeries,
+          dataPoint
+        );
       });
 
       totalLockedMovementChart.subscribeCrosshairMove(param => {
-        const dataPoint = getCrosshairDataPoint(totalLockedMovementSeries, param);
+        const dataPoint = getCrosshairDataPoint(
+          totalLockedMovementSeries,
+          param
+        );
         syncCrosshair(candleChart, candlestickSeries, dataPoint);
         syncCrosshair(volume24Chart, volumeSeries0, dataPoint);
         syncCrosshair(depth100Chart, depth100Series0, dataPoint);
         syncCrosshair(depth50Chart, depth50Series0, dataPoint);
-        syncCrosshair(treasuryTokenChart, treasuryTokenMovementLineSeries, dataPoint);
-        syncCrosshair(treasuryICPChart, treasuryICPMovementLineSeries, dataPoint);
+        syncCrosshair(
+          treasuryTokenChart,
+          treasuryTokenMovementLineSeries,
+          dataPoint
+        );
+        syncCrosshair(
+          treasuryICPChart,
+          treasuryICPMovementLineSeries,
+          dataPoint
+        );
         //syncCrosshair(totalLockedMovementChart, totalLockedMovementSeries, dataPoint);
       });
     }
@@ -666,18 +792,20 @@ export const ChartComponent = props => {
   return (
     <>
       <div ref={candleChartContainerRef} />
-      {isDex && <>
-        <ChartWrapper title="Depth +100% (Ask)">
-          <div ref={depth100ChartContainerRef} />
-        </ChartWrapper>
-        <ChartWrapper title="Depth -50% (Bid)">
-          <div ref={depth50ChartContainerRef} />
-        </ChartWrapper>
-      </>}
+      {isDex && (
+        <>
+          <ChartWrapper title="Depth +100% (Ask)">
+            <div ref={depth100ChartContainerRef} />
+          </ChartWrapper>
+          <ChartWrapper title="Depth -50% (Bid)">
+            <div ref={depth50ChartContainerRef} />
+          </ChartWrapper>
+        </>
+      )}
       <ChartWrapper title="Volume24h">
         <div ref={volume24ChartContainerRef} />
       </ChartWrapper>
-      {(isDex && locking) &&
+      {isDex && locking && (
         <>
           <ChartWrapper title={`Treasury ${symbol} movement`}>
             <div ref={treasuryTokenChartContainerRef} />
@@ -689,8 +817,7 @@ export const ChartComponent = props => {
             <div ref={totalLockedChartContainerRef} />
           </ChartWrapper>
         </>
-      }
-
+      )}
     </>
   );
 };

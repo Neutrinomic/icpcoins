@@ -9,6 +9,7 @@ import ic from '../icblast.js';
 import { i2t, lastStartedTick, p2i } from '../utils';
 import { calculatePathPrice, findSwapPaths } from '../utils/dfs';
 import { fetchPairs } from './pairs';
+import { now } from 'lodash';
 
 const initialState = {
   t1d: {},
@@ -450,7 +451,7 @@ export const selectSingleTokenInfo =
       const baseCurrency = state.config.baseCurrency;
       const tlast = lastStartedTick(60 * 60, Date.now() / 1000);
       const tlast_1d = lastStartedTick(60 * 60 * 24, Date.now() / 1000);
-
+      const tnow = Date.now()/1000;
       //state.pairs.t5m[0].end;
       // console.log('last', tlast, new Date(tlast * 1000).toLocaleString());
       const tstart = Math.max(first_tick, tlast - 60 * 60 * 24 * period); //?
@@ -514,6 +515,7 @@ export const selectSingleTokenInfo =
         .fill(0)
         .map((_, i) => {
           let r = { t: tstart + i * wdelta };
+          if (r.t > tnow) return false;
 
           // Find out the difference in circulating supply each day + or -
           let acc_cs = undefined;
@@ -571,7 +573,7 @@ export const selectSingleTokenInfo =
           } catch (e) {
             // console.log(e)
           }
-
+ 
           r['tt'] = treasuryT_acc;
           r['ticp'] = treasuryICP_acc;
           r['cs'] = acc_cs;
@@ -585,8 +587,7 @@ export const selectSingleTokenInfo =
           }
 
           return r;
-        });
-
+        }).filter(Boolean);
       let ticksPerDay = (60 * 60 * 24) / i2t(interval);
       // let pp = paths.map(x => calculatePathPrice(x, getDirectPairs(state)));
       let resp = {
