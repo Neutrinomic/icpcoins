@@ -38,16 +38,16 @@ import ToggleSelector from './ChartTypeToggleSelector.jsx';
 import { bigTickFormatter } from '../../utils.js';
 //https://github.com/recharts/recharts/issues/956
 import { dexColors } from '../../utils/colors.js';
-import { getValidCandleIntervalOptions } from '../../utils/chartUtils.js';
+import { checkValidCandleWidth, getValidCandleWidthOptions } from '../../utils/chartUtils.js';
 import CustomParamsSelector from './chartParamsSelector.jsx';
 
 export const PriceChart = ({ symbol, onChangePeriod }) => {
-  const [selectedOption, setSelectedOption] = useState('line');
+  const [chartType, setChartType] = useState('line');
   const config = useSelector(state => state.config);
   const baseCurrency = useSelector(state => state.config.baseCurrency);
   const baseCurrencySymbol = config.tokens[baseCurrency].symbol;
   const [isLarge] = useMediaQuery('(min-width: 1024px)');
-  const [selectedCandleInterval, setSelectedCandleInterval] = useState('1d'); // Interval( width) of each candle
+  const [candleWidth, setCandleWidth] = useState('5m');
   const bg2 = useColorModeValue(
     'linear-gradient(180deg, rgba(227,232,239,1) 0%, rgba(234,239,245,1) 14%)',
     'linear-gradient(180deg, rgba(23,25,34,1) 0%, rgba(27,32,43,1) 100%)'
@@ -68,12 +68,12 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
 
   const period = useSelector(state => state.page.params.period);
 
-  const [candleIntervalOptions, setCandleIntervalOptions] = useState([]);
+  const [candleWidthOptions, setCandleWidthOptions] = useState([]);
 
   useEffect(() => {
-    const options = getValidCandleIntervalOptions(period);
-    setCandleIntervalOptions(options);
-    setSelectedCandleInterval(options[0]);
+    const options = getValidCandleWidthOptions(period);
+    setCandleWidthOptions(options);
+    setCandleWidth(options[0].value);
   }, [period]);
 
   let data = useSelector(selectSingleTokenInfo({ period, symbol }));
@@ -91,7 +91,18 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
     <>
       <Box mt="15px" pt="5px" ml="-15px" mr="-15px">
         <Box maxW="1278px" m="auto">
-          <CustomParamsSelector />
+          <CustomParamsSelector
+            {...{
+              chartType,
+              setChartType,
+              days_from_start,
+              candleWidth,
+              setCandleWidth,
+              candleWidthOptions,
+              onChangePeriod,
+              period
+            }}
+          />
           {/* <ToggleSelector
             {...{
               selectedOption,
@@ -135,7 +146,7 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
               </Button>
             </ButtonGroup>
           </Center> */}
-          {selectedOption === 'line' && (
+          {chartType === 'line' && (
             <ResponsiveContainer width={'100%'} height={400}>
               <LineChart
                 data={data.merged}
@@ -204,12 +215,12 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
             </ResponsiveContainer>
           )}
 
-          {(selectedOption === 'candlestick' && getValidCandleIntervalOptions(period).includes(selectedCandleInterval)) && (
+          {(chartType === 'candle' && checkValidCandleWidth(period, candleWidth)) && (
             <TradingViewWidget
               data={data.merged}
               noOfPaths={data.lines}
               period={period}
-              selectedCandleInterval={selectedCandleInterval}
+              selectedCandleInterval={candleWidth}
               symbol={symbol}
               isDex={isDex}
               locking={locking}
@@ -224,7 +235,7 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
             />
           </ResponsiveContainer> */}
 
-          {(isDex && selectedOption === 'line') ? (
+          {(isDex && chartType === 'line') ? (
             <>
               <Box sx={{ position: 'relative' }}>
                 <Box
@@ -401,7 +412,7 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
               </Box>
             </>
           ) : null}
-          {selectedOption == 'line' &&
+          {chartType == 'line' &&
             <Box sx={{ position: 'relative' }}>
               <Box
                 sx={{
@@ -492,7 +503,7 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
             <>
               {locking ? (
                 <>
-                  {selectedOption == 'line' &&
+                  {chartType == 'line' &&
                     <>
                       <Box sx={{ position: 'relative' }}>
                         <Box

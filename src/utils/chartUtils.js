@@ -71,13 +71,31 @@ export const defaultChartOptions = {
     handleScale: false,
 }
 
-// Function to get candle interval options based on period
-export const getValidCandleIntervalOptions = (period) => {
-    if (period <= 7) {
-        return ['5m', '1h', '3h', '1d'];
-    } else if (period <= 31) {
-        return ['1d', '3d'];
-    } else {
-        return ['3d', '7d'];
+// Function to get candle width options based on period
+export const getValidCandleWidthOptions = (period) => {
+
+    const candleWidths = {
+        "5m": { label: "5 minutes", value: "5m" },
+        "30m": { label: "30 minutes", value: "30m" },
+        "1h": { label: "1 hour", value: "1h" },
+        "3h": { label: "3 hours", value: "3h" },
+        "1d": { label: "1 day", value: "1D" },
+        "3d": { label: "3 days", value: "3D" },
+        "7d": { label: "7 days", value: "7D" },
+        "1m": { label: "1 month", value: "1M" }
     }
+
+    if (period <= 7) {
+        return [candleWidths['5m'], candleWidths['1h'], candleWidths['3h'], candleWidths['1d']];
+    } else if (period <= 31) {
+        return [candleWidths['1d'], candleWidths['3d']];
+    } else {
+        return [candleWidths['3d'], candleWidths['7d']];
+    }
+};
+
+// Function to check if the candleWidth is valid for the given period
+export const checkValidCandleWidth = (period, candleWidth) => {
+    const validCandleWidths = getValidCandleWidthOptions(period);
+    return validCandleWidths.some(option => option.value === candleWidth);
 };

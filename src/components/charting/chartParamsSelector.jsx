@@ -15,10 +15,16 @@ import {
 } from '@chakra-ui/react';
 import { MdOutlineSsidChart, MdCandlestickChart } from "react-icons/md";
 
-const CustomParamsSelector = () => {
-    const [chartType, setChartType] = useState('line');
-    const [selectedPeriod, setSelectedPeriod] = useState('1D');
-    const [candleWidth, setCandleWidth] = useState('5m');
+const CustomParamsSelector = ({
+    chartType,
+    setChartType,
+    days_from_start,
+    candleWidth,
+    setCandleWidth,
+    candleWidthOptions,
+    onChangePeriod,
+    period,
+}) => {
 
     // Colors for light and dark mode
     const borderColor = useColorModeValue('gray.300', 'gray.600');
@@ -41,11 +47,11 @@ const CustomParamsSelector = () => {
     ];
 
     const periods = [
-        { label: '1 Day', value: '1D' },
-        { label: '7 Days', value: '7D' },
-        { label: '1 Month', value: '1M' },
-        { label: '1 Year', value: '1Y' },
-        { label: 'All Time', value: 'All' },
+        { label: '1 Day', value: '1D', days: 1 },
+        { label: '7 Days', value: '7D', days: 7 },
+        { label: '1 Month', value: '1M', days: 30 },
+        { label: '1 Year', value: '1Y', days: 365 },
+        { label: 'All Time', value: 'All', days: days_from_start },
     ];
 
     const handleChartTypeSelect = (value) => {
@@ -54,10 +60,6 @@ const CustomParamsSelector = () => {
 
     const handleCandleWidthSelect = (value) => {
         setCandleWidth(value);
-    };
-
-    const handlePeriodSelect = (value) => {
-        setSelectedPeriod(value);
     };
 
     return (
@@ -96,7 +98,7 @@ const CustomParamsSelector = () => {
                 {/* Conditionally render Candle Width Selector with transition */}
                 <Collapse in={chartType === 'candle'} animateOpacity>
                     <Menu>
-                        <Tooltip label={candleWidths.find(w => w.value === candleWidth)?.label}
+                        <Tooltip label={candleWidthOptions.find(w => w.value === candleWidth)?.label}
                             bg={tooltipBgColor}
                             color={tooltipTextColor}
                             aria-label="Candle Width Tooltip">
@@ -105,7 +107,7 @@ const CustomParamsSelector = () => {
                             </MenuButton>
                         </Tooltip>
                         <MenuList>
-                            {candleWidths.map((width) => (
+                            {candleWidthOptions.map((width) => (
                                 <MenuItem
                                     key={width.value}
                                     onClick={() => handleCandleWidthSelect(width.value)}
@@ -122,19 +124,19 @@ const CustomParamsSelector = () => {
 
                 {/* Period Selector */}
                 <ButtonGroup isAttached={true}>
-                    {periods.map((period) => (
-                        <Tooltip key={period.value}
-                            label={period.label}
+                    {periods.map((p) => (
+                        <Tooltip key={p.value}
+                            label={p.label}
                             bg={tooltipBgColor}
                             color={tooltipTextColor}
-                            aria-label={`Period Tooltip ${period.label}`}>
+                            aria-label={`Period Tooltip ${p.label}`}>
                             <Button
-                                variant={selectedPeriod === period.value ? 'solid' : 'outline'}
+                                variant={period === p.days ? 'solid' : 'outline'}
                                 colorScheme="blue"
                                 size="sm"
-                                onClick={() => handlePeriodSelect(period.value)}
+                                onClick={() => onChangePeriod(p.days)}
                             >
-                                {period.value}
+                                {p.value}
                             </Button>
                         </Tooltip>
                     ))}
