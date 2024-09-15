@@ -79,10 +79,10 @@ export const getValidCandleWidthOptions = (period) => {
         "30m": { label: "30 minutes", value: "30m" },
         "1h": { label: "1 hour", value: "1h" },
         "3h": { label: "3 hours", value: "3h" },
-        "1d": { label: "1 day", value: "1D" },
-        "3d": { label: "3 days", value: "3D" },
-        "7d": { label: "7 days", value: "7D" },
-        "1m": { label: "1 month", value: "1M" }
+        "1d": { label: "1 day", value: "1d" },
+        "3d": { label: "3 days", value: "3d" },
+        "7d": { label: "7 days", value: "7d" },
+        "1m": { label: "1 month", value: "1m" }
     }
 
     if (period <= 7) {
