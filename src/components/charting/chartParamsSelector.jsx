@@ -37,15 +37,6 @@ const CustomParamsSelector = ({
         { label: 'Candle Chart', icon: MdCandlestickChart, value: 'candle' },
     ];
 
-    const candleWidths = [
-        { label: '5 minutes', value: '5m' },
-        { label: '30 minutes', value: '30m' },
-        { label: '1 hour', value: '1h' },
-        { label: '1 day', value: '1D' },
-        { label: '7 days', value: '7D' },
-        { label: '1 month', value: '1M' },
-    ];
-
     const periods = [
         { label: '1 Day', value: '1D', days: 1 },
         { label: '7 Days', value: '7D', days: 7 },
@@ -82,7 +73,7 @@ const CustomParamsSelector = ({
                             {chartType === 'line' ? <MdOutlineSsidChart /> : <MdCandlestickChart />}
                         </MenuButton>
                     </Tooltip>
-                    <MenuList>
+                    <MenuList zIndex="popover">
                         {chartTypes.map((type) => (
                             <MenuItem
                                 key={type.value}
@@ -106,7 +97,7 @@ const CustomParamsSelector = ({
                                 {candleWidth}
                             </MenuButton>
                         </Tooltip>
-                        <MenuList>
+                        <MenuList zIndex="popover">
                             {candleWidthOptions.map((width) => (
                                 <MenuItem
                                     key={width.value}
