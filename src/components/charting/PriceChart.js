@@ -16,6 +16,8 @@ import {
   Tr,
   useColorModeValue,
   useMediaQuery,
+  Collapse,
+  Fade,
 } from '@chakra-ui/react';
 import moment from 'moment';
 import { useDispatch, useSelector } from 'react-redux';
@@ -147,84 +149,91 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
             </ButtonGroup>
           </Center> */}
           {chartType === 'line' && (
-            <ResponsiveContainer width={'100%'} height={400}>
-              <LineChart
-                data={data.merged}
-                margin={{ top: 10, bottom: 10 }}
-                syncId="main"
-              >
-                {/* <defs>
+            <Fade in={chartType === 'line'}
+            transition={{ exit: { delay: 1 }, enter: { duration: 0.5 } }}>
+              <ResponsiveContainer width={'100%'} height={400}>
+                <LineChart
+                  data={data.merged}
+                  margin={{ top: 20, bottom: 10 }}
+                  syncId="main"
+                >
+                  {/* <defs>
             <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="#129a74" stopOpacity={0.3} />
               <stop offset="95%" stopColor="#FFFFFF" stopOpacity={0.3} />
             </linearGradient>
           </defs> */}
-                {Array(data.lines)
-                  .fill(0)
-                  .map((_, idx) => (
-                    <Line
-                      isAnimationActive={false}
-                      key={idx}
-                      type="line"
-                      dataKey={'p' + idx}
-                      strokeWidth={2}
-                      stroke={dexColors[idx]}
-                      dot={false}
-                      activeDot={activeDotStyle}
-                    />
-                  ))}
+                  {Array(data.lines)
+                    .fill(0)
+                    .map((_, idx) => (
+                      <Line
+                        isAnimationActive={false}
+                        key={idx}
+                        type="line"
+                        dataKey={'p' + idx}
+                        strokeWidth={2}
+                        stroke={dexColors[idx]}
+                        dot={false}
+                        activeDot={activeDotStyle}
+                      />
+                    ))}
 
-                <YAxis
-                  orientation="right"
-                  dx={5}
-                  stroke="#8893a8"
-                  domain={['auto', 'auto']}
-                  axisLine={false}
-                  tickLine={{
-                    stroke: '#334455',
-                  }}
-                  tick={{ fontSize: '12px' }}
-                />
-                <XAxis
-                  hide={false}
-                  domain={['auto', 'auto']}
-                  type="number"
-                  dataKey="t"
-                  scale="time"
-                  dy={5}
-                  dx={32}
-                  minTickGap={50}
-                  tickFormatter={t =>
-                    period <= 24
-                      ? moment.unix(t).format('HH:mm')
-                      : moment.unix(t).format('Do MMM')
-                  }
-                  interval={'equidistantPreserveStart'}
-                  tick={{ fill: '#8893a8' }}
-                  tickLine={{
-                    stroke: '#334455',
-                  }}
-                  axisLine={{ stroke: '#334455' }}
-                />
-                <Tooltip
-                  content={<CustomTooltip symbol={baseCurrencySymbol} />}
-                  isAnimationActive={false}
-                  cursor={{ stroke: '#445566' }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+                  <YAxis
+                    orientation="right"
+                    dx={5}
+                    stroke="#8893a8"
+                    domain={['auto', 'auto']}
+                    axisLine={false}
+                    tickLine={{
+                      stroke: '#334455',
+                    }}
+                    tick={{ fontSize: '12px' }}
+                  />
+                  <XAxis
+                    hide={false}
+                    domain={['auto', 'auto']}
+                    type="number"
+                    dataKey="t"
+                    scale="time"
+                    dy={5}
+                    dx={32}
+                    minTickGap={50}
+                    tickFormatter={t =>
+                      period <= 24
+                        ? moment.unix(t).format('HH:mm')
+                        : moment.unix(t).format('Do MMM')
+                    }
+                    interval={'equidistantPreserveStart'}
+                    tick={{ fill: '#8893a8' }}
+                    tickLine={{
+                      stroke: '#334455',
+                    }}
+                    axisLine={{ stroke: '#334455' }}
+                  />
+                  <Tooltip
+                    content={<CustomTooltip symbol={baseCurrencySymbol} />}
+                    isAnimationActive={false}
+                    cursor={{ stroke: '#445566' }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </Fade>
           )}
 
-          {(chartType === 'candle' && checkValidCandleWidth(period, candleWidth)) && (
-            <TradingViewWidget
-              data={data.merged}
-              noOfPaths={data.lines}
-              period={period}
-              selectedCandleInterval={candleWidth}
-              symbol={symbol}
-              isDex={isDex}
-              locking={locking}
-            />
+          {chartType === 'candle' && checkValidCandleWidth(period, candleWidth) && (
+            <Fade 
+            in={chartType === 'candle' && checkValidCandleWidth(period, candleWidth)}
+            transition={{ exit: { delay: 1 }, enter: { duration: 0.5 } }}>
+              <TradingViewWidget
+                data={data.merged}
+                noOfPaths={data.lines}
+                period={period}
+                selectedCandleInterval={candleWidth}
+                symbol={symbol}
+                isDex={isDex}
+                locking={locking}
+              />
+            </Fade>
           )}
 
           {/* <ResponsiveContainer width={'100%'} height={400}>
