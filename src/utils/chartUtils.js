@@ -84,9 +84,10 @@ export const getValidCandleWidthOptions = (period) => {
         "7d": { label: "7 days", value: "7d" },
         "1m": { label: "1 month", value: "1m" }
     }
-
-    if (period <= 7) {
-        return [candleWidths['5m'], candleWidths['1h'], candleWidths['3h'], candleWidths['1d']];
+    if (period == 1) {
+        return [candleWidths['5m'], candleWidths['30m'], candleWidths['1h'], candleWidths['3h']];
+    } else if (period <= 7) {
+        return [candleWidths['5m'], candleWidths['30m'], candleWidths['1h'], candleWidths['3h'], candleWidths['1d']];
     } else if (period <= 31) {
         return [candleWidths['1d'], candleWidths['3d']];
     } else {

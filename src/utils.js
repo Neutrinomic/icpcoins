@@ -108,7 +108,12 @@ export function candleIntervalToMinutes(candleInterval) {
   var mins = 60;
 
   switch (candleInterval) {
-    case '5m': mins = 5; break;
+    case '5m': 
+      mins = 5;
+      break;
+    case '30m': 
+      mins = 30;
+      break;
     case '1h':
       mins = 60;
       break;
@@ -163,9 +168,9 @@ export const bigTickFormatter = t =>
 
 export const customTickFormatter = t =>
   t < 0.0001 ? t.toExponential(2) :
-  t < 1 ? t.toFixed(4) :
-  t < 10 ? t.toFixed(3) :
-  t < 100 ? t.toFixed(2) :
-  t < 1000 ? t.toFixed(1) :
-  t < 10000 ? t.toFixed(0) :
-  bigTickFormatter(t);
+    t < 1 ? t.toFixed(4) :
+      t < 10 ? t.toFixed(3) :
+        t < 100 ? t.toFixed(2) :
+          t < 1000 ? t.toFixed(1) :
+            t < 10000 ? t.toFixed(0) :
+              bigTickFormatter(t);

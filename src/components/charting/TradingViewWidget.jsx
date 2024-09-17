@@ -791,7 +791,7 @@ export const ChartComponent = props => {
 
   return (
     <>
-      <div ref={candleChartContainerRef} />
+      <div ref={candleChartContainerRef} style={{marginTop : 20}}/>
       {isDex && (
         <>
           <ChartWrapper title="Depth +100% (Ask)">
