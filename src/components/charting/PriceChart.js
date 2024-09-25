@@ -92,8 +92,8 @@ export const PriceChart = ({ symbol, onChangePeriod, info }) => {
   return (
     <>
       <Box pt="5px" ml="-15px" mr="-15px" >
-        <Box maxW="1278px" m="auto" border='1px' bg='rgba(15,17,26,0.6)' borderColor={'gray.700'} borderRadius='lg' overflow='clip'>
-          <Box p={2} w='100%' bg={'rgba(23,25,34,1)'} borderBottom='1px' borderColor={'gray.700'}>
+        <Box maxW="1278px" m="auto" borderWidth='0.5px' bg='rgba(15,17,26,0.6)' borderColor={'gray.700'} borderRadius='lg' overflow='clip'>
+          <Box p={2} w='100%' bg={'rgba(23,25,34,1)'} borderBottomWidth='0.5px' borderColor={'gray.700'}>
             <CustomParamsSelector
               {...{
                 chartType,
