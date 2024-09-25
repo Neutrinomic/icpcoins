@@ -2,9 +2,6 @@ import { ExternalLinkIcon, InfoIcon } from '@chakra-ui/icons';
 import { useState, useEffect } from 'react';
 import {
   Box,
-  Button,
-  ButtonGroup,
-  Center,
   Link,
   Table,
   TableContainer,
@@ -16,11 +13,10 @@ import {
   Tr,
   useColorModeValue,
   useMediaQuery,
-  Collapse,
   Fade,
 } from '@chakra-ui/react';
 import moment from 'moment';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import {
   Area,
   AreaChart,
@@ -36,14 +32,13 @@ import { smartNumber } from '../Inline.js';
 // import { fetchPairs } from '../reducers/pairs.js';
 import { first_tick } from '../../config.js';
 import TradingViewWidget from './TradingViewWidget.jsx';
-import ToggleSelector from './ChartTypeToggleSelector.jsx';
 import { bigTickFormatter } from '../../utils.js';
 //https://github.com/recharts/recharts/issues/956
 import { dexColors } from '../../utils/colors.js';
 import { checkValidCandleWidth, getValidCandleWidthOptions } from '../../utils/chartUtils.js';
 import CustomParamsSelector from './chartParamsSelector.jsx';
 
-export const PriceChart = ({ symbol, onChangePeriod }) => {
+export const PriceChart = ({ symbol, onChangePeriod, info }) => {
   const [chartType, setChartType] = useState('line');
   const config = useSelector(state => state.config);
   const baseCurrency = useSelector(state => state.config.baseCurrency);
@@ -79,6 +74,10 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
   }, [period]);
 
   let data = useSelector(selectSingleTokenInfo({ period, symbol }));
+  const bg = useColorModeValue(
+    'linear-gradient(0deg, rgba(227,232,239,1) 0%, rgba(234,239,245,1) 15%)',
+    'linear-gradient(180deg, rgba(23,25,34,1) 86%, rgba(15,17,26,0.6) 100%)'
+  );
 
   if (!data) return null;
   const isDex = data
@@ -88,81 +87,38 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
   const activeDotStyle = { r: 1, stroke: '#445566', zIndex: 1000 };
 
   const days_from_start = daysFromStart();
+  
 
   return (
     <>
-      <Box mt="15px" pt="5px" ml="-15px" mr="-15px">
-        <Box maxW="1278px" m="auto">
-          <CustomParamsSelector
-            {...{
-              chartType,
-              setChartType,
-              days_from_start,
-              candleWidth,
-              setCandleWidth,
-              candleWidthOptions,
-              onChangePeriod,
-              period
-            }}
-          />
-          {/* <ToggleSelector
-            {...{
-              selectedOption,
-              setSelectedOption,
-              selectedCandleInterval,
-              setSelectedCandleInterval,
-              candleIntervalOptions,
-            }}
-          /> */}
-          {/* <Center mt="15px" mb="10px">
-            <ButtonGroup spacing="6">
-              <Button
-                variant={period ===  1 ? 'solid' : 'outline'}
-                onClick={() => onChangePeriod( 1)}
-              >
-                1D
-              </Button>
-              <Button
-                variant={period === 7 ? 'solid' : 'outline'}
-                onClick={() => onChangePeriod(7)}
-              >
-                7D
-              </Button>
-              <Button
-                variant={period === 30 ? 'solid' : 'outline'}
-                onClick={() => onChangePeriod(30)}
-              >
-                1M
-              </Button>
-              <Button
-                variant={period === 30 * 12 ? 'solid' : 'outline'}
-                onClick={() => onChangePeriod(30 * 12)}
-              >
-                1Y
-              </Button>
-              <Button
-                variant={period === days_from_start ? 'solid' : 'outline'}
-                onClick={() => onChangePeriod(days_from_start)}
-              >
-                All
-              </Button>
-            </ButtonGroup>
-          </Center> */}
+      <Box pt="5px" ml="-15px" mr="-15px" >
+        <Box maxW="1278px" m="auto" border='1px' bg='rgba(15,17,26,0.6)' borderColor={'gray.700'} borderRadius='lg' overflow='clip'>
+          <Box p={2} w='100%' bg={'rgba(23,25,34,1)'} borderBottom='1px' borderColor={'gray.700'}>
+            <CustomParamsSelector
+              {...{
+                chartType,
+                setChartType,
+                days_from_start,
+                candleWidth,
+                setCandleWidth,
+                candleWidthOptions,
+                onChangePeriod,
+                period
+              }}
+            />
+
+          </Box>
+          <Box pl={2} pt={2} >
+          
           {chartType === 'line' && (
             <Fade in={chartType === 'line'}
-            transition={{ exit: { delay: 1 }, enter: { duration: 0.5 } }}>
+              transition={{ exit: { delay: 1 }, enter: { duration: 0.5 } }}>
               <ResponsiveContainer width={'100%'} height={400}>
                 <LineChart
                   data={data.merged}
                   margin={{ top: 20, bottom: 10 }}
                   syncId="main"
                 >
-                  {/* <defs>
-            <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#129a74" stopOpacity={0.3} />
-              <stop offset="95%" stopColor="#FFFFFF" stopOpacity={0.3} />
-            </linearGradient>
-          </defs> */}
                   {Array(data.lines)
                     .fill(0)
                     .map((_, idx) => (
@@ -221,9 +177,9 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
           )}
 
           {chartType === 'candle' && checkValidCandleWidth(period, candleWidth) && (
-            <Fade 
-            in={chartType === 'candle' && checkValidCandleWidth(period, candleWidth)}
-            transition={{ exit: { delay: 1 }, enter: { duration: 0.5 } }}>
+            <Fade
+              in={chartType === 'candle' && checkValidCandleWidth(period, candleWidth)}
+              transition={{ exit: { delay: 1 }, enter: { duration: 0.5 } }}>
               <TradingViewWidget
                 data={data.merged}
                 noOfPaths={data.lines}
@@ -884,6 +840,8 @@ export const PriceChart = ({ symbol, onChangePeriod }) => {
               ) : null}
             </>
           ) : null}
+          </Box>
+
         </Box>
       </Box>
       {data?.sources?.length ? (

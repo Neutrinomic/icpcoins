@@ -54,7 +54,7 @@ const CustomParamsSelector = ({
 
   return (
     <Box
-      p={2}
+      p={1}
       borderWidth="1px"
       borderRadius="md"
       borderColor={borderColor}
@@ -70,7 +70,7 @@ const CustomParamsSelector = ({
             color={tooltipTextColor}
             aria-label="Chart Type Tooltip"
           >
-            <MenuButton as={Button} size={'sm'} onFocus={e => e.preventDefault()}>
+            <MenuButton as={Button} size={'xs'} onFocus={e => e.preventDefault()}>
               {chartType === 'line' ? (
                 <MdOutlineSsidChart />
               ) : (
@@ -102,7 +102,7 @@ const CustomParamsSelector = ({
               color={tooltipTextColor}
               aria-label="Candle Width Tooltip"
             >
-              <MenuButton as={Button} size={'sm'} onFocus={e => e.preventDefault()}>
+              <MenuButton as={Button} size={'xs'} onFocus={e => e.preventDefault()}>
                 {candleWidth}
               </MenuButton>
             </Tooltip>
@@ -139,7 +139,7 @@ const CustomParamsSelector = ({
               <Button
                 variant={period === p.days ? 'solid' : 'outline'}
                 colorScheme="blue"
-                size="sm"
+                size="xs"
                 onClick={() => onChangePeriod(p.days)}
               >
                 {p.value}

@@ -1,22 +1,19 @@
 import ReactMarkdown from 'react-markdown';
-import { Box, Text, Stack, HStack, Wrap } from '@chakra-ui/react';
-import { Routes, Route, useParams, Link } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { Box, Divider, Wrap } from '@chakra-ui/react';
+import { useParams } from 'react-router-dom';
+import { useEffect } from 'react';
 import { PriceChart } from './charting/PriceChart.js';
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
-  BreadcrumbSeparator,
   useMediaQuery,
   useColorModeValue,
   Tooltip,
-  Link as LinkC,
   Tag,
 } from '@chakra-ui/react';
 import { WarningIcon } from '@chakra-ui/icons';
 
-import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { selectTokenList } from '../reducers/tokens.js';
 
 import { CurrencySymbol, smartNumber } from './Inline';
@@ -24,10 +21,10 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { ProposalsOne } from './Proposals';
 import MD from './MD';
-import ic from '../icblast.js';
 import { tokensCfg } from '../dcfg';
 // import { fetchTokenExtended } from '../reducers/tokens';
 import { changePage } from '../reducers/pages';
+import { IconTokenLinks } from './TokenLinks.js';
 
 export const TokenInfo = () => {
   const tokens = useSelector(selectTokenList);
@@ -73,8 +70,8 @@ export const TokenInfo = () => {
 
   return (
     <>
-      <Box fontSize="15px" bg={bg} ml="-15px" mr="-15px">
-        <Box maxW="1278px" m="auto" pl="15px" pr="15px" pb="15px">
+      <Box fontSize="15px" ml="-15px" mr="-15px">
+        <Box maxW="1278px" bg={bg} m="auto" pl="15px" pr="15px" pb="15px" borderRadius="md" border='1px' borderColor={'gray.700'} mt={2}>
           <Box mt="15px" pt="1px">
             <Path name={name} />
           </Box>
@@ -133,36 +130,13 @@ export const TokenInfo = () => {
                 <CurrencySymbol>{ti.symbol}</CurrencySymbol>
               </Box>
             </Box>
+            
 
-            {info && info.links && Object.keys(info.links).length ? (
-              <Wrap fontSize="14px" spacing="6">
-                <Box color="gray.600">Links</Box>
-                {Object.keys(info.links).map((name, idx) => (
-                  <Box key={idx}>
-                    <LinkC href={info.links[name]} target="_blank" isExternal>
-                      {name} <ExternalLinkIcon mx="2px" />
-                    </LinkC>
-                  </Box>
-                ))}
-              </Wrap>
-            ) : null}
           </Wrap>
+          <Divider mt={3}/>
+          <IconTokenLinks info={info} />
         </Box>
       </Box>
-      {/* <Box bg={bg} pt="0px" pb="15px" ml="-15px" mr="-15px">
-        <Box maxW="1024px" m="auto" pl="15px" pr="15px">
-          <Wrap fontSize="14px" spacing="6">
-            <Box color="gray.600">Links</Box>
-            {Object.keys(info.links).map((name, idx) => (
-              <Box key={idx}>
-                <LinkC href={info.links[name]} target="_blank" isExternal>
-                  {name} <ExternalLinkIcon mx="2px" />
-                </LinkC>
-              </Box>
-            ))}
-          </Wrap>
-        </Box>
-      </Box> */}
       {info && info.warnings && info.warnings.length ? (
         <Box maxW="1278px" m="auto" pt="3" pl="15px" pr="15px">
           {info.warnings.map((x, idx) => (
@@ -174,25 +148,9 @@ export const TokenInfo = () => {
           ))}
         </Box>
       ) : null}
-
+      {/* <Divider maxW="1278px" my={4} mx='auto'/> */}
       <PriceChart symbol={name} onChangePeriod={(period) => dispatch(changePage({ page: 'token', params: { tid, period } }))
-      } />
-      <Box fontSize="15px" bg={bg3} ml="-15px" mr="-15px">
-        <Box maxW="1278px" m="auto" pl="15px" pr="15px" pt="15px" pb="15px">
-          {info && info.links && Object.keys(info.links).length ? (
-            <Wrap fontSize="14px" spacing="6">
-              <Box color="gray.600">Links</Box>
-              {Object.keys(info.links).map((name, idx) => (
-                <Box key={idx}>
-                  <LinkC href={info.links[name]} target="_blank" isExternal>
-                    {name} <ExternalLinkIcon mx="2px" />
-                  </LinkC>
-                </Box>
-              ))}
-            </Wrap>
-          ) : null}
-        </Box>
-      </Box>
+      } info={info}/>
 
       <Box bg={bg} pt="15px" ml="-15px" mr="-15px">
         <Box maxW="1278px" m="auto" pl="15px" pr="15px">
