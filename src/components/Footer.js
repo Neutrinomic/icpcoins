@@ -25,8 +25,8 @@ export function Footer() {
   let pwd = useColorModeValue(poweredL, powered);
   return (
     <Box
-      ml="-15"
-      mr="-15"
+      // ml="-15"
+      // mr="-15"
       bg={useColorModeValue('gray.30', 'gray.800')}
       color={useColorModeValue('gray.700', 'gray.200')}
     >

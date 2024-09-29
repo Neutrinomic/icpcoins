@@ -86,19 +86,12 @@ export const TokenPage = ({ articles }) => {
 
   return (
     <>
-      <Box
-        fontSize="15px"
-        bg={bg2}
-        ml="-15px"
-        mr="-15px"
-        mb={'10px'}
-        mt={'15px'}
-      >
+      <Box fontSize="15px" bg={bg2} mb={'10px'} mt={'15px'}>
         <Box
-          maxW="1312px"
-          m="auto"
-          pl={'18px'}
-          pr="15px"
+          // maxW="1312px"
+          // m="auto"
+          // pl={'18px'}
+          // pr="15px"
           pb="8px"
           color={'gray.500'}
           pt="8px"
@@ -134,11 +127,11 @@ export const TokenPage = ({ articles }) => {
 
       {/* <Articles articles={articles} /> */}
 
-      <Box maxW="1400px" m="auto">
+      <Box w="calc(100% - 10px)" overflowX="auto" overflowY="auto" borderWidth="0.5px">
         <TokenList tokens={tokens} key={baseCurrency} />
       </Box>
 
-      <Box
+      {/* <Box
         bg={bg}
         ml="-15px"
         pt="20px"
@@ -148,19 +141,19 @@ export const TokenPage = ({ articles }) => {
         pb="10vh"
       >
         <Box maxW="1278px" m="auto">
-          {/* {isLarge ? (
+          {isLarge ? (
             <Wrap mt={8}>
               <FastBlocks w={'49%'} />
               <Proposals w={'49%'} />
             </Wrap>
-          ) : ( */}
-          {/* <Wrap mt={8} ml="10px" mr="10px"> */}
-          <Proposals w={'100%'} />
-          {/* <FastBlocks w={'100%'} />
+          ) : (
+            <Wrap mt={8} ml="10px" mr="10px">
+              <Proposals w={'100%'} />
+              <FastBlocks w={'100%'} />
             </Wrap>
-          )} */}
+          )}
         </Box>
-      </Box>
+      </Box> */}
     </>
   );
 };
@@ -258,35 +251,103 @@ export const TokenList = ({ tokens, baseCurrency }) => {
     }
   }, [filters.volumePeriod]);
 
+  const firstColumnWidth = '49px';
+
+  //// SCROLL related artefacts for the header /////////
+
+  const tableHeaderRef = useRef(null); // Ref to the target element
+  const [isVisible, setIsVisible] = useState(true); // State to track visibility
+
+  useEffect(() => {
+    const targetElement = tableHeaderRef.current;
+
+    if (!targetElement) return;
+
+    // Callback for Intersection Observer
+    const observerCallback = (entries) => {
+      const entry = entries[0];
+      if (entry.isIntersecting) {
+        setIsVisible(true); // Element is visible
+        console.log('Element is visible');
+      } else {
+        setIsVisible(false); // Element is hidden due to scrolling
+        console.log('Element is hidden');
+      }
+    };
+
+    // Create a new Intersection Observer
+    const observer = new IntersectionObserver(observerCallback, {
+      root: null, // Default to viewport; use a specific container for scrollable areas
+      threshold: 0, // Trigger callback as soon as any part of the element is visible
+    });
+
+    // Observe the target element
+    observer.observe(targetElement);
+
+    // Cleanup: Unobserve the element when the component unmounts
+    return () => {
+      observer.unobserve(targetElement);
+    };
+  }, []);
+  //// END /////////
+
   return (
     <>
       <TableContainer
-        mt={10}
-        mb={isLarge ? '35px' : '10px'}
+        // mt={4}
+        //mb={isLarge ? '35px' : '10px'}
         // overflowX="hidden"
+        w={'100%'}
         css={{
           '&::-webkit-scrollbar': {
             height: '18px',
+            display: 'none',
           },
           '&::-webkit-scrollbar-track': {
             background: useColorModeValue('#fff', '#1b202b'),
+            display: 'none',
           },
           '&::-webkit-scrollbar-thumb': {
             backgroundColor: useColorModeValue('#d3d6dc', '#383d47'),
             borderRadius: '9px',
             border: useColorModeValue('4px solid #fff', '4px solid #1b202b'),
+            display: 'none',
           },
         }}
+        overflowX="unset"
+        overflowY="unset"
       >
         <Table
           variant="simple"
           size="sm"
           className={isSticky ? 'symbol-sticky' : ''}
-          sx={{ tableLayout: 'fixed', minWidth: '400px' }}
+          sx={{ tableLayout: 'auto', minWidth: '400px' }}
         >
-          <Thead>
+          <Thead
+            sx={{
+              '& th': {
+                position: 'sticky',
+                top: 0,
+                zIndex: 1,
+                backgroundColor: useColorModeValue('white', 'gray.900'),
+              },
+              height: '50px',
+              backgroundColor: 'white',
+              '& th:nth-of-type(1)': {
+                position: 'sticky',
+                left: 0,
+                zIndex: 3,
+              },
+              '& th:nth-of-type(2)': {
+                position: 'sticky',
+                left: firstColumnWidth, // Adjust based on the width of the first column
+                zIndex: 3,
+              },
+            }}
+            ref={tableHeaderRef}
+          >
             <Tr>
-              <Th w="10px" ref={ref}>
+              <Th w={firstColumnWidth} ref={ref}>
                 #
               </Th>
               <Th w="130px">Name</Th>
@@ -308,7 +369,7 @@ export const TokenList = ({ tokens, baseCurrency }) => {
                   />{' '}
                 </Flex>
               </Th>
-              <Th textAlign="start" w="30px">
+              <Th textAlign="start" w="100px">
                 <Flex
                   flexDirection="row"
                   justifyContent="flex-end"
@@ -345,14 +406,15 @@ export const TokenList = ({ tokens, baseCurrency }) => {
                   />
                 </Flex>
               </Th>
-              <Th isNumeric w="220px">
+              <Th isNumeric w="220px" bg="red.500">
                 <Flex
                   flexDirection="row"
                   justifyContent="flex-end"
                   minWidth="min-content"
+                  w="100%"
+                  // bg='red'
                 >
-                  {' '}
-                  Market Cap{' '}
+                  Market Cap
                   <SortArrow
                     sortConfig={sortConfig}
                     requestSort={requestSort}
@@ -507,7 +569,22 @@ export const TokenList = ({ tokens, baseCurrency }) => {
               </Th>
             </Tr>
           </Thead>
-          <Tbody>
+          <Tbody
+            sx={{
+              '& td:nth-of-type(1)': {
+                position: 'sticky',
+                left: 0,
+                zIndex: 2,
+                backgroundColor: 'gray.600',
+              },
+              '& td:nth-of-type(2)': {
+                position: 'sticky',
+                left: firstColumnWidth, // Adjust based on the width of the first column
+                zIndex: 2,
+                backgroundColor: 'gray.900',
+              },
+            }}
+          >
             {sortedTokens.map((data, idx) => (
               <TokenListItem
                 baseCurrency={baseCurrency}
@@ -550,7 +627,16 @@ const TokenListItem = ({ idx, data, baseCurrency, filters }) => {
     change31,
   } = data;
 
-  const nns = symbol === 'ckETH' || symbol === 'ckBTC' || symbol === 'ICP' || symbol ===  "ckUSDC" || symbol === "ckUSDT" || symbol === "ckPEPE" || symbol === "ckLINK" || symbol === "ckSHIB" || symbol === "ckUNI";
+  const nns =
+    symbol === 'ckETH' ||
+    symbol === 'ckBTC' ||
+    symbol === 'ICP' ||
+    symbol === 'ckUSDC' ||
+    symbol === 'ckUSDT' ||
+    symbol === 'ckPEPE' ||
+    symbol === 'ckLINK' ||
+    symbol === 'ckSHIB' ||
+    symbol === 'ckUNI';
   const sns = 'sns' in data.locking;
   const overbg = useColorModeValue(
     'linear-gradient(0deg, rgba(227,232,239,1) 0%, rgba(234,239,245,1) 15%)',

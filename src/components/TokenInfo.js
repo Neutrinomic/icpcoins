@@ -70,7 +70,7 @@ export const TokenInfo = () => {
 
   return (
     <>
-      <Box fontSize="15px" ml="-15px" mr="-15px">
+      <Box fontSize="15px">
         <Box maxW="1278px" bg={bg} m="auto" pl="15px" pr="15px" pb="15px" borderRadius="md" border='0.5px' borderColor={'gray.700'} mt={2}>
           <Box mt="15px" pt="1px">
             <Path name={name} />

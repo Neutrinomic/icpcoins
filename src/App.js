@@ -15,7 +15,8 @@ import { AboutPage } from './pages/about';
 import { ListingPage } from './pages/listing';
 import { TermsPage } from './pages/terms';
 import theme from './theme.js';
-import {TopCans}  from './components/TopCans';
+import { TopCans } from './components/TopCans';
+import { Proposals } from './components/Proposals';
 
 function App() {
   const ready = useSelector(
@@ -42,7 +43,42 @@ function App() {
   if (!ready) return null;
   return (
     <ChakraProvider theme={theme}>
-      <Box pl="15px" pr="15px" pb="50vh">
+      <Flex height="100vh">
+        <Box
+          width='250px'
+          height="100%"
+          overflowY="auto"
+          p="4"
+          // bg="gray.100"
+        >
+          <Logo />
+          
+        </Box>
+        <Box
+          flex="1"
+          height="100%"
+          overflowY="auto"
+          pt={4}
+          // bg="gray.200"
+        >
+          <HStack w='100%'>
+            <SwitchCurrency />
+            <Spacer />
+            <ColorModeSwitcher justifySelf="flex-end" />
+          </HStack>
+          <Routes>
+            <Route index element={<TokenPage articles={articles} />} />
+            <Route path="token/:name" element={<TokenInfo />} />
+            <Route path="terms" element={<TermsPage />} />
+            <Route path="listing" element={<ListingPage />} />
+            <Route path="about" element={<AboutPage />} />
+            <Route path="topcans" element={<TopCans />} />
+            <Route path="proposals" element={<Proposals />} />
+          </Routes>
+          <Footer />
+        </Box>
+      </Flex>
+      {/* <Box pl="15px" pr="15px" pb="50vh">
         <Flex maxW="1278px" m="auto" mt="6">
           <HStack>
             <Logo />
@@ -63,7 +99,7 @@ function App() {
         </Routes>
 
         <Footer />
-      </Box>
+      </Box> */}
     </ChakraProvider>
   );
 }

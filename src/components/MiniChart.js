@@ -3,37 +3,8 @@ import {
   Line,
   YAxis,
   XAxis,
-  ResponsiveContainer,
-  Area,
-  CartesianGrid,
 } from 'recharts';
 import moment from 'moment';
-import { useState, useEffect } from 'react';
-import {
-  Table,
-  Thead,
-  Tbody,
-  Tfoot,
-  Tr,
-  Th,
-  Td,
-  TableCaption,
-  TableContainer,
-  Heading,
-  Skeleton,
-  Box,
-  Stack,
-  Link,
-  Button,
-  Center,
-  ButtonGroup,
-  useColorModeValue,
-  Tooltip,
-} from '@chakra-ui/react';
-import { smartNumber } from './Inline';
-import { ExternalLinkIcon } from '@chakra-ui/icons';
-import { useInterval } from 'react-use';
-import { InfoIcon } from '@chakra-ui/icons';
 
 //https://github.com/recharts/recharts/issues/956
 
@@ -70,7 +41,7 @@ export const MiniChart = ({ data }) => {
           //   key={idx}
           type="line"
           dataKey={'p'}
-          strokeWidth={2}
+          strokeWidth={1}
           //   stroke={dexColors[idx]}
           dot={false}
         />
