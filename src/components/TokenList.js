@@ -33,7 +33,7 @@ import { smartNumber } from './Inline';
 
 import { Proposals } from './Proposals';
 import { CurrencySymbol } from './Inline';
-import { MiniChart } from './MiniChart';
+import { MiniChart, MiniChartGradient } from './MiniChart';
 import { DNumber } from './DNumber';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectTokenList } from '../reducers/tokens.js';
@@ -594,7 +594,8 @@ const TokenListItem = ({ idx, data, baseCurrency, filters }) => {
 
       <Td>
         <Box ml="-5px" mr="-5px">
-          <MiniChart data={chartData} />
+          {/* <MiniChart data={chartData} /> */}
+          <MiniChartGradient data={chartData} />
         </Box>
       </Td>
       <Td isNumeric>
@@ -681,7 +682,7 @@ const TableHeader = ({
           backgroundColor: useColorModeValue('white', 'gray.900'),
         },
         height: '50px',
-        backgroundColor: 'white',
+
         '& th:nth-of-type(1)': {
           position: 'sticky',
           left: 0,
