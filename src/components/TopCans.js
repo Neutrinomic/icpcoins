@@ -51,7 +51,7 @@ export const TopCans = () => {
     let nonsense = ["quzhj-7aaaa-aaaag-qjwga-cai", "ddhwp-fqaaa-aaaag-qcgoa-cai"];
 
     let loadOnce = async() => {
-        let can = await ic("p2clb-ryaaa-aaaal-qjpia-cai");
+        let can = await ic("g3fqi-xyaaa-aaaak-qlkfa-cai");
         let cans_r = toState(await can.getKnownCanisters());
         let xcans = {};
         for (let z of cans_r) {
@@ -62,7 +62,7 @@ export const TopCans = () => {
 
     let load = async () => {
         if (!conf || !cans) return;
-        let can = await ic("p2clb-ryaaa-aaaal-qjpia-cai");
+        let can = await ic("g3fqi-xyaaa-aaaak-qlkfa-cai");
 
         let rez = await can.getAccounts();
         let aggr = await ic("u45jl-liaaa-aaaam-abppa-cai");
