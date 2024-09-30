@@ -20,6 +20,8 @@ import {
   MenuButton,
   MenuList,
   Flex,
+  VStack,
+  Divider,
 } from '@chakra-ui/react';
 import { useMediaQuery } from '@chakra-ui/react';
 
@@ -49,20 +51,14 @@ export const TokenPage = ({ articles }) => {
   const [isLarge] = useMediaQuery('(min-width: 1024px)');
   const baseCurrency = useSelector(state => state.config.baseCurrency);
 
-  const bg = useColorModeValue(
-    'linear-gradient(180deg, rgba(227,232,239,1) 0%, rgba(234,239,245,1) 14%)',
-    'linear-gradient(0deg, rgba(23,25,34,1) 95%, rgba(14,16,25,1) 100%)'
-  );
+  useEffect(() => {
+    dispatch(changePage({ page: 'index', params: {} }));
+  }, []);
+
   const bg2 = useColorModeValue(
     'linear-gradient(0deg, rgba(227,232,239,1) 0%, rgba(234,239,245,1) 15%)',
     'linear-gradient(180deg, rgba(23,25,34,1) 70%, rgba(15,17,26,0.7) 100%)'
   );
-
-  const fg = useColorModeValue('gray.900', 'gray.200');
-
-  useEffect(() => {
-    dispatch(changePage({ page: 'index', params: {} }));
-  }, []);
 
   if (!tokens) return null;
 
@@ -87,7 +83,7 @@ export const TokenPage = ({ articles }) => {
 
   return (
     <>
-      <Box fontSize="15px" bg={bg2} mb={'10px'} mt={'15px'}>
+      {/* <Box fontSize="15px" bg={bg2} mb={'10px'} mt={'15px'}>
         <Box
           // maxW="1312px"
           // m="auto"
@@ -124,8 +120,39 @@ export const TokenPage = ({ articles }) => {
             </Box>
           </Wrap>
         </Box>
-      </Box>
-
+      </Box> */}
+      <Flex
+        fontSize="15px"
+        height={14}
+        bg={bg2}
+        mb={2}
+        mt={2}
+        borderRadius="md"
+        alignItems="center"
+        justifyContent="space-between"
+        pl={4}
+        pr={8}
+      >
+        <DashboardStat
+          title="Dex Volume 24H"
+          value={total24.toLocaleString()}
+        />
+        <Divider orientation="vertical" height="60%" />
+        <DashboardStat
+          title="Dex Depth -50%"
+          value={depth50Bid.toLocaleString()}
+        />
+        <Divider orientation="vertical" height="60%" />
+        <DashboardStat
+          title="Dex Depth +100%"
+          value={depth50Ask.toLocaleString()}
+        />
+        <Divider orientation="vertical" height="60%" />
+        <DashboardStat
+          title="ICP Coins Marketcap"
+          value={marketcap.toLocaleString()}
+        />
+      </Flex>
       {/* <Articles articles={articles} /> */}
 
       <Box
@@ -161,6 +188,20 @@ export const TokenPage = ({ articles }) => {
         </Box>
       </Box> */}
     </>
+  );
+};
+
+const DashboardStat = ({ title, value }) => {
+  const fg = useColorModeValue('gray.900', 'gray.200');
+  return (
+    <Flex flexDirection="row" gap={2} alignItems="baseline">
+      <Text fontSize="sm" color="gray.500">
+        {title} :
+      </Text>
+      <Text fontWeight="bold" fontSize="md" color="gray.200">
+        {value}
+      </Text>
+    </Flex>
   );
 };
 

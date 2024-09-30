@@ -7,23 +7,23 @@ export function SwitchCurrency() {
   const baseCurrency = useSelector(state => state.config.baseCurrency);
 
   return (
-    <ButtonGroup isAttached={true}>
+    <ButtonGroup isAttached={true} size="xs">
       <Button
-        size="sm"
+        // size="sm"
         variant={baseCurrency === 0 ? 'solid' : 'outline'}
         onClick={() => dispatch(setBaseCurrency(0))}
       >
         USD
       </Button>
       <Button
-        size="sm"
+        //size="sm"
         variant={baseCurrency === 3 ? 'solid' : 'outline'}
         onClick={() => dispatch(setBaseCurrency(3))}
       >
         ICP
       </Button>
       <Button
-        size="sm"
+        //size="sm"
         variant={baseCurrency === 1 ? 'solid' : 'outline'}
         onClick={() => dispatch(setBaseCurrency(1))}
       >

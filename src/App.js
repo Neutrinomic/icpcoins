@@ -45,14 +45,13 @@ function App() {
     <ChakraProvider theme={theme}>
       <Flex height="100vh">
         <Box
-          width='250px'
+          width="250px"
           height="100%"
           overflowY="auto"
           p="4"
           // bg="gray.100"
         >
           <Logo />
-          
         </Box>
         <Box
           flex="1"
@@ -61,7 +60,7 @@ function App() {
           pt={4}
           // bg="gray.200"
         >
-          <HStack w='100%'>
+          <HStack w="100%">
             <SwitchCurrency />
             <Spacer />
             <ColorModeSwitcher justifySelf="flex-end" />
