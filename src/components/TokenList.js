@@ -39,6 +39,7 @@ import { selectTokenList } from '../reducers/tokens.js';
 import { Articles } from './Impulse';
 import { changePage } from '../reducers/pages';
 import { period2header } from '../utils.js';
+import { max } from 'lodash';
 
 export const TokenPage = ({ articles }) => {
   const dispatch = useDispatch();
@@ -127,7 +128,12 @@ export const TokenPage = ({ articles }) => {
 
       {/* <Articles articles={articles} /> */}
 
-      <Box w="calc(100% - 10px)" overflowX="auto" overflowY="auto" borderWidth="0.5px">
+      <Box
+        w="calc(100% - 10px)"
+        overflowX="auto"
+        overflowY="auto"
+        borderWidth="0.5px"
+      >
         <TokenList tokens={tokens} key={baseCurrency} />
       </Box>
 
@@ -161,7 +167,6 @@ export const TokenPage = ({ articles }) => {
 export const TokenList = ({ tokens, baseCurrency }) => {
   const [isLarge] = useMediaQuery('(min-width: 1024px)');
 
-  const [isSticky, ref, setIsSticky] = useDetectSticky();
   const [filters, setFilters] = useState({
     priceChangePeriod: 1, // In days
     chartPeriod: 7, // In days
@@ -264,7 +269,7 @@ export const TokenList = ({ tokens, baseCurrency }) => {
     if (!targetElement) return;
 
     // Callback for Intersection Observer
-    const observerCallback = (entries) => {
+    const observerCallback = entries => {
       const entry = entries[0];
       if (entry.isIntersecting) {
         setIsVisible(true); // Element is visible
@@ -320,255 +325,23 @@ export const TokenList = ({ tokens, baseCurrency }) => {
         <Table
           variant="simple"
           size="sm"
-          className={isSticky ? 'symbol-sticky' : ''}
           sx={{ tableLayout: 'auto', minWidth: '400px' }}
         >
-          <Thead
-            sx={{
-              '& th': {
-                position: 'sticky',
-                top: 0,
-                zIndex: 1,
-                backgroundColor: useColorModeValue('white', 'gray.900'),
-              },
-              height: '50px',
-              backgroundColor: 'white',
-              '& th:nth-of-type(1)': {
-                position: 'sticky',
-                left: 0,
-                zIndex: 3,
-              },
-              '& th:nth-of-type(2)': {
-                position: 'sticky',
-                left: firstColumnWidth, // Adjust based on the width of the first column
-                zIndex: 3,
-              },
+          <TableHeader
+            {...{
+              firstColumnWidth,
+              tableHeaderRef,
+              sortConfig,
+              requestSort,
+              filters,
+              priceChangePeriodOnChange,
+              changeKey,
+              volumePeriodOnChange,
+              volumeKey,
+              chartPeriodOnChange,
             }}
-            ref={tableHeaderRef}
-          >
-            <Tr>
-              <Th w={firstColumnWidth} ref={ref}>
-                #
-              </Th>
-              <Th w="130px">Name</Th>
-              <Th className="symbol" w="80px">
-                Symbol
-              </Th>
-              <Th isNumeric w="120px">
-                <Flex
-                  flexDirection="row"
-                  justifyContent="flex-end"
-                  minWidth="min-content"
-                >
-                  {' '}
-                  Price{' '}
-                  <SortArrow
-                    sortConfig={sortConfig}
-                    requestSort={requestSort}
-                    sortKey="price"
-                  />{' '}
-                </Flex>
-              </Th>
-              <Th textAlign="start" w="100px">
-                <Flex
-                  flexDirection="row"
-                  justifyContent="flex-end"
-                  minWidth="min-content"
-                >
-                  <Menu>
-                    <MenuButton
-                      sx={{
-                        //TO keep font style consitent with <Th>
-                        fontWeight: 'inherit',
-                        fontSize: 'inherit',
-                        color: 'inherit',
-                      }}
-                    >
-                      {period2header(filters.priceChangePeriod, '%')}
-                    </MenuButton>
-                    <MenuList>
-                      {/* MenuItems are not rendered unless Menu is open */}
-                      <MenuItem onClick={() => priceChangePeriodOnChange(31)}>
-                        31 Day %
-                      </MenuItem>
-                      <MenuItem onClick={() => priceChangePeriodOnChange(7)}>
-                        7 Day %
-                      </MenuItem>
-                      <MenuItem onClick={() => priceChangePeriodOnChange(1)}>
-                        24H %
-                      </MenuItem>
-                    </MenuList>
-                  </Menu>
-                  <SortArrow
-                    sortConfig={sortConfig}
-                    requestSort={requestSort}
-                    sortKey={changeKey}
-                  />
-                </Flex>
-              </Th>
-              <Th isNumeric w="220px" bg="red.500">
-                <Flex
-                  flexDirection="row"
-                  justifyContent="flex-end"
-                  minWidth="min-content"
-                  w="100%"
-                  // bg='red'
-                >
-                  Market Cap
-                  <SortArrow
-                    sortConfig={sortConfig}
-                    requestSort={requestSort}
-                    sortKey="marketcap"
-                  />{' '}
-                </Flex>
-              </Th>
-              <Th isNumeric w="150px">
-                <Flex
-                  flexDirection="row"
-                  justifyContent="flex-end"
-                  minWidth="min-content"
-                >
-                  <Menu>
-                    <MenuButton
-                      sx={{
-                        //TO keep font style consitent with <Th>
-                        fontWeight: 'inherit',
-                        fontSize: 'inherit',
-                        color: 'inherit',
-                      }}
-                    >
-                      {filters.volumePeriod == 1 ? 24 : filters.volumePeriod}
-                      {filters.volumePeriod == 1 ? 'H' : 'D'} Volume
-                    </MenuButton>
-                    <MenuList>
-                      {/* MenuItems are not rendered unless Menu is open */}
-                      <MenuItem onClick={() => volumePeriodOnChange(31)}>
-                        31 Day
-                      </MenuItem>
-                      <MenuItem onClick={() => volumePeriodOnChange(7)}>
-                        7 Day
-                      </MenuItem>
-                      <MenuItem onClick={() => volumePeriodOnChange(1)}>
-                        24H
-                      </MenuItem>
-                    </MenuList>
-                  </Menu>
-                  <SortArrow
-                    sortConfig={sortConfig}
-                    requestSort={requestSort}
-                    sortKey={volumeKey}
-                  />
-                </Flex>
-                {/* <Flex flexDirection="row" justifyContent="flex-end" minWidth="min-content">
-                  24h Volume<SortArrow sortConfig={sortConfig} requestSort={requestSort} sortKey="volume24" /> </Flex> */}
-              </Th>
-              <Th isNumeric w="170px">
-                <Tooltip
-                  label={
-                    <>
-                      Circulating supply = total - treasury
-                      <br />
-                      Unlocked circulating supply = total - treasury - locked
-                    </>
-                  }
-                >
-                  <Flex
-                    flexDirection="row"
-                    justifyContent="flex-end"
-                    minWidth="min-content"
-                  >
-                    {' '}
-                    Circulating supply
-                    <SortArrow
-                      sortConfig={sortConfig}
-                      requestSort={requestSort}
-                      sortKey="circulating"
-                    />{' '}
-                  </Flex>
-                </Tooltip>
-              </Th>
-              <Th w={'100px'}>
-                <Menu>
-                  <MenuButton
-                    sx={{
-                      //TO keep font style consitent with <Th>
-                      fontWeight: 'inherit',
-                      fontSize: 'inherit',
-                      color: 'inherit',
-                    }}
-                  >
-                    {' '}
-                    LAST {filters.chartPeriod == 1
-                      ? 24
-                      : filters.chartPeriod}{' '}
-                    {filters.chartPeriod == 1 ? 'HRS' : 'DAYS'}
-                  </MenuButton>
-                  <MenuList>
-                    <MenuItem onClick={() => chartPeriodOnChange(1)}>
-                      24H
-                    </MenuItem>
-                    <MenuItem onClick={() => chartPeriodOnChange(7)}>
-                      7D
-                    </MenuItem>
-                    <MenuItem onClick={() => chartPeriodOnChange(31)}>
-                      31D
-                    </MenuItem>
-                  </MenuList>
-                </Menu>
-              </Th>
-              <Th isNumeric w="120px">
-                <Tooltip label="Capital required to reduce the price by 50%">
-                  <Flex
-                    flexDirection="row"
-                    justifyContent="flex-end"
-                    minWidth="min-content"
-                  >
-                    {' '}
-                    Depth -50%
-                    <SortArrow
-                      sortConfig={sortConfig}
-                      requestSort={requestSort}
-                      sortKey="depth50Bid"
-                    />{' '}
-                  </Flex>
-                </Tooltip>
-              </Th>
-              <Th isNumeric w="120px">
-                <Tooltip label="Capital required to increase the price by 100%">
-                  <Flex
-                    flexDirection="row"
-                    justifyContent="flex-end"
-                    minWidth="min-content"
-                  >
-                    {' '}
-                    Depth +100%
-                    <SortArrow
-                      sortConfig={sortConfig}
-                      requestSort={requestSort}
-                      sortKey="depth50Ask"
-                    />{' '}
-                  </Flex>
-                </Tooltip>
-              </Th>
-              <Th>
-                <Tooltip label={<>Value of the ICP in treasury</>}>
-                  <Flex
-                    flexDirection="row"
-                    justifyContent="flex-end"
-                    minWidth="min-content"
-                  >
-                    {' '}
-                    Treasury
-                    <SortArrow
-                      sortConfig={sortConfig}
-                      requestSort={requestSort}
-                      sortKey="treasury"
-                    />{' '}
-                  </Flex>
-                </Tooltip>
-              </Th>
-            </Tr>
-          </Thead>
+            key="default_table_header"
+          />
           <Tbody
             sx={{
               '& td:nth-of-type(1)': {
@@ -842,26 +615,256 @@ const SortArrow = ({ sortConfig, sortKey, requestSort }) => {
   );
 };
 
-const useDetectSticky = (ref, observerSettings = { threshold: [1] }) => {
-  const [isSticky, setIsSticky] = useState(false);
-  const newRef = useRef();
-  ref ||= newRef;
-
-  // mount
-  useEffect(() => {
-    const cachedRef = ref.current,
-      observer = new IntersectionObserver(
-        ([e]) => setIsSticky(e.intersectionRatio < 1),
-        observerSettings
-      );
-
-    observer.observe(cachedRef);
-
-    // unmount
-    return () => {
-      observer.unobserve(cachedRef);
-    };
-  }, []);
-
-  return [isSticky, ref, setIsSticky];
+const TableHeader = ({
+  firstColumnWidth,
+  tableHeaderRef,
+  sortConfig,
+  requestSort,
+  filters,
+  priceChangePeriodOnChange,
+  changeKey,
+  volumePeriodOnChange,
+  volumeKey,
+  chartPeriodOnChange,
+  key,
+  sx,
+}) => {
+  return (
+    <Thead
+      key={key}
+      sx={{
+        '& th': {
+          position: 'sticky',
+          top: 0,
+          zIndex: 1,
+          backgroundColor: useColorModeValue('white', 'gray.900'),
+        },
+        height: '50px',
+        backgroundColor: 'white',
+        '& th:nth-of-type(1)': {
+          position: 'sticky',
+          left: 0,
+          zIndex: 3,
+        },
+        '& th:nth-of-type(2)': {
+          position: 'sticky',
+          left: firstColumnWidth, // Adjust based on the width of the first column
+          zIndex: 3,
+        },
+        ...sx,
+      }}
+      ref={tableHeaderRef}
+    >
+      <Tr>
+        <Th w={firstColumnWidth}>#</Th>
+        <Th w="130px">Name</Th>
+        <Th className="symbol" w="80px">
+          Symbol
+        </Th>
+        <Th isNumeric w="120px">
+          <Flex
+            flexDirection="row"
+            justifyContent="flex-end"
+            minWidth="min-content"
+          >
+            {' '}
+            Price{' '}
+            <SortArrow
+              sortConfig={sortConfig}
+              requestSort={requestSort}
+              sortKey="price"
+            />{' '}
+          </Flex>
+        </Th>
+        <Th textAlign="start" w="100px">
+          <Flex
+            flexDirection="row"
+            justifyContent="flex-end"
+            minWidth="min-content"
+          >
+            <Menu>
+              <MenuButton
+                sx={{
+                  //TO keep font style consitent with <Th>
+                  fontWeight: 'inherit',
+                  fontSize: 'inherit',
+                  color: 'inherit',
+                }}
+              >
+                {period2header(filters.priceChangePeriod, '%')}
+              </MenuButton>
+              <MenuList>
+                {/* MenuItems are not rendered unless Menu is open */}
+                <MenuItem onClick={() => priceChangePeriodOnChange(31)}>
+                  31 Day %
+                </MenuItem>
+                <MenuItem onClick={() => priceChangePeriodOnChange(7)}>
+                  7 Day %
+                </MenuItem>
+                <MenuItem onClick={() => priceChangePeriodOnChange(1)}>
+                  24H %
+                </MenuItem>
+              </MenuList>
+            </Menu>
+            <SortArrow
+              sortConfig={sortConfig}
+              requestSort={requestSort}
+              sortKey={changeKey}
+            />
+          </Flex>
+        </Th>
+        <Th isNumeric w="220px" bg="red.500">
+          <Flex
+            flexDirection="row"
+            justifyContent="flex-end"
+            minWidth="min-content"
+            w="100%"
+            // bg='red'
+          >
+            Market Cap
+            <SortArrow
+              sortConfig={sortConfig}
+              requestSort={requestSort}
+              sortKey="marketcap"
+            />{' '}
+          </Flex>
+        </Th>
+        <Th isNumeric w="150px">
+          <Flex
+            flexDirection="row"
+            justifyContent="flex-end"
+            minWidth="min-content"
+          >
+            <Menu>
+              <MenuButton
+                sx={{
+                  //TO keep font style consitent with <Th>
+                  fontWeight: 'inherit',
+                  fontSize: 'inherit',
+                  color: 'inherit',
+                }}
+              >
+                {filters.volumePeriod == 1 ? 24 : filters.volumePeriod}
+                {filters.volumePeriod == 1 ? 'H' : 'D'} Volume
+              </MenuButton>
+              <MenuList>
+                {/* MenuItems are not rendered unless Menu is open */}
+                <MenuItem onClick={() => volumePeriodOnChange(31)}>
+                  31 Day
+                </MenuItem>
+                <MenuItem onClick={() => volumePeriodOnChange(7)}>
+                  7 Day
+                </MenuItem>
+                <MenuItem onClick={() => volumePeriodOnChange(1)}>24H</MenuItem>
+              </MenuList>
+            </Menu>
+            <SortArrow
+              sortConfig={sortConfig}
+              requestSort={requestSort}
+              sortKey={volumeKey}
+            />
+          </Flex>
+          {/* <Flex flexDirection="row" justifyContent="flex-end" minWidth="min-content">
+                  24h Volume<SortArrow sortConfig={sortConfig} requestSort={requestSort} sortKey="volume24" /> </Flex> */}
+        </Th>
+        <Th isNumeric w="170px">
+          <Tooltip
+            label={
+              <>
+                Circulating supply = total - treasury
+                <br />
+                Unlocked circulating supply = total - treasury - locked
+              </>
+            }
+          >
+            <Flex
+              flexDirection="row"
+              justifyContent="flex-end"
+              minWidth="min-content"
+            >
+              {' '}
+              Circulating supply
+              <SortArrow
+                sortConfig={sortConfig}
+                requestSort={requestSort}
+                sortKey="circulating"
+              />{' '}
+            </Flex>
+          </Tooltip>
+        </Th>
+        <Th w={'100px'}>
+          <Menu>
+            <MenuButton
+              sx={{
+                //TO keep font style consitent with <Th>
+                fontWeight: 'inherit',
+                fontSize: 'inherit',
+                color: 'inherit',
+              }}
+            >
+              {' '}
+              LAST {filters.chartPeriod == 1 ? 24 : filters.chartPeriod}{' '}
+              {filters.chartPeriod == 1 ? 'HRS' : 'DAYS'}
+            </MenuButton>
+            <MenuList>
+              <MenuItem onClick={() => chartPeriodOnChange(1)}>24H</MenuItem>
+              <MenuItem onClick={() => chartPeriodOnChange(7)}>7D</MenuItem>
+              <MenuItem onClick={() => chartPeriodOnChange(31)}>31D</MenuItem>
+            </MenuList>
+          </Menu>
+        </Th>
+        <Th isNumeric w="120px">
+          <Tooltip label="Capital required to reduce the price by 50%">
+            <Flex
+              flexDirection="row"
+              justifyContent="flex-end"
+              minWidth="min-content"
+            >
+              {' '}
+              Depth -50%
+              <SortArrow
+                sortConfig={sortConfig}
+                requestSort={requestSort}
+                sortKey="depth50Bid"
+              />{' '}
+            </Flex>
+          </Tooltip>
+        </Th>
+        <Th isNumeric w="120px">
+          <Tooltip label="Capital required to increase the price by 100%">
+            <Flex
+              flexDirection="row"
+              justifyContent="flex-end"
+              minWidth="min-content"
+            >
+              {' '}
+              Depth +100%
+              <SortArrow
+                sortConfig={sortConfig}
+                requestSort={requestSort}
+                sortKey="depth50Ask"
+              />{' '}
+            </Flex>
+          </Tooltip>
+        </Th>
+        <Th>
+          <Tooltip label={<>Value of the ICP in treasury</>}>
+            <Flex
+              flexDirection="row"
+              justifyContent="flex-end"
+              minWidth="min-content"
+            >
+              {' '}
+              Treasury
+              <SortArrow
+                sortConfig={sortConfig}
+                requestSort={requestSort}
+                sortKey="treasury"
+              />{' '}
+            </Flex>
+          </Tooltip>
+        </Th>
+      </Tr>
+    </Thead>
+  );
 };
