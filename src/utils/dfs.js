@@ -87,6 +87,8 @@ export function calculatePathPrice(inc, getPrice, time, interval='t1h') {
   try {
     let path = inc.tokens;
     let pathPrice = 1; // Initialize to 1 as we'll be multiplying prices
+    let pathHigh = 1; // Initialize to 1 for multiplication
+    let pathLow = 1;  // Initialize to 1 for multiplication
     let volume24h = 0;
     let depthBid = 0;
     let depthAsk = 0;
@@ -95,9 +97,18 @@ export function calculatePathPrice(inc, getPrice, time, interval='t1h') {
 
       const p = x.p;
       let price = (p[2] + p[3]) / 2;
-      if (x.rev) price = 1 / price;
+      let high = p[0];
+      let low = p[1];
+
+      if (x.rev) {
+        price = 1 / price;
+        high = 1 / p[1]; // Reciprocal of low
+        low = 1 / p[0];  // Reciprocal of high
+      }
 
       pathPrice *= price;
+      pathHigh *= high;
+      pathLow *= low;
 
       if (i === 0) {
         volume24h = x.p[4];
@@ -110,13 +121,15 @@ export function calculatePathPrice(inc, getPrice, time, interval='t1h') {
     depthBid = depthBid * pathPrice;
     depthAsk = depthAsk * pathPrice;
 
-    return { price: pathPrice, volume24h, depthBid, depthAsk };
+    return { price: pathPrice, volume24h, depthBid, depthAsk, high: pathHigh, low: pathLow };
   } catch (e) {
     return {
       price: undefined,
       volume24h: undefined,
       depthBid: undefined,
       depthAsk: undefined,
+      high: undefined,
+      low: undefined,
     };
   }
 }
