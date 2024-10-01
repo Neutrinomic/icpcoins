@@ -7,7 +7,7 @@ export function SwitchCurrency() {
   const baseCurrency = useSelector(state => state.config.baseCurrency);
 
   return (
-    <ButtonGroup isAttached={true} size="xs">
+    <ButtonGroup isAttached={true} size="sm">
       <Button
         // size="sm"
         variant={baseCurrency === 0 ? 'solid' : 'outline'}

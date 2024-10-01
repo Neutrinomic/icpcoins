@@ -156,10 +156,10 @@ export const TokenPage = ({ articles }) => {
       {/* <Articles articles={articles} /> */}
 
       <Box
-        w="calc(100% - 10px)"
+        w="100%" //"calc(100% - 10px)"
         overflowX="auto"
         overflowY="auto"
-        borderWidth="0.5px"
+        // borderWidth="0.5px"
       >
         <TokenList tokens={tokens} key={baseCurrency} />
       </Box>
@@ -366,7 +366,11 @@ export const TokenList = ({ tokens, baseCurrency }) => {
         <Table
           variant="simple"
           size="sm"
-          sx={{ tableLayout: 'auto', minWidth: '400px' }}
+          sx={{
+            tableLayout: 'auto',
+            minWidth: '400px',
+            backgroundColor: 'gray.900',
+          }}
         >
           <TableHeader
             {...{
@@ -389,13 +393,13 @@ export const TokenList = ({ tokens, baseCurrency }) => {
                 position: 'sticky',
                 left: 0,
                 zIndex: 2,
-                backgroundColor: 'gray.600',
+                //backgroundColor: 'gray.800',
               },
               '& td:nth-of-type(2)': {
                 position: 'sticky',
                 left: firstColumnWidth, // Adjust based on the width of the first column
                 zIndex: 2,
-                backgroundColor: 'gray.900',
+                backgroundColor: 'gray.800',
               },
             }}
           >
