@@ -17,6 +17,7 @@ import { TermsPage } from './pages/terms';
 import theme from './theme.js';
 import { TopCans } from './components/TopCans';
 import { Proposals } from './components/Proposals';
+import SideBar from './components/SideBar.js';
 
 function App() {
   const ready = useSelector(
@@ -49,9 +50,11 @@ function App() {
           height="100%"
           overflowY="auto"
           p="4"
+          pr={2}
           // bg="gray.100"
         >
           <Logo />
+          <SideBar />
         </Box>
         <Box
           flex="1"
@@ -61,8 +64,9 @@ function App() {
           // bg="gray.200"
         >
           <HStack w="100%">
-            <SwitchCurrency />
             <Spacer />
+            <SwitchCurrency />
+
             <ColorModeSwitcher justifySelf="flex-end" />
           </HStack>
           <Routes>
