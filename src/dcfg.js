@@ -452,9 +452,7 @@ Neutrinite DAO ICPCoins - the premier portal for intricate insights into the dyn
   },
   GLDGov: {
     links: {
-      dApp: '',
       Dashboard: 'https://dashboard.gold-dao.org/',
-      Discord: '',
       Github: 'https://github.com/GoldDAO',
       Learn: 'https://medium.com/@GoldDAO',
       Roadmap: 'https://medium.com/@GoldDAO/gold-dao-building-a-progressive-roadmap-for-a-decentralized-gold-ecosystem-a00864e0a116',
@@ -467,7 +465,6 @@ Neutrinite DAO ICPCoins - the premier portal for intricate insights into the dyn
     links: {
       dApp: 'https://trax.so/',
       Dashboard: 'https://dashboard.internetcomputer.org/sns/ecu3s-hiaaa-aaaaq-aacaq-cai',
-      Discord: '',
       Github: 'https://github.com/onlyontrax',
       Learn: 'https://wiki.trax.so/',
       Roadmap: 'https://wiki.trax.so/roadmap',
@@ -508,7 +505,7 @@ TAGGR is governed by its DAO members using TAGGR tokens.
     links: {
       dApp: 'https://iclight.io/icdex',
       Dashboard: 'https://cmqwp-uiaaa-aaaaj-aihzq-cai.raw.ic0.app/saga',
-      Discord: '',
+      Discord: 'https://discord.com/invite/FQZFGGq7zv',
       Github: 'https://github.com/iclighthouse',
       Learn: 'https://iclight.house/',
       Roadmap: 'https://iclight.io/icsns/proposals?id=hhaaz-2aaaa-aaaaq-aacla-cai',
@@ -529,7 +526,6 @@ It also supports order book trading.
     links: {
       dApp: 'https://app.icpswap.com',
       Dashboard: 'https://dashboard.internetcomputer.org/sns/csyra-haaaa-aaaaq-aacva-cai',
-      Discord: '',
       Github: 'https://github.com/ICPSwap-Labs',
       Learn: 'https://www.icpswap.com/',
       Roadmap: 'https://www.icpswap.com/',
@@ -566,7 +562,6 @@ The retro fusion Operating System empowering users on the Internet Computer. Ful
     links: {
       dApp: 'https://waterneuron.fi/',
       Dashboard: 'https://dashboad.internetcomputer.org/sns/jmod6-4iaaa-aaaaq-aadkq-cai',
-      Discord: '',
       Github: 'https://github.com/WaterNeuron',
       Learn: 'https://docs.waterneuron.fi/',
       Roadmap: 'https://waterneuron.fi/',
@@ -766,15 +761,8 @@ ICP Inscription (ICPI). An Experimental, Fair, Decentralized, and Community-Driv
   },
   MOTOKO: {
     links: {
-      dApp: '',
       Dashboard: 'https://dashboard.internetcomputer.org/sns/ko36b-myaaa-aaaaq-aadbq-cai',
-      Discord: '',
-      Github: '',
-      Learn: '',
-      Roadmap: '',
       Website: 'https://2uktw-yiaaa-aaaah-adwxq-cai.icp0.io/',
-      Whitepaper: '',
-      X: '',
     },
   article:`
 # About
