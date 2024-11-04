@@ -26,7 +26,6 @@ export const dcfg = {
 export const tokensCfg = {
   DKP: {
     links: {
-      dApp: '',
       Dashboard: 'https://dashboard.internetcomputer.org/sns/zxeu2-7aaaa-aaaaq-aaafa-cai',
       Discord: 'https://discord.gg/dragginz',
       Github: 'https://github.com/dragginzgame',
