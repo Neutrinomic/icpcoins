@@ -475,7 +475,7 @@ TRAX enables music artists to retain full ownership of their content and monetis
   TAGGR: {
     links: {
       dApp: 'https://6qfxa-ryaaa-aaaai-qbhsq-cai.ic0.app/',
-      Dashboard: 'https://https://6qfxa-ryaaa-aaaai-qbhsq-cai.icp0.io/#/dashboard',
+      Dashboard: 'https://6qfxa-ryaaa-aaaai-qbhsq-cai.icp0.io/#/dashboard',
       Github: 'https://github.com/TaggrNetwork',
       Learn: 'https://taggr.network/#/whitepaper',
       Roadmap: 'https://taggr.network/#/roadmap',
